@@ -1,0 +1,107 @@
+﻿@{
+    ViewData["Title"] = "Too Many Requests";
+    Layout = null;
+}
+
+@* <h1>Slow Down 😓</h1>
+<p>You’ve made too many requests in a short period of time.</p>
+<p>Please wait a minute and try again.</p> *@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oops! Something went wrong</title>
+    <link href="~/css/error_style.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="background-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <div class="particles" id="particles"></div>
+
+    <div class="error-container">
+        <div class="error-code">Slow Down</div>
+        <h1 class="error-message">You’ve made too many requests in a short period of time.</h1>
+        <p class="error-description">
+            Please wait a minute and try again.
+        </p>
+        <div class="button-group">
+            <button class="btn btn-primary" onclick="goHome()">Take Me Home</button>
+            <button class="btn btn-secondary" onclick="goBack()">Go Back</button>
+        </div>
+    </div>
+
+    <script>
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    
+                    // Random size between 2-8px
+                    const size = Math.random() * 6 + 2;
+                    particle.style.width = size + 'px';
+                    particle.style.height = size + 'px';
+                    
+                    // Random horizontal position
+                    particle.style.left = Math.random() * 100 + '%';
+                    
+                    // Random animation duration
+                    particle.style.animationDuration = (Math.random() * 8 + 5) + 's';
+                    particle.style.animationDelay = Math.random() * 5 + 's';
+                    
+                    particlesContainer.appendChild(particle);
+                    
+                    // Remove particle after animation
+                    setTimeout(() => {
+                        particle.remove();
+                    }, 15000);
+                }, i * 100);
+            }
+        }
+
+        // Button functions
+        function goHome() {
+            // Add a subtle animation before redirect
+            document.querySelector('.error-container').style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                window.location.href = '/Base/Home';
+            }, 300);
+        }
+
+        function goBack() {
+            document.querySelector('.error-container').style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                window.history.back();
+            }, 300);
+        }
+
+        // Initialize particles
+        createParticles();
+        
+        // Recreate particles periodically
+        setInterval(createParticles, 8000);
+
+        // Add mouse movement effect
+        document.addEventListener('mousemove', (e) => {
+            const shapes = document.querySelectorAll('.shape');
+            const mouseX = e.clientX / window.innerWidth;
+            const mouseY = e.clientY / window.innerHeight;
+            
+            shapes.forEach((shape, index) => {
+                const speed = (index + 1) * 0.02;
+                const x = (mouseX - 0.5) * 30 * speed;
+                const y = (mouseY - 0.5) * 30 * speed;
+                shape.style.transform = `translate(${x}px, ${y}px)`;
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1062 @@
+﻿@using Newtonsoft.Json
+@model RecoveryDTO
+@{
+    ViewData["Title"] = "Account Recovery Setup";
+    var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+}
+<div class="container">
+    <div class="header">
+        <h1><i class="fas fa-shield-alt"></i> Account Recovery Setup</h1>
+        <p>Secure your account with recovery methods</p>
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="form-tabs">
+        <button id="btn1" class="tab-button @(Model.FormName=="email"?"active":"")" onclick="switchTab('email')">
+            <i class="fas fa-envelope"></i> Email
+        </button>
+        <button id="btn2" class="tab-button @(Model.FormName=="phone"?"active":"")" onclick="switchTab('phone')">
+            <i class="fas fa-phone"></i> Phone
+        </button>
+        <button id="btn3" class="tab-button @(Model.FormName=="sq"?"active":"")" onclick="switchTab('security')">
+            <i class="fas fa-question-circle"></i> Security Questions
+        </button>
+    </div>
+    <!-- Email Recovery Form -->
+    <div id="emailForm" class="form-container @(Model.FormName=="email"?"active":"")">
+        <form id="emailRecoveryForm" asp-controller="Account" asp-action="RecoveryForm" method="post">
+            <input name="Id" value="@userId" hidden />
+            <input name="Step" value="@Model.Step" hidden />
+            <input name="otpObject.SessionId" value="@Model.otpObject.SessionId" hidden />
+            <input name="IsReset" value="@Model.IsReset" hidden />
+            <input name="CountDown" value="@Model.CountDown" hidden />
+            @{
+                if (Model.RecovEmail != null)
+                {
+                                    <div id="emailalert" class="alert"></div>
+                                    <div class="current-email">
+                                        <div class="current-email-label">Current Recovery Email</div>
+                                        <div class="current-email-value">
+                                            <span id="currentEmailValue">@Model.RecovEmail</span>
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                }
+                else
+                {
+                                    <div class="form-group">
+                                        <label for="recoveryEmail">Recovery Email Address</label>
+                                        <div class="input-wrapper">
+                                            <input type="email" id="recoveryEmail" asp-for="@Model.Email"
+                                                   placeholder="Enter your recovery email" required>
+                                            <i class="fas fa-envelope input-icon"></i>
+                                        </div>
+                                        @if (Model.FormName == "email")
+                        {
+                                            <div>
+                                                <span class="text-danger" asp-validation-for="@Model.Email"></span>
+                                            </div>
+                        }
+                                        <div class="error-message" id="emailError"></div>
+                                        <div class="success-message" id="emailSuccess"></div>
+                                    </div>
+                }
+            }
+            <span class="text-danger" asp-validation-for="@Model.CountDown"></span>
+            <div class="verification-section" id="emailVerification">
+                <p style="text-align: center; color: #718096; margin-bottom: 20px;">
+                    Enter the 6-digit code sent to your email
+                </p>
+                <div class="verification-code">
+                    <input type="text" maxlength="1" class="code-input" data-index="0">
+                    <input type="text" maxlength="1" class="code-input" data-index="1">
+                    <input type="text" maxlength="1" class="code-input" data-index="2">
+                    <input type="text" maxlength="1" class="code-input" data-index="3">
+                    <input type="text" maxlength="1" class="code-input" data-index="4">
+                    <input type="text" maxlength="1" class="code-input" data-index="5">
+                </div>
+                <p class="text-center mb-2">
+                    <small class="text-muted">
+                        Code expires in <span class="text-success" id="countdown"></span>
+                    </small>
+                </p>
+                <div class="error-message" id="emailVerificationError"></div>
+                <button type="button" class="btn-secondary" onclick="resendCode('email')">
+                    <i class="fas fa-redo"></i> Resend Code
+                </button>
+            </div>
+            @{
+                if (Model.RecovEmail != null)
+                {
+
+                                    <button type="button" id="emailBtn" class="btn-delete">
+                                        <svg class="delete-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14zM10 11v6M14 11v6" />
+                                        </svg>
+                                        <div class="loading-spinner"></div>
+                                        <span class="btn-text">Delete This Email</span>
+                                    </button>
+                }
+                else
+                {
+                                    <button type="submit" class="btn-primary" id="emailSubmitBtn">
+                                        <div class="loading-spinner" id="emailSpinner"></div>
+                                        <span id="emailBtnText">Send Verification Code</span>
+                                    </button>
+                }
+            }
+        </form>
+    </div>
+
+    <!-- Phone Recovery Form -->
+    <div id="phoneForm" class="form-container @(Model.FormName=="phone"?"active":"")">
+        <form id="phoneRecoveryForm" asp-controller="Account" asp-action="RecoveryForm" method="post">
+
+            <input name="Id" value="@userId" hidden />
+            <input name="Step" value="@Model.Step" hidden />
+            <input name="otpObject.SessionId" value="@Model.otpObject.SessionId" hidden />
+            <input name="IsReset" value="@Model.IsReset" hidden />
+            <input name="CountDown" value="@Model.CountDown" hidden />
+            <input name="FormName" value="phone" hidden />
+            @{
+                if (Model.RecovPhone != null)
+                {
+                                    <div id="phonealert" class="alert"></div>
+
+                                    <div class="current-email">
+                                        <div class="current-email-label">Current Recovery Phone</div>
+                                        <div class="current-email-value">
+                                            <span id="currentphoneValue">@Model.RecovPhone</span>
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                }
+                else
+                {
+                                    <div class="form-group">
+                                        <label for="recoveryPhone">Recovery Phone Number</label>
+                                        <div class="input-wrapper">
+                                            <input type="" id="recoveryPhone" asp-for="@Model.PhoneNumber"
+                                                   placeholder="Enter your phone number" required>
+                                            <i class="fas fa-phone input-icon"></i>
+                                        </div>
+                                        @if (Model.FormName == "phone")
+                        {
+                                            <div>
+                                                <span class="text-danger" asp-validation-for="@Model.PhoneNumber"></span>
+                                            </div>
+                        }
+                                        <div class="error-message" id="phoneError"></div>
+                                        <div class="success-message" id="phoneSuccess"></div>
+                                    </div>
+                }
+            }
+            <span class="text-danger" asp-validation-for="@Model.CountDown"></span>
+            <div class="verification-section" id="phoneVerification">
+                <p style="text-align: center; color: #718096; margin-bottom: 20px;">
+                    Enter the 6-digit code sent to your phone
+                </p>
+                <div class="verification-code">
+                    <input type="text" maxlength="1" class="code-input" data-index="0">
+                    <input type="text" maxlength="1" class="code-input" data-index="1">
+                    <input type="text" maxlength="1" class="code-input" data-index="2">
+                    <input type="text" maxlength="1" class="code-input" data-index="3">
+                    <input type="text" maxlength="1" class="code-input" data-index="4">
+                    <input type="text" maxlength="1" class="code-input" data-index="5">
+                </div>
+                <p class="text-center mb-2">
+                    <small class="text-muted">
+                        Code expires in <span class="text-success" id="countdown2"></span>
+                    </small>
+                </p>
+                <div class="error-message" id="phoneVerificationError"></div>
+                <button type="button" class="btn-secondary" onclick="resendCode('phone')">
+                    <i class="fas fa-redo"></i> Resend Code
+                </button>
+            </div>
+            @{
+                if (Model.RecovPhone != null)
+                {
+                                    <button type="button" id="phoneBtn" class="btn-delete">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                                        </svg>
+                                        <div class="loading-spinner"></div>
+                                        <span class="btn-text">Delete This Phone</span>
+                                    </button>
+                }
+                else
+                {
+                                    <button type="submit" class="btn-primary" id="phoneSubmitBtn">
+                                        <div class="loading-spinner" id="phoneSpinner"></div>
+                                        <span id="phoneBtnText">Send Verification Code</span>
+                                    </button>
+                }
+            }
+        </form>
+    </div>
+
+    <!-- Security Questions Form -->
+    <div id="securityForm" class="form-container @(Model.FormName=="sq"?"active":"")">
+        <form id="securityQuestionsForm" asp-controller="Account" asp-action="RecoveryForm" method="post">
+            <input name="Id" value="@userId" hidden />
+
+            <div class="form-group">
+                @*                 @if (ViewData.ModelState.TryGetValue("Answers", out var qs1) && qs1.Errors.Count != 0)
+                {
+                Console.WriteLine(qs1.Errors.Count);
+                <span class="text-danger" asp-validation-for="@Model.Answers"></span>
+                } *@
+                <input name="Answers[0].Question" id="qs1" hidden />
+                <input name="Answers[1].Question" id="qs2" hidden />
+                <input name="Answers[2].Question" id="qs3" hidden />
+                <label for="question1">Security Question 1</label>
+                <select id="question1">
+                    <option value="-1">Select a question...</option>
+
+                    @foreach (var question in Model.Questions)
+                    {
+                        if (Model.Answers[0].Question == question.Value)
+                        {
+                            <option value="@question.Key" selected>@question.Value</option>
+                        }
+                        else
+                        {
+                            <option value="@question.Key">@question.Value</option>
+
+                        }
+                    }
+
+                </select>
+                <span asp-validation-for="@Model.Answers[0].Question" class="text-danger"></span>
+                <div class="error-message" id="question1Error"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="answer1">Answer 1</label>
+                <div class="input-wrapper">
+                    <input type="text" id="answer1" asp-for="@Model.Answers[0].Answer"
+                           placeholder="Enter your answer">
+                    <i class="fas fa-lock input-icon"></i>
+                </div>
+                <span asp-validation-for="@Model.Answers[0].Answer" class="text-danger"></span>
+                <div class="error-message" id="answer1Error"></div>
+            </div>
+            <div class="form-group">
+                <label for="question2">Security Question 2</label>
+                <select id="question2">
+
+                    @{
+                        if (Model.Answers[1].Question != null)
+                        {
+                                            <option value="@Model.Questions.FirstOrDefault(kvp => kvp.Value == @Model.Answers[1].Question).Key" selected>@Model.Answers[1].Question</option>
+                        }
+                        else
+                        {
+                                            <option value="-1">Select a question...</option>
+
+                        }
+                    }
+                </select>
+                <span asp-validation-for="@Model.Answers[1].Question" class="text-danger"></span>
+                <div class="error-message" id="question2Error"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="answer2">Answer 2</label>
+                <div class="input-wrapper">
+                    <input type="text" id="answer2" asp-for="@Model.Answers[1].Answer"
+                           placeholder="Enter your answer">
+                    <i class="fas fa-lock input-icon"></i>
+                </div>
+                <span asp-validation-for="@Model.Answers[1].Answer" class="text-danger"></span>
+                <div class="error-message" id="answer2Error"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="question3">Security Question 3</label>
+                <select id="question3">
+                    @{
+                        if (Model.Answers[2].Question != null)
+                        {
+                                            <option value="@Model.Questions.FirstOrDefault(kvp => kvp.Value == @Model.Answers[2].Question).Key" selected>@Model.Answers[2].Question</option>
+                        }
+                        else
+                        {
+                                            <option value="-1">Select a question...</option>
+
+                        }
+                    }
+                </select>
+                <span asp-validation-for="@Model.Answers[2].Question" class="text-danger"></span>
+
+                <div class="error-message" id="question3Error"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="answer3">Answer 3</label>
+                <div class="input-wrapper">
+                    <input type="text" id="answer3" asp-for="@Model.Answers[2].Answer"
+                           placeholder="Enter your answer">
+                    <i class="fas fa-lock input-icon"></i>
+                </div>
+                <span asp-validation-for="@Model.Answers[2].Answer" class="text-danger"></span>
+                <div class="error-message" id="answer3Error"></div>
+            </div>
+
+            <div class="security-tips">
+                <h4 style="color: #2d3748; margin-bottom: 10px; font-size: 14px;">
+                    <i class="fas fa-info-circle"></i> Security Tips:
+                </h4>
+                <ul style="color: #718096; font-size: 12px; margin-left: 20px;">
+                    <li>Choose questions with answers that won't change over time</li>
+                    <li>Avoid answers that others might easily guess</li>
+                    <li>Remember your answers are case-sensitive</li>
+                    <li>Select different questions for each slot</li>
+                </ul>
+            </div>
+            <button type="submit" class="btn-primary" id="securitySubmitBtn">
+                <div class="loading-spinner" id="securitySpinner"></div>
+                <span id="securityBtnText">Save Security Questions</span>
+            </button>
+            <br /><br />
+            <button type="button" id="securityBtn" class="btn-delete">
+                <svg class="delete-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14zM10 11v6M14 11v6" />
+                </svg>
+                <div class="loading-spinner"></div>
+                <span class="btn-text">Reset All Questions</span>
+            </button>
+        </form>
+    </div>
+
+    <!-- Success Animation -->
+    <div class="success-animation" id="successAnimation">
+        <div class="success-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h2 style="color: #2d3748; margin-bottom: 10px;">Recovery Method Added!</h2>
+        <p style="color: #718096;">Your account is now more secure with this recovery option.</p>
+        <button class="btn-primary" onclick="resetForms()" style="margin-top: 20px;">
+            Add Another Method
+        </button>
+    </div>
+
+</div>
+
+<script>
+
+    
+    const step = "@(Model.otpObject.IsSuccess.ToString().ToLower())";
+    const isReset = "@(Model.IsReset.ToString().ToLower())";
+    const isActive = "@Model.FormName";
+    let currentStep = @(Model.Step.ToString());
+    let verificationCodes = {};
+    var submitBtn, spinner, btnText, verificationSection, input, countdownInterval, countdownElement, deleteBtn, alert, delType;
+    var timeLeft = document.getElementsByName("CountDown")[0].value;
+
+    function switchTab(type) {
+        // Update tab buttons
+        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+
+        // Update form containers
+        document.querySelectorAll('.form-container').forEach(form => form.classList.remove('active'));
+        document.getElementById(type + 'Form').classList.add('active');
+        // Reset progress
+        updateProgress();
+        if (("@Model.RecovPhone" != "" && type == "phone")
+            || ("@Model.RecovEmail" != "" && type == "email")
+            || ("@Model.Answers[0].Question" != "") && type == "security") {
+
+            intiBtns(type);
+            //here to continue
+        }
+        // Update button text based on form type
+        if (type === 'email' && "@Model.RecovEmail" == "") {
+            document.getElementById('emailBtnText').textContent = 'Send Verification Code';
+        } else if (type === 'phone' && "@Model.RecovPhone" == "") {
+            document.getElementById('phoneBtnText').textContent = 'Send Verification Code';
+        } else if (type === 'security') {
+            updateSecurity(type);
+            document.getElementById('securityBtnText').textContent = 'Save Security Questions';
+        }
+
+    }
+    function updateProgress() {
+        const progress = (currentStep / 3) * 100;
+        document.getElementById('progressFill').style.width = progress + '%';
+    }
+    function updateSecurity(type) {
+        if (type == "security")
+            document.querySelectorAll('#question1, #question2, #question3').forEach((el, index) => {
+                const selectItem = document.getElementById('answer' + (index + 1));
+                console.log(el.value);
+                if (el.value == -1) {
+                    selectItem.value = "";
+                    selectItem.disabled = true;
+                }
+                else {
+                    selectItem.disabled = false;
+                }
+            });
+    }
+
+
+    if (document.getElementById('emailForm').classList.contains('active')) {
+        delType = "@Model.RecovEmail" == "" ? "" : "email";
+        if (delType == "") {
+            countdownElement = document.getElementById('countdown');
+            input = document.getElementById('recoveryEmail').value;
+            submitBtn = document.getElementById('emailSubmitBtn');
+            spinner = document.getElementById('emailSpinner');
+            btnText = document.getElementById('emailBtnText');
+            verificationSection = document.getElementById('emailVerification');
+        }
+        else {
+            intiBtns("email");
+        }
+
+    } else if (document.getElementById('phoneForm').classList.contains('active')) {
+        delType = "@Model.RecovPhone" == "" ? "" : "phone";
+        if (delType == "") {
+            countdownElement = document.getElementById('countdown2');
+            input = document.getElementById('recoveryPhone').value;
+            submitBtn = document.getElementById('phoneSubmitBtn');
+            spinner = document.getElementById('phoneSpinner');
+            btnText = document.getElementById('phoneBtnText');
+            verificationSection = document.getElementById('phoneVerification');
+        }
+    }
+    else {
+        if ("@ViewBag.fail".toString().toLowerCase() == "true") {
+            document.querySelectorAll('#question1, #question2, #question3').forEach((el, index) => {
+                el.selectedIndex = 0;
+            });
+        }
+        submitBtn = document.getElementById('securitySubmitBtn');
+        spinner = document.getElementById('securitySpinner');
+        btnText = document.getElementById('securityBtnText');
+    }
+
+    // Email form handling
+    if (currentStep >= 2) {
+        document.querySelectorAll('#btn1, #btn2, #btn3').forEach((el, index) => {
+            el.disabled = true;
+        });
+        document.getElementById(isActive == "email" ? 'recoveryEmail' : 'recoveryPhone').readOnly = true;
+
+
+        if (currentStep == 4) {
+            // Simulate saving security questions
+            showLoading(submitBtn, spinner, btnText, 'Saving...');
+
+            setTimeout(() => {
+                updateProgress();
+                showSuccessAnimation();
+            }, 2000);
+        }
+        else if (currentStep == 2) {
+
+            runCountdown();
+            if (isReset === "true") {
+                hideLoading(submitBtn, spinner, btnText, 'Verify Code');
+                verificationSection.classList.add('active');
+                showSuccess(isActive + 'Success', 'New verification code sent to your ' + isActive + ' ' + input);
+            }
+            // Verify code
+            else {
+                showLoading(submitBtn, spinner, btnText, 'Sending Code...');
+
+                setTimeout(() => {
+                    hideLoading(submitBtn, spinner, btnText, 'Verify Code');
+                    verificationSection.classList.add('active');
+                    updateProgress();
+                    showSuccess(isActive + 'Success', 'Verification code sent to ' + input);
+                }, 2000);
+            }
+
+        }
+        else if (currentStep == 3) {
+            countdownInterval = setInterval(updateCountdown, 1000);
+            if (step === "false") {
+                hideLoading(submitBtn, spinner, btnText, 'Verify Code');
+                verificationSection.classList.add('active');
+            }
+            else {
+                showLoading(submitBtn, spinner, btnText, 'Verifying...');
+                setTimeout(() => {
+                    // Simulate successful verification
+                    updateProgress();
+                    showSuccessAnimation();
+                    hideLoading(submitBtn, spinner, btnText, 'Send Verification Code');
+                }, 1500);
+            }
+        }
+    }
+
+    document.getElementById('emailRecoveryForm').addEventListener('submit', function (e) {
+
+        e.preventDefault();
+
+        input = document.getElementById('recoveryEmail').value;
+        if (currentStep == 1) {
+            const recovMail = "@Model.RecovEmail";
+            if (recovMail == null) {
+                // Validate email
+                if (!validateEmail(input)) {
+                    showError('emailError', 'Please enter a valid email address');
+                    return;
+                }
+            }
+            // Simulate sending verification code
+
+            this.submit();
+        } else if (currentStep == 2 || (currentStep == 3 && step === "false")) {
+            // Verify code
+
+            const code = getVerificationCode();
+            if (code.length !== 6) {
+                showError('emailVerificationError', 'Please enter the complete 6-digit code');
+                return;
+            }
+            document.getElementsByName("CountDown")[0].value = timeLeft;
+            const hiddInput = document.createElement('input');
+            hiddInput.type = 'hidden';
+            hiddInput.name = 'OtpCode';
+            hiddInput.value = code;
+            this.appendChild(hiddInput);
+            this.submit();
+        }
+    });
+
+    document.getElementById('phoneRecoveryForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        input = document.getElementById('recoveryPhone').value;
+
+        if (currentStep === 1) {
+            // Validate phone
+            if (!validatePhone(input)) {
+                showError('phoneError', 'Please enter a valid phone number');
+                return;
+            }
+
+            this.submit();
+            // Simulate sending verification code
+
+        } else if (currentStep == 2 || (currentStep == 3 && step === "false")) {
+            // Verify code
+            const code = getVerificationCode();
+            if (code.length !== 6) {
+                showError('phoneVerificationError', 'Please enter the complete 6-digit code');
+                return;
+            }
+
+            const hiddInput = document.createElement('input');
+            hiddInput.type = 'hidden';
+            hiddInput.name = 'OtpCode';
+            hiddInput.value = code;
+            this.appendChild(hiddInput);
+            this.submit();
+        }
+    });
+    // Security Questions form handling
+    document.getElementById('securityQuestionsForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var hiddInput;
+        // Validate security questions
+        // if (!validateSecurityQuestions()) {
+        //     return;
+        // }
+
+        document.querySelectorAll('#qs1, #qs2, #qs3').forEach((el, index) => {
+            const selectItem = document.getElementById('question' + (index + 1));
+            el.value = selectItem.options[selectItem.selectedIndex].text;
+        });
+
+        hiddInput = document.createElement('input');
+        hiddInput.type = 'hidden';
+        hiddInput.name = 'FormName';
+        hiddInput.value = 'sq';
+        this.appendChild(hiddInput);
+
+        this.submit();
+
+
+    });
+    function validateSecurityQuestions() {
+        const questions = [
+            document.getElementById('question1').value,
+            document.getElementById('question2').value,
+            document.getElementById('question3').value
+        ];
+
+        const answers = [
+            document.getElementById('answer1').value.trim(),
+            document.getElementById('answer2').value.trim(),
+            document.getElementById('answer3').value.trim()
+        ];
+
+        let isValid = true;
+
+        // Check if all questions are selected
+        questions.forEach((question, index) => {
+            const questionNum = index + 1;
+            if (!question) {
+                showError(`question${questionNum}Error`, 'Please select a security question');
+                isValid = false;
+            }
+        });
+
+        // Check if all answers are filled
+        answers.forEach((answer, index) => {
+            const answerNum = index + 1;
+            if (!answer) {
+                showError(`answer${answerNum}Error`, 'Please provide an answer');
+                isValid = false;
+            } else if (answer.length < 2) {
+                showError(`answer${answerNum}Error`, 'Answer must be at least 2 characters long');
+                isValid = false;
+            }
+        });
+
+        // Check for duplicate questions
+        const uniqueQuestions = [...new Set(questions)];
+        if (uniqueQuestions.length !== questions.length) {
+            showError('question1Error', 'Please select different questions for each slot');
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    // Add event listeners for security question dropdowns
+    document.querySelectorAll('#securityForm select').forEach(select => {
+        select.addEventListener('change', function () {
+            // Clear error when user selects an option
+            const errorId = this.id + 'Error';
+            const errorElement = document.getElementById(errorId);
+            if (errorElement) {
+                errorElement.style.display = 'none';
+            }
+        });
+    });
+
+    // Add event listeners for security answer inputs
+    document.querySelectorAll('#securityForm input[type="text"]').forEach(input => {
+        input.addEventListener('input', function () {
+            // Clear error when user types
+            const errorId = this.id + 'Error';
+            const errorElement = document.getElementById(errorId);
+            if (errorElement) {
+                errorElement.style.display = 'none';
+            }
+        });
+    });
+    // function updateSelect() {
+    //     const val = document.getElementById('question1').value;
+    //     if (val == -1) {
+    //         document.getElementById('answer1').value = "";
+    //         document.getElementById('answer1').disabled = true;
+    //     }
+    //     else {
+    //         document.getElementById('answer1').disabled = false;
+
+    //         const questions = @Html.Raw(JsonConvert.SerializeObject(Model.Questions));
+    //         // console.log("Questions dictionary:", questions);
+    //         // Example: populate a dropdown
+    //         const dropdown = document.getElementById("question2");
+    //         dropdown.innerHTML = '<option value="-1">Select a question...</option>';
+    //         for (const [key, value] of Object.entries(questions)) {
+    //             if (key != val) {
+    //                 const option = document.createElement("option");
+    //                 option.value = key;
+    //                 option.textContent = value;
+    //                 dropdown.appendChild(option);
+    //             }
+    //         }
+    //     }
+    // }
+    document.getElementById('question1').addEventListener('change', function (e) {
+        const val = this.value;
+        if (val == -1) {
+            document.getElementById('answer1').value = "";
+            document.getElementById('answer1').disabled = true;
+        }
+        else {
+            document.getElementById('answer1').disabled = false;
+        }
+        const questions = @Html.Raw(JsonConvert.SerializeObject(Model.Questions));
+        // console.log("Questions dictionary:", questions);
+        // Example: populate a dropdown
+        const dropdown = document.getElementById("question2");
+        dropdown.innerHTML = '<option value="-1">Select a question...</option>';
+        for (const [key, value] of Object.entries(questions)) {
+            if (key != val) {
+                const option = document.createElement("option");
+                option.value = key;
+                option.textContent = value;
+                dropdown.appendChild(option);
+            }
+        }
+    });
+    document.getElementById('question2').addEventListener('change', function (e) {
+        const val = this.value;
+
+        if (val == -1) {
+            document.getElementById('answer2').value = "";
+            document.getElementById('answer2').disabled = true;
+        }
+        else {
+            document.getElementById('answer2').disabled = false;
+        }
+
+        const select = document.getElementById("question2");
+        const questions = Array.from(select.options);
+
+        console.log("Questions dictionary:", questions);
+
+        // Example: populate a dropdown
+        const dropdown = document.getElementById("question3");
+        dropdown.innerHTML = '<option value="-1">Select a question...</option>';
+
+        questions.forEach(opt => {
+            if (opt.value != val && opt.value != "-1") {
+                const option = document.createElement("option");
+                option.value = opt.value;
+                option.textContent = opt.text;
+                dropdown.appendChild(option);
+            }
+        });
+    });
+    document.getElementById('question3').addEventListener('change', function (e) {
+
+        if (this.value == -1) {
+            document.getElementById('answer3').value = "";
+            document.getElementById('answer3').disabled = true;
+        }
+        else {
+            document.getElementById('answer3').disabled = false;
+        }
+    });
+    // document.querySelectorAll('.code-input').forEach((input, index, arr) => {
+    //     input.addEventListener('input', () => {
+    //         if (input.value && index < arr.length - 1) {
+    //             arr[index + 1].focus();
+    //         }
+    //     });
+    // });
+    // Code input handling
+    const codeInputs = document.querySelectorAll('.code-input');
+    codeInputs.forEach((input, index) => {
+        console.log(index);
+        input.addEventListener('input', (e) => {
+            if (e.target.value.length === 1) {
+                e.target.classList.add('filled');
+                if (index < codeInputs.length - 1) {
+                    codeInputs[index + 1].focus();
+                }
+            } else {
+                e.target.classList.remove('filled');
+            }
+        });
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                codeInputs[index - 1].focus();
+                codeInputs[index - 1].classList.remove('filled');
+            }
+        });
+
+        input.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const paste = e.clipboardData.getData('text');
+            const digits = paste.replace(/\D/g, '').split('').slice(0, 6);
+            if (index <= 5) {
+                digits.forEach((digit, i) => {
+                    if (codeInputs[i]) {
+                        codeInputs[i].value = digit;
+                        codeInputs[i].classList.add('filled');
+                    }
+                });
+            }
+            else {
+                digits.forEach((digit, i) => {
+                    if (codeInputs[i + 6]) {
+                        codeInputs[i + 6].value = digit;
+                        codeInputs[i + 6].classList.add('filled');
+                    }
+                });
+            }
+        });
+    });
+
+
+    function validateEmail(email) {
+        const re = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+        return re.test(email);
+    }
+
+    function validatePhone(phone) {
+        const re = /^(00201|\+201|01)[0125][0-9]{8}$/;
+        return re.test(phone.replace(/\s/g, ''));
+    }
+
+    function getVerificationCode() {
+        const inputs = document.querySelectorAll('.verification-section.active .code-input');
+        return Array.from(inputs).map(input => input.value).join('');
+    }
+
+    function showError(elementId, message) {
+        const errorElement = document.getElementById(elementId);
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+
+        setTimeout(() => {
+            errorElement.style.display = 'none';
+        }, 5000);
+    }
+
+    function showSuccess(elementId, message) {
+        const successElement = document.getElementById(elementId);
+        successElement.textContent = message;
+        successElement.style.display = 'block';
+    }
+
+    function showLoading(btn, spinner, textEl, text) {
+        btn.disabled = true;
+        spinner.style.display = 'inline-block';
+        textEl.textContent = text;
+    }
+
+    function hideLoading(btn, spinner, textEl, text) {
+        btn.disabled = false;
+        spinner.style.display = 'none';
+        textEl.textContent = text;
+    }
+
+    function showSuccessAnimation() {
+        document.querySelectorAll('.form-container').forEach(form => form.classList.remove('active'));
+        document.getElementById('successAnimation').classList.add('active');
+    }
+
+    function resetForms() {
+        // Reset all forms
+        window.location.href = "/Account/RecoveryForm";
+    }
+    function runCountdown() {
+        // Countdown timer
+        // 5 minutes in seconds
+        // Update countdown every second
+        countdownInterval = setInterval(updateCountdown, 1000);
+
+    }
+    function updateCountdown() {
+
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        countdownElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+        if (timeLeft <= 0) {
+            countdownElement.textContent = 'Expired';
+            countdownElement.classList.add('countdown-expired');
+            countdownElement.classList.add('text-danger');
+
+        } else {
+            timeLeft--;
+        }
+    }
+    function resendCode(type) {
+        const button = event.target;
+        const originalText = button.innerHTML;
+
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+        setTimeout(() => {
+            button.disabled = false;
+            button.innerHTML = originalText;
+
+            if (type === 'email') {
+                document.getElementsByName("IsReset")[0].value = true;
+                document.getElementById('emailRecoveryForm').submit();
+            } else {
+                document.getElementsByName("IsReset")[1].value = true;
+                document.getElementById('phoneRecoveryForm').submit();
+            }
+        }, 2000);
+    }
+    // Initialize
+    updateProgress();
+    if (currentStep == 3 && step === "false") {
+        document.getElementById('progressFill').style.width = ((2 / 3) * 100) + '%';
+    }
+
+
+    function intiBtns(t) {
+        // section for initiating vars to securityQuestionsForm
+        //
+        deleteBtn = document.getElementById(t + 'Btn');
+        btnText = deleteBtn.querySelector('.btn-text');
+        let confirmClick = false;
+        console.log(t);
+
+        if (t == "security"){
+            deleteBtn.addEventListener('click', function () {
+                if (deleteBtn.classList.contains('loading') || deleteBtn.classList.contains('success')) {
+                    return;
+                }
+                if (!confirmClick) {
+                    // First click - ask for confirmation
+                    deleteBtn.classList.add('confirm');
+                    btnText.textContent = 'Click Again to Confirm';
+                    confirmClick = true;
+
+                    // Reset confirmation after 3 seconds
+                    setTimeout(() => {
+                        if (confirmClick && !deleteBtn.classList.contains('loading')) {
+                            deleteBtn.classList.remove('confirm');
+                            btnText.textContent = 'Reset All Questions!';
+                            confirmClick = false;
+                        }
+                    }, 3000);
+                } else {
+                    // Second click - proceed with deletion
+                    deleteBtn.classList.remove('confirm');
+                    deleteBtn.classList.add('loading');
+                    btnText.textContent = 'Reseting...';
+                    // Simulate API call
+                    setTimeout(() => {
+                        // Simulate random success/failure
+                        $.ajax({
+                            url: "/Account/RecoveryOpts",
+                            type: "POST", // or "POST"
+                            data: { type: t, id: "@userId" },
+                            success: function (response) {
+
+
+                                deleteBtn.classList.remove('loading');
+                                console.log(response.respose);
+                                if (response.respose) {
+                                    deleteBtn.classList.add('success');
+                                    btnText.textContent = 'Done';
+
+
+                                    // Hide the current email section after success
+                                    setTimeout(() => {
+                                        document.querySelector('.current-email').style.display = 'none';
+                                    }, 1500);
+                                } else {
+                                    btnText.textContent = 'Reset All Questions';
+                                    confirmClick = false;
+
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                console.error("Error:", error);
+                            }
+                        });
+
+                        setTimeout(() => {
+                            window.location.href = "/Profile/SecurityInfo";
+
+                        }, 1000);
+                    }, 2000);
+                }
+            });
+
+        }
+        else if ("@Model.RecovPhone" != "" || "@Model.RecovEmail" != "") {
+            console.log(t);
+            alert = document.getElementById(t + 'alert');
+
+            deleteBtn.addEventListener('click', function () {
+                var type = isActive == "email" ? "Email" : "Phone";
+
+                if (deleteBtn.classList.contains('loading') || deleteBtn.classList.contains('success')) {
+                    return;
+                }
+                if (!confirmClick) {
+                    // First click - ask for confirmation
+                    deleteBtn.classList.add('confirm');
+                    btnText.textContent = 'Click Again to Confirm';
+                    confirmClick = true;
+
+                    // Reset confirmation after 3 seconds
+                    setTimeout(() => {
+                        if (confirmClick && !deleteBtn.classList.contains('loading')) {
+                            deleteBtn.classList.remove('confirm');
+                            btnText.textContent = 'Delete This ' + type;
+                            confirmClick = false;
+                        }
+                    }, 3000);
+                } else {
+                    // Second click - proceed with deletion
+                    deleteBtn.classList.remove('confirm');
+                    deleteBtn.classList.add('loading');
+                    btnText.textContent = 'Deleting...';
+                    // Simulate API call
+                    setTimeout(() => {
+                        // Simulate random success/failure
+                        $.ajax({
+                            url: "/Account/RecoveryOpts",
+                            type: "POST", // or "POST"
+                            data: { type: t, id: "@userId" },
+                            success: function (response) {
+
+
+                                deleteBtn.classList.remove('loading');
+                                console.log(response.respose);
+                                if (response.respose) {
+                                    deleteBtn.classList.add('success');
+                                    btnText.textContent = type + ' Deleted';
+
+                                    // Show success message
+                                    alert.className = 'alert alert-success show';
+                                    alert.textContent = 'Recovery ' + type + ' has been successfully deleted from your account.';
+
+                                    // Hide the current email section after success
+                                    setTimeout(() => {
+                                        document.querySelector('.current-email').style.display = 'none';
+                                    }, 1500);
+                                } else {
+                                    btnText.textContent = 'Delete This ' + type;
+                                    confirmClick = false;
+
+                                    // Show error message
+                                    alert.className = 'alert alert-danger show';
+                                    alert.textContent = 'Failed to delete ' + isActive + '. Please try again later.';
+
+                                    // Hide error after 5 seconds
+                                    setTimeout(() => {
+                                        alert.classList.remove('show');
+                                    }, 5000);
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                console.error("Error:", error);
+                            }
+                        });
+
+                        setTimeout(() => {
+                            window.location.href = "/Profile/SecurityInfo";
+
+                        }, 1000);
+                    }, 2000);
+                }
+            });
+        }
+    }
+
+</script>
+@section cssFile {
+    <link href="~/css/address.css" rel="stylesheet" />
+}

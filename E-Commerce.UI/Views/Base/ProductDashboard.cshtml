@@ -1,0 +1,860 @@
+﻿@model List<ProductDTO>
+<link href="~/css/product.css" rel="stylesheet" />
+
+    <title>Product Management</title>
+<div class="table-container">
+    <div class="table-header">
+        <h1 class="table-title">Product Management</h1>
+        <div class="table-controls">
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="Search products..." id="searchInput">
+            </div>
+            <a asp-action="AddProduct" class="btn-add">
+                <i class="fas fa-plus"></i>
+                Add Product
+            </a>
+        </div>
+    </div>
+
+    <div class="table-body">
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label class="filter-label">Category</label>
+                    <select class="filter-select" id="categoryFilter" asp-items="@ViewBag.cats as SelectList">
+                        <option value="">All Categories</option>
+
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Status</label>
+                    <select class="filter-select" id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="active">Active Only</option>
+                        <option value="deleted">Deleted Only</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Stock Level</label>
+                    <select class="filter-select" id="stockFilter">
+                        <option value="">All Stock Levels</option>
+                        <option value="in-stock">In Stock</option>
+                        <option value="low-stock">Low Stock (≤10)</option>
+                        <option value="out-of-stock">Out of Stock</option>
+                        <option value="high-stock">High Stock (≥50)</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Price Range</label>
+                    <select class="filter-select" id="priceFilter">
+                        <option value="">All Prices</option>
+                        <option value="0-50">Under 50EGP</option>
+                        <option value="50-100">50EGP - 100EGP</option>
+                        <option value="100-200">100EGP - 200EGP</option>
+                        <option value="200-300">200EGP - 300EGP</option>
+                        <option value="300-500">300EGP - 400EGP</option>
+                        <option value="500+">500+ EGP</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="toggle-advanced" onclick="toggleAdvancedFilters()">
+                <i class="fas fa-cog"></i>
+                <span id="advancedToggleText">Show Advanced Filters</span>
+                <i class="fas fa-chevron-down" id="advancedChevron"></i>
+            </button>
+
+            <div class="advanced-filters hidden" id="advancedFilters">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label class="filter-label">Rating</label>
+                        <select class="filter-select" id="ratingFilter">
+                            <option value="">All Ratings</option>
+                            <option value="4.5+">4.5+ Stars</option>
+                            <option value="4.0+">4.0+ Stars</option>
+                            <option value="3.5+">3.5+ Stars</option>
+                            <option value="3.0+">3.0+ Stars</option>
+                            <option value="below-3">Below 3 Stars</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">Discount</label>
+                        <select class="filter-select" id="discountFilter">
+                            <option value="">All Products</option>
+                            <option value="has-discount">Has Discount</option>
+                            <option value="no-discount">No Discount</option>
+                            <option value="high-discount">High Discount (20%+)</option>
+                            <option value="medium-discount">Medium Discount (10-19%)</option>
+                            <option value="low-discount">Low Discount (1-9%)</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">Review Count</label>
+                        <select class="filter-select" id="reviewFilter">
+                            <option value="">All Review Counts</option>
+                            <option value="popular">Popular (100+ Reviews)</option>
+                            <option value="moderate">Moderate (50-99 Reviews)</option>
+                            <option value="new">New (Under 50 Reviews)</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">Created Date</label>
+                        <div class="date-range-container">
+                            <input type="date" class="filter-input" id="dateFrom" title="From Date">
+                            <span>to</span>
+                            <input type="date" class="filter-input" id="dateTo" title="To Date">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filter-actions">
+                <button class="btn-filter" onclick="applyFilters()">
+                    <i class="fas fa-filter"></i>
+                    Apply Filters
+                </button>
+                <button class="btn-clear" onclick="clearAllFilters()">
+                    <i class="fas fa-times"></i>
+                    Clear All
+                </button>
+            </div>
+        </div>
+
+        <div class="filter-summary" id="filterSummary">
+            <strong>Active Filters:</strong>
+            <div id="filterTags"></div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="data-table" id="productTable">
+                <thead>
+                    <tr>
+                        <th class="sortable" data-sort="id">ID</th>
+                        <th>Image</th>
+                        <th class="sortable" data-sort="name">Product Name</th>
+                        <th class="sortable" data-sort="category">Category</th>
+                        <th class="sortable" data-sort="price">Price</th>
+                        <th class="sortable" data-sort="discount">Discount</th>
+                        <th class="sortable" data-sort="rating">Rating</th>
+                        <th class="sortable" data-sort="stock">Stock</th>
+                        <th class="sortable" data-sort="created">Created</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Data will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination">
+            <div class="entries-per-page">
+                <span>Show</span>
+                <select class="entries-select" id="entriesPerPage">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <span>entries</span>
+            </div>
+
+            <div class="pagination-info" id="paginationInfo">
+                Showing 1 to 10 of 0 entries
+            </div>
+
+            <div class="pagination-controls" id="paginationControls">
+                <button class="page-btn" id="prevBtn" disabled>
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+
+                <button class="page-btn active">1</button>
+
+                <button class="page-btn" id="nextBtn" disabled>
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // Sample data
+    const sampleProducts = @Html.Raw(Json.Serialize(Model));
+
+    let currentData = [...sampleProducts];
+    let filteredData = [...sampleProducts];
+    let currentPage = @(ViewBag.PageIndex ?? 0);// ديه هتتعدل 1
+    let entriesPerPage = @(ViewBag.PageSize ?? 0); // ديه هتتعدل 10
+    let sortColumn = '';
+    let sortDirection = 'asc';
+    let activeFilters = {};
+
+    function renderTable() {
+
+        document.getElementById('entriesPerPage').value = entriesPerPage;
+
+        const tableBody = document.getElementById('tableBody');
+        const startIndex = (currentPage - 1) * entriesPerPage;
+        const endIndex = startIndex + entriesPerPage;
+        const pageData = filteredData;
+
+        console.log(pageData);
+
+        if (pageData.length === 0) {
+            tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="11" class="no-data">
+                                <i class="fas fa-inbox"></i>
+                                <div>No products found matching your criteria</div>
+                            </td>
+                        </tr>
+                    `;
+            return;
+        }
+
+        tableBody.innerHTML = pageData.map(product => `
+                    <tr>
+                        <td>${product.id}</td>
+                        <td>
+                            ${product.photoPaths && product.photoPaths.length > 0 ?
+                `<img src="${product.photoPaths[0]}" alt="${product.name}" class="product-image">` :
+                '<div class="product-image" style="background: #f8f9fa; display: flex; align-items: center; justify-content: center; color: #6c757d; width: 50px; height: 50px; border-radius: 6px;"><i class="fas fa-image"></i></div>'
+            }
+                        </td>
+                        <td>
+                            <div class="product-name" title="${product.name}">${product.name}</div>
+                            <small style="color: #6c757d;">${product.description}</small>
+                        </td>
+                        <td>
+                            <span style="background: rgba(253, 91, 68, 0.1); color: var(--primary-color); padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">
+                                        ${product.category.name}
+                            </span>
+                        </td>
+                        <td class="price-cell">
+                            ${product.currency} ${product.afterDiscount ? product.afterDiscount.toFixed(2) : product.price.toFixed(2)}
+                            ${product.discount > 0 ? `<br><small style="text-decoration: line-through; color: #6c757d;">${product.currency} ${product.price.toFixed(2)}</small>` : ''}
+                        </td>
+                        <td>
+                            ${product.discount > 0 ? `<span class="discount-badge">${product.discount}% OFF</span>` : '<span style="color: #6c757d;">-</span>'}
+                        </td>
+                        <td>
+                            <div class="rating-stars">
+                                ${generateStars(product.reviewRate)}
+                            </div>
+                            <small style="color: #6c757d;">(${product.reviewCount} reviews)</small>
+                        </td>
+                        <td>
+                            ${getStockIndicator(product.stock)}
+                        </td>
+                        <td>${new Date(product.createdOn).toLocaleDateString()}</td>
+                        <td>
+                            <span class="status-badge ${product.isDeleted ? 'status-deleted' : 'status-active'}">
+                                ${product.isDeleted ? 'Deleted' : 'Active'}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button type="button" class="btn-action btn-view" title="View Product" onclick="viewProduct(${product.id})">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button type="button" class="btn-action btn-edit" title="Edit Product" onclick="editProduct(${product.id})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button type="button" class="btn-action btn-delete" title="Delete Product" onclick="deleteProduct(${product.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+
+        updatePagination();
+    }
+
+    function generateStars(rating) {
+        const fullStars = Math.floor(rating);
+        const hasHalfStar = rating % 1 !== 0;
+        let stars = '';
+
+        for (let i = 0; i < fullStars; i++) {
+            stars += '<i class="fas fa-star"></i>';
+        }
+
+        if (hasHalfStar) {
+            stars += '<i class="fas fa-star-half-alt"></i>';
+        }
+
+        const emptyStars = 5 - Math.ceil(rating);
+        for (let i = 0; i < emptyStars; i++) {
+            stars += '<i class="far fa-star"></i>';
+        }
+
+        return stars;
+    }
+
+    function getStockIndicator(stock) {
+        if (!stock.available || stock.quantity === 0) {
+            return `<span class="stock-indicator stock-out">
+                        <i class="fas fa-times-circle"></i>
+                        Out of Stock
+                    </span>`;
+        } else if (stock.quantity <= 10) {
+            return `<span class="stock-indicator stock-low">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Low Stock (${stock.quantity})
+                    </span>`;
+        } else if (stock.quantity >= 50) {
+            return `<span class="stock-indicator stock-high">
+                        <i class="fas fa-check-circle"></i>
+                        High Stock (${stock.quantity})
+                    </span>`;
+        } else {
+            return `<span class="stock-indicator stock-medium">
+                        <i class="fas fa-info-circle"></i>
+                        In Stock (${stock.quantity})
+                    </span>`;
+        }
+    }
+
+    function updatePagination() {
+        const totalItems = @(ViewBag.ProdsSize ?? 0);//20 ديه هتتعدل
+        const totalPages = Math.ceil(totalItems / entriesPerPage);//2
+        const startItem = ((currentPage - 1) * entriesPerPage) + 1;//1
+        const endItem = Math.min(currentPage * entriesPerPage, totalItems);//10
+        document.getElementById('paginationInfo').textContent =
+            `Showing ${startItem} to ${endItem} of ${totalItems} entries`;
+
+        const paginationControls = document.getElementById('paginationControls');
+        let paginationHTML = `
+                                                    <button class="page-btn" id="prevBtn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">
+                                                        <i class="fas fa-chevron-left"></i>
+                                                    </button>
+                                                `;
+
+        for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
+            paginationHTML += `
+                                                        <button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
+                                                            ${i}
+                                                        </button>
+                                                    `;
+        }
+
+        paginationHTML += `
+                                                    <button class="page-btn" id="nextBtn" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">
+                                                        <i class="fas fa-chevron-right"></i>
+                                                    </button>
+                                                `;
+
+        paginationControls.innerHTML = paginationHTML;
+    }
+
+    function changePage(page) {
+        const totalPages = Math.ceil(@(ViewBag.ProdsSize ?? 0) / entriesPerPage);
+                        if (page >= 1 && page <= totalPages) {
+            window.location.href = `/Base/ProductDashboard?PageIndex=${page}&PageSize=${entriesPerPage}`;
+            // currentPage = page;
+            renderTable();
+        }
+    }
+
+    function sortTable(column) {
+        if (sortColumn === column) {
+            sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            sortColumn = column;
+            sortDirection = 'asc';
+        }
+
+        filteredData.sort((a, b) => {
+            let aVal = a[column];
+            let bVal = b[column];
+
+            if (column === 'category') {
+                aVal = a.categoryName;
+                bVal = b.categoryName;
+            } else if (column === 'created') {
+                aVal = new Date(a.createdOn);
+                bVal = new Date(b.createdOn);
+            } else if (column === 'rating') {
+                aVal = a.reviewRate;
+                bVal = b.reviewRate;
+            } else if (column === 'stock') {
+                aVal = a.stock.quantity;
+                bVal = b.stock.quantity;
+            } else if (column === 'price') {
+                aVal = a.afterDiscount || a.price;
+                bVal = b.afterDiscount || b.price;
+            }
+
+            if (typeof aVal === 'string') {
+                aVal = aVal.toLowerCase();
+                bVal = bVal.toLowerCase();
+            }
+
+            if (sortDirection === 'asc') {
+                return aVal > bVal ? 1 : -1;
+            } else {
+                return aVal < bVal ? 1 : -1;
+            }
+        });
+
+        updateSortHeaders();
+        currentPage = 1;
+        renderTable();
+    }
+
+    function updateSortHeaders() {
+        document.querySelectorAll('.sortable').forEach(th => {
+            th.classList.remove('sort-asc', 'sort-desc');
+            if (th.dataset.sort === sortColumn) {
+                th.classList.add(sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
+            }
+        });
+    }
+
+    function applyFilters() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+        const categoryFilter = parseInt(document.getElementById('categoryFilter').value);
+        // categoryFilter = categoryFilter.options[categoryFilter.selectedIndex].text;
+        const statusFilter = document.getElementById('statusFilter').value;
+        const priceFilter = document.getElementById('priceFilter').value;
+        const stockFilter = document.getElementById('stockFilter').value;
+        const ratingFilter = document.getElementById('ratingFilter').value;
+        const discountFilter = document.getElementById('discountFilter').value;
+        const reviewFilter = document.getElementById('reviewFilter').value;
+        const dateFrom = document.getElementById('dateFrom').value;
+        const dateTo = document.getElementById('dateTo').value;
+
+        // Reset active filters
+        activeFilters = {};
+
+        filteredData = sampleProducts.filter(product => {
+            // Search filter
+            const matchesSearch = !searchTerm ||
+                product.name.toLowerCase().includes(searchTerm) ||
+                product.description.toLowerCase().includes(searchTerm) ||
+                product.categoryName.toLowerCase().includes(searchTerm);
+            // Category filter
+            const matchesCategory = !categoryFilter || product.categoryId === categoryFilter;
+            if (categoryFilter) activeFilters.category = product.categoryName;
+            console.log(product.categoryId);
+            // Status filter
+            const matchesStatus = !statusFilter ||
+                (statusFilter === 'active' && !product.isDeleted) ||
+                (statusFilter === 'deleted' && product.isDeleted);
+            if (statusFilter) activeFilters.status = statusFilter === 'active' ? 'Active' : 'Deleted';
+
+            // Stock filter
+            let matchesStock = true;
+            if (stockFilter) {
+                const qty = product.stock.quantity;
+                const available = product.stock.available;
+
+                switch (stockFilter) {
+                    case 'in-stock':
+                        matchesStock = available && qty > 0;
+                        activeFilters.stock = 'In Stock';
+                        break;
+                    case 'low-stock':
+                        matchesStock = available && qty <= 10 && qty > 0;
+                        activeFilters.stock = 'Low Stock';
+                        break;
+                    case 'out-of-stock':
+                        matchesStock = !available || qty === 0;
+                        activeFilters.stock = 'Out of Stock';
+                        break;
+                    case 'high-stock':
+                        matchesStock = available && qty >= 50;
+                        activeFilters.stock = 'High Stock';
+                        break;
+                }
+            }
+
+            // Price filter
+            let matchesPrice = true;
+            if (priceFilter) {
+                const price = product.afterDiscount || product.price;
+                switch (priceFilter) {
+                    case '0-50':
+                        matchesPrice = price < 50;
+                        activeFilters.price = 'Under $50';
+                        break;
+                    case '50-100':
+                        matchesPrice = price >= 50 && price < 100;
+                        activeFilters.price = '$50 - $100';
+                        break;
+                    case '100-200':
+                        matchesPrice = price >= 100 && price < 200;
+                        activeFilters.price = '$100 - $200';
+                        break;
+                    case '200-300':
+                        matchesPrice = price >= 200 && price < 300;
+                        activeFilters.price = '$200 - $300';
+                        break;
+                    case '300-500':
+                        matchesPrice = price >= 300 && price < 500;
+                        activeFilters.price = '$300 - $500';
+                        break;
+                    case '500+':
+                        matchesPrice = price >= 500;
+                        activeFilters.price = '$500+';
+                        break;
+                }
+            }
+
+            // Rating filter
+            let matchesRating = true;
+            if (ratingFilter) {
+                const rating = product.reviewRate;
+                switch (ratingFilter) {
+                    case '4.5+':
+                        matchesRating = rating >= 4.5;
+                        activeFilters.rating = '4.5+ Stars';
+                        break;
+                    case '4.0+':
+                        matchesRating = rating >= 4.0;
+                        activeFilters.rating = '4.0+ Stars';
+                        break;
+                    case '3.5+':
+                        matchesRating = rating >= 3.5;
+                        activeFilters.rating = '3.5+ Stars';
+                        break;
+                    case '3.0+':
+                        matchesRating = rating >= 3.0;
+                        activeFilters.rating = '3.0+ Stars';
+                        break;
+                    case 'below-3':
+                        matchesRating = rating < 3.0;
+                        activeFilters.rating = 'Below 3 Stars';
+                        break;
+                }
+            }
+
+            // Discount filter
+            let matchesDiscount = true;
+            if (discountFilter) {
+                const discount = product.discount;
+                switch (discountFilter) {
+                    case 'has-discount':
+                        matchesDiscount = discount > 0;
+                        activeFilters.discount = 'Has Discount';
+                        break;
+                    case 'no-discount':
+                        matchesDiscount = discount === 0;
+                        activeFilters.discount = 'No Discount';
+                        break;
+                    case 'high-discount':
+                        matchesDiscount = discount >= 20;
+                        activeFilters.discount = 'High Discount (20%+)';
+                        break;
+                    case 'medium-discount':
+                        matchesDiscount = discount >= 10 && discount < 20;
+                        activeFilters.discount = 'Medium Discount (10-19%)';
+                        break;
+                    case 'low-discount':
+                        matchesDiscount = discount > 0 && discount < 10;
+                        activeFilters.discount = 'Low Discount (1-9%)';
+                        break;
+                }
+            }
+
+            // Review count filter
+            let matchesReviews = true;
+            if (reviewFilter) {
+                const reviewCount = product.reviewCount;
+                switch (reviewFilter) {
+                    case 'popular':
+                        matchesReviews = reviewCount >= 100;
+                        activeFilters.reviews = 'Popular (100+ Reviews)';
+                        break;
+                    case 'moderate':
+                        matchesReviews = reviewCount >= 50 && reviewCount < 100;
+                        activeFilters.reviews = 'Moderate (50-99 Reviews)';
+                        break;
+                    case 'new':
+                        matchesReviews = reviewCount < 50;
+                        activeFilters.reviews = 'New (Under 50 Reviews)';
+                        break;
+                }
+            }
+            
+            // Date range filter
+            let matchesDate = true;
+            if (dateFrom || dateTo) {
+                const productDate = new Date(product.createdOn);
+
+                if (dateFrom) {
+                    const fromDate = new Date(dateFrom);
+                    matchesDate = matchesDate && productDate >= fromDate;
+
+                }
+                if (dateTo) {
+                    const toDate = new Date(dateTo);
+                    toDate.setHours(23, 59, 59, 999); // Include the entire day
+                    matchesDate = matchesDate && productDate <= toDate;
+
+                }
+                if (dateFrom || dateTo) {
+                    activeFilters.dateRange = `${dateFrom || 'Start'} to ${dateTo || 'End'}`;
+                }
+
+            }
+            // Search term
+            if (searchTerm) {
+                activeFilters.search = searchTerm;
+            }
+
+            return matchesSearch && matchesCategory && matchesStatus && matchesStock &&
+                matchesPrice && matchesRating && matchesDiscount && matchesReviews && matchesDate;
+        });
+
+        currentPage = 1;
+        updateFilterSummary();
+        renderTable();
+    }
+
+    function updateFilterSummary() {
+        const filterSummary = document.getElementById('filterSummary');
+        const filterTags = document.getElementById('filterTags');
+
+        if (Object.keys(activeFilters).length === 0) {
+            filterSummary.classList.remove('active');
+            return;
+        }
+
+        filterSummary.classList.add('active');
+        filterTags.innerHTML = Object.entries(activeFilters).map(([key, value]) => `
+                    <span class="filter-tag">
+                        ${key === 'search' ? 'Search: ' : ''}${value}
+                        <button onclick="removeFilter('${key}')" title="Remove filter">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </span>
+                `).join('');
+    }
+
+    function removeFilter(filterKey) {
+        // Clear the corresponding form field
+        switch (filterKey) {
+            case 'search':
+                document.getElementById('searchInput').value = '';
+                break;
+            case 'category':
+                document.getElementById('categoryFilter').value = '';
+                break;
+            case 'status':
+                document.getElementById('statusFilter').value = '';
+                break;
+            case 'stock':
+                document.getElementById('stockFilter').value = '';
+                break;
+            case 'price':
+                document.getElementById('priceFilter').value = '';
+                break;
+            case 'rating':
+                document.getElementById('ratingFilter').value = '';
+                break;
+            case 'discount':
+                document.getElementById('discountFilter').value = '';
+                break;
+            case 'reviews':
+                document.getElementById('reviewFilter').value = '';
+                break;
+            case 'dateRange':
+                document.getElementById('dateFrom').value = '';
+                document.getElementById('dateTo').value = '';
+                break;
+        }
+
+        applyFilters();
+    }
+
+    function clearAllFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('categoryFilter').value = '';
+        document.getElementById('statusFilter').value = '';
+        document.getElementById('stockFilter').value = '';
+        document.getElementById('priceFilter').value = '';
+        document.getElementById('ratingFilter').value = '';
+        document.getElementById('discountFilter').value = '';
+        document.getElementById('reviewFilter').value = '';
+        document.getElementById('dateFrom').value = '';
+        document.getElementById('dateTo').value = '';
+
+        activeFilters = {};
+        filteredData = [...sampleProducts];
+        currentPage = 1;
+        updateFilterSummary();
+        renderTable();
+    }
+
+    function toggleAdvancedFilters() {
+        const advancedFilters = document.getElementById('advancedFilters');
+        const toggleText = document.getElementById('advancedToggleText');
+        const chevron = document.getElementById('advancedChevron');
+
+        if (advancedFilters.classList.contains('hidden')) {
+            advancedFilters.classList.remove('hidden');
+            toggleText.textContent = 'Hide Advanced Filters';
+            chevron.classList.remove('fa-chevron-down');
+            chevron.classList.add('fa-chevron-up');
+        } else {
+            advancedFilters.classList.add('hidden');
+            toggleText.textContent = 'Show Advanced Filters';
+            chevron.classList.remove('fa-chevron-up');
+            chevron.classList.add('fa-chevron-down');
+        }
+    }
+
+    //Event Listeners
+    document.getElementById('searchInput').addEventListener('input', applyFilters);
+    document.getElementById('entriesPerPage').addEventListener('change', function () {
+        entriesPerPage = parseInt(this.value);
+        currentPage = 1;
+        window.location.href = `/Base/ProductDashboard?PageIndex=${1}&PageSize=${entriesPerPage}`;
+
+        renderTable();
+    });
+
+    document.querySelectorAll('.sortable').forEach(th => {
+        th.addEventListener('click', () => sortTable(th.dataset.sort));
+    });
+
+    // Action Functions
+    function viewProduct(id) {
+        const product = sampleProducts.find(p => p.id === id);
+        Swal.fire({
+            title: `Product Details`,
+            html: `
+                        <div style="text-align: left;">
+                            <p><strong>Name:</strong> ${product.name}</p>
+                            <p><strong>Category:</strong> ${product.categoryName}</p>
+                            <p><strong>Price:</strong> ${product.currency} ${product.price}</p>
+                            <p><strong>Description:</strong> ${product.description}</p>
+                            <p><strong>Stock:</strong> ${product.stock.quantity}</p>
+                            <p><strong>Rating:</strong> ${product.reviewRate}/5 (${product.reviewCount} reviews)</p>
+                        </div>
+                    `,
+            icon: 'info',
+            confirmButtonColor: '#fd5b44'
+        });
+    }
+
+    function editProduct(id) {
+        const element =
+            `<form id="formDecide" action="/Base/Decide" method="post">
+                        <input type="text" name="Id" value="${id}" hidden />
+                            <input type="text" name="action" value="Edit" hidden />
+                            <input type="text" name="type" value="Product" hidden />
+                    </form>`
+        // Create a temporary container to parse the HTML string
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = element;
+
+        // Extract the form element
+        const formElement = tempDiv.firstElementChild;
+        // Append to body
+        document.body.appendChild(formElement);
+
+        // Submit the form
+        formElement.submit();
+        // alert(`Editing product with ID: ${id}`);
+        // const form = document.getElementById('formDecide');
+
+        // // Create and append a hidden input to simulate the submit button
+        // const hiddenAction = document.createElement("input");
+        // hiddenAction.type = "hidden";
+        // hiddenAction.name = "action";
+        // hiddenAction.value = "Edit";
+        // form.appendChild(hiddenAction);
+
+        // form.submit();
+    }
+
+    function deleteProduct(id) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'You’re about to delete this Product!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirect to controller action (GET or POST)
+                $.ajax({
+                    url: "/Base/Decide",
+                    type: "POST", // or "POST"
+                    data: { Id: id, action: "Delete",type:"Product" }, // Convert object to JSON string
+                    success: function (response) {
+                        const rslt = (response.ret);
+                        if (rslt == true) {
+                            Swal.fire(
+                                'Deleted!',
+                                'Product has been deleted.',
+                                'success'
+                            );
+                        }
+                        else {
+                            Swal.fire(
+                                'Not Deleted!',
+                                'Product has Not been deleted.',
+                                'error'
+                            );
+                        }
+                        setTimeout(function () {
+                            location.reload();
+                        }, 2000);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error:", error);
+                    }
+                });
+
+                // const element =
+                //     `
+                //      <form id="formDecide" action="/Base/Decide" method="post">
+                //         <input type="text" name="Id" value="${id}" hidden />
+                //         <input type="text" name="action" value="Delete" hidden />
+                //      </form>
+                //     `
+                // // Create a temporary container to parse the HTML string
+                // const tempDiv = document.createElement('div');
+                // tempDiv.innerHTML = element;
+
+                // // Extract the form element
+                // const formElement = tempDiv.firstElementChild;
+                // console.log(formElement);
+                // // Append to body
+                // document.body.appendChild(formElement);
+
+                // // Submit the form
+                // formElement.submit();
+                // const form = document.getElementById('formDecide');
+
+                // // Create and append a hidden input to simulate the submit button
+                // const hiddenAction = document.createElement("input");
+                // hiddenAction.type = "hidden";
+                // hiddenAction.name = "action";
+                // hiddenAction.value = "Delete";
+                // form.appendChild(hiddenAction);
+
+                // form.submit();
+            }
+        });
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function () {
+        renderTable();
+    });
+</script>

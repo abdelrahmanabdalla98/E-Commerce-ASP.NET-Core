@@ -1,0 +1,104 @@
+﻿@model ProfileDTO
+<link href="~/css/profilecss1.css" rel="stylesheet" />
+<div class="profile-container">
+    @await Html.PartialAsync("ProfilePartial", Model)
+
+    <div id="addresses" class="tab-content active">
+        <div class="form-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 class="section-title" style="margin-bottom: 0;">Shipping Addresses</h2>
+                <a class="btn-primary" asp-action="AddAddress">
+                    <i class="fas fa-plus"></i> Add New Address
+                </a>
+            </div>
+            @{
+                for (int i = 0; i < Model.Addresses.Count; i++)
+                {
+                    var formId = $"addressForm_{i}";
+                    if (Model.Addresses[i].IsDefault)
+                    {
+
+                        <form id="@formId" asp-action="HandleOps" method="post">
+                            <input name="model.Id" value="@Model.Id" hidden />
+                            <input name="model.Addresses[0].Id" value="@Model.Addresses[i].Id" hidden />
+
+                            <div class="address-card default">
+                                <div class="address-header">
+                                    <span class="address-type">Home</span>
+                                    <span class="default-badge">Default</span>
+                                </div>
+                                <div>
+                                    <strong>@Model.FirstName @Model.LastName</strong><br>
+                                    @Model.Addresses[i].BuildingNo @Model.Addresses[i].StreetName<br>
+                                    @Model.Addresses[i].Area.Name, @Model.Addresses[i].Area.City!.Name 11211<br>
+                                    @Model.Addresses[i].Area.City!.Country!.Name<br>
+                                    Phone: @Model.PhoneNumber
+                                </div>
+                                <div style="margin-top: 15px;">
+                                    <button type="submit" class="btn-edit" name="action" value="Edit">Edit</button>
+                                    <button onclick="confirmDelete(event,'@formId')" type="submit" class="btn-delete" name="action" value="Delete">Delete</button>
+                                </div>
+                            </div>
+                        </form>
+                    }
+                    else
+                    {
+                        <form id="@formId" asp-action="HandleOps" method="post">
+                            <input name="model.Id" value="@Model.Id" hidden />
+                            <input name="model.Addresses[0].Id" value="@Model.Addresses[i].Id" hidden />
+                            <div class="address-card">
+                                <div class="address-header">
+                                    <span class="address-type">Other</span>
+                                </div>
+                                <div>
+                                    <strong>@Model.FirstName @Model.LastName</strong><br>
+                                    @Model.Addresses[i].BuildingNo @Model.Addresses[i].StreetName<br>
+                                    @Model.Addresses[i].Area.Name, @Model.Addresses[i].Area.City!.Name 11211<br>
+                                    @Model.Addresses[i].Area.City!.Country!.Name<br>
+                                    Phone: @Model.PhoneNumber
+                                </div>
+                                <div style="margin-top: 15px;">
+                                    <button type="submit" class="btn-edit" name="action" value="Edit">Edit</button>
+                                    <button onclick="confirmDelete(event,'@formId')" type="submit" class="btn-delete" name="action" value="Delete">Delete</button>
+                                    <button type="submit" class="btn-default" name="action" value="Default">Set as Default</button>
+                                </div>
+                            </div>
+                        </form>
+                    }
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@section lib{
+    <script>
+        function confirmDelete(e, formId) {
+            e.preventDefault(); // ✋ Stop the default form submission
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'You’re about to delete this address!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Redirect to controller action (GET or POST)
+                    const form = document.getElementById(formId);
+
+                    // Create and append a hidden input to simulate the submit button
+                    const hiddenAction = document.createElement("input");
+                    hiddenAction.type = "hidden";
+                    hiddenAction.name = "action";
+                    hiddenAction.value = "Delete";
+                    form.appendChild(hiddenAction);
+
+                    form.submit();
+                }
+            });
+        }
+    </script>
+}
+

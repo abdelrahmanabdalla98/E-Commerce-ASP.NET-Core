@@ -1,0 +1,165 @@
+﻿@{
+    ViewData["Title"] = "Access Denied";
+}
+
+<div class="auth-card">
+    <div class="auth-header">
+        <h1><i class="fas fa-ban me-2"></i>Access Denied</h1>
+        <p>You don't have permission</p>
+    </div>
+
+    <div class="auth-body">
+        <div class="status-message">
+            <i class="fas fa-ban status-icon error-icon"></i>
+            <h3>Access Denied</h3>
+            <p class="text-muted mb-4">
+                You don't have permission to access this resource.
+                Please contact an administrator if you believe this is an error.
+            </p>
+
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Need help?</strong> Contact our support team if you think you should have access to this page.
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-links">
+        <div class="d-grid gap-2">
+            <a href="javascript:history.back()" class="btn btn-primary">
+                <i class="fas fa-arrow-left me-2"></i>Go Back
+            </a>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary">
+                <i class="fas fa-home me-2"></i>Home Page
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Additional JavaScript for enhanced UX -->
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Auto-focus first input field
+            const firstInput = document.querySelector('.form-control');
+            if (firstInput && !firstInput.value) {
+                firstInput.focus();
+            }
+
+            // Password strength indicator
+            const passwordInput = document.querySelector('input[type="password"][data-val-length]');
+            if (passwordInput) {
+                const strengthIndicator = document.createElement('div');
+                strengthIndicator.className = 'password-strength mt-2';
+                strengthIndicator.innerHTML = `
+                    <div class="strength-bar">
+                        <div class="strength-fill"></div>
+                    </div>
+                    <small class="strength-text text-muted">Password strength: <span class="strength-level">Enter password</span></small>
+                `;
+                passwordInput.parentNode.appendChild(strengthIndicator);
+
+                passwordInput.addEventListener('input', function () {
+                    const password = this.value;
+                    let strength = 0;
+                    let level = 'Weak';
+                    let color = '#dc3545';
+
+                    if (password.length >= 8) strength++;
+                    if (/[a-z]/.test(password)) strength++;
+                    if (/[A-Z]/.test(password)) strength++;
+                    if (/[0-9]/.test(password)) strength++;
+                    if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+                    switch (strength) {
+                        case 0:
+                        case 1:
+                            level = 'Very Weak';
+                            color = '#dc3545';
+                            break;
+                        case 2:
+                            level = 'Weak';
+                            color = '#fd7e14';
+                            break;
+                        case 3:
+                            level = 'Fair';
+                            color = '#ffc107';
+                            break;
+                        case 4:
+                            level = 'Good';
+                            color = '#20c997';
+                            break;
+                        case 5:
+                            level = 'Strong';
+                            color = '#198754';
+                            break;
+                    }
+
+                    const fill = strengthIndicator.querySelector('.strength-fill');
+                    const text = strengthIndicator.querySelector('.strength-level');
+
+                    fill.style.width = (strength * 20) + '%';
+                    fill.style.backgroundColor = color;
+                    text.textContent = level;
+                    text.style.color = color;
+                });
+            }
+
+            // Form submission loading state
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function () {
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        const originalText = submitBtn.innerHTML;
+                        submitBtn.innerHTML = '<span class="loading-spinner"></span>Please wait...';
+                        submitBtn.disabled = true;
+
+                        // Re-enable after 10 seconds as fallback
+                        setTimeout(() => {
+                            submitBtn.innerHTML = originalText;
+                            submitBtn.disabled = false;
+                        }, 10000);
+                    }
+                });
+            });
+
+            // Auto-format 2FA codes
+            const codeInputs = document.querySelectorAll('input[maxlength="6"]');
+            codeInputs.forEach(input => {
+                input.addEventListener('input', function () {
+                    this.value = this.value.replace(/\D/g, '');
+                });
+
+                input.addEventListener('paste', function (e) {
+                    e.preventDefault();
+                    const paste = (e.clipboardData || window.clipboardData).getData('text');
+                    this.value = paste.replace(/\D/g, '').substring(0, 6);
+                });
+            });
+
+            // Animate alerts
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach((alert, index) => {
+                alert.style.opacity = '0';
+                alert.style.transform = 'translateY(-20px)';
+
+                setTimeout(() => {
+                    alert.style.transition = 'all 0.3s ease';
+                    alert.style.opacity = '1';
+                    alert.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+
+        // Add CSS for password strength indicator
+        // const style = document.createElement('style');
+        // style.textContent = `
+            
+        // `;
+        // document.head.appendChild(style);
+    </script>
+}
+<link href="~/css/site2.css" rel="stylesheet" />
+            Already have an account?
+<a asp-action="Login" asp-route-returnUrl="@Model.ReturnUrl">Sign in here</a>

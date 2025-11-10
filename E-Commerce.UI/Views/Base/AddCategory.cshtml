@@ -1,0 +1,319 @@
+﻿<style>
+    .my-element {
+        all: unset; /* Resets all inherited properties */
+    }
+</style>
+<link href="~/css/product.css" rel="stylesheet" />
+@model CategoryDTO
+
+<div class="form-container">
+    <div class="form-card">
+        <div class="breadcumb-wrapper background-image" style="background-image: url(&quot;/assets/img/bg/breadcumb-bg.jpg&quot;);">
+            <div class="container">
+                <div class="breadcumb-content position-relative">
+                    <h4><i class="fas fa-plus-circle"></i> Add New Category</h4>
+                    <p>Fill in the details below to add a new category to your store</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-body">
+            <form id="productForm" asp-action="AddCategory" method="post" enctype="multipart/form-data">
+                <!-- Basic Information Section -->
+                <div class="form-section">
+                    <h3 class="section-title"><i class="fas fa-info-circle"></i> Basic Information</h3>
+@*                     <div id="cataDiv2" class="row" hidden>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label for="name" class="form-label required">Sub Category Name 1</label>
+                                <input disabled type="text" class="form-control name" asp-for="SubCategories[0].SubCategories[0].Name" maxlength="30">
+                                <div class="form-text">Maximum 30 characters</div>
+                                <span class="text-danger" asp-validation-for="SubCategories[0].SubCategories[0].Name"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <br />
+                            <button type="button" id="del1" class="btn btn-danger">
+                                Remove Sub Category
+                            </button>
+                        </div>
+                    </div>
+                    <div id="cataDiv1" class="row" hidden>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label for="name" class="form-label required">Sub Category Name 1</label>
+                                <input disabled type="text" class="form-control name" asp-for="SubCategories[0].Name" maxlength="30">
+                                <div class="form-text">Maximum 30 characters</div>
+                                <span class="text-danger" asp-validation-for="SubCategories[0].Name"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <br />
+                            <button type="button" id="del" class="btn btn-danger">
+                                Remove Sub Category
+                            </button>
+                        </div>
+                    </div> *@
+                    @{
+                        if (ViewBag.category == "AddSubCat")
+                        {
+                                <input asp-for="@Model.ParentCategoryId" hidden/>
+                                            <div id="cataDiv1" class="row">
+                                                <div class="col-md-8">
+                                                    <div class="form-group">
+                                            <input readonly asp-for="@Model.ParentCategory.Name"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div id="cataDiv" class="row">
+                                                <div class="col-md-8">
+                                                    <div class="form-group">
+                                                        <label for="name" class="form-label required"> Name </label>
+                                                        <input type="text" class="form-control" id="categoryName" asp-for="Name" maxlength="30" required>
+                                                        <div class="form-text">Maximum 30 characters</div>
+                                                        <span class="text-danger" asp-validation-for="Name"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                        }
+                        else
+                        {
+                                            <div id="cataDiv1" class="row" @(Model.ParentCategoryId != null ? "" : "hidden")>
+                                                <div class="col-md-8">
+                                                    <div class="form-group">
+                                                        <label for="name" class="form-label required">Parent Category Name</label>
+                                                        @{
+                                            if (Model.ParentCategoryId != null)
+                                            {
+                                                                                <select class="form-select" id="category" asp-for="ParentCategoryId">
+                                                                                    <option value="-1">Select Category</option>
+                                                                                </select>
+
+                                            }
+                                            else
+                                            {
+                                                                                <select disabled class="form-select" id="category" asp-for="ParentCategoryId">
+                                                                                    <option value="-1">Select Category</option>
+                                                                                </select>
+                                            }
+                                                        }
+                                                        <span class="text-danger" asp-validation-for="ParentCategoryId"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <br />
+                                                    <button type="button" id="del" class="btn btn-danger">
+                                                        Remove Sub Category
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div id="cataDiv" class="row">
+                                                <div class="col-md-8">
+                                                    <div class="form-group">
+                                                        <label for="name" class="form-label required"> Name </label>
+                                                        <input type="text" class="form-control" id="categoryName" asp-for="Name" maxlength="30" required>
+                                                        <div class="form-text">Maximum 30 characters</div>
+                                                        <span class="text-danger" asp-validation-for="Name"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <br />
+                                                    <a href="" id="addCata">
+                                                        <i class="fa-solid fa-plus fa-2xl" style="color: #63E6BE;"></i>
+                                                        <span>Add Sub Category</span>
+                                                    </a>
+                                                </div>
+                                            </div>
+                        }
+                    }
+
+
+                </div>
+
+                <!-- Form Actions -->
+                <div class="text-center">
+                    <button id="cl" type="button" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Add Category
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="~/assets/js/vendor/bootstrap.bundle.min.js"></script>
+@section lib {
+<script>
+    // Character counter for name field
+    // const nameElments = document.getElementsByClassName('name');
+    // var inputValue = "@ViewBag.Counter";
+    // var counter = inputValue === "" ? 0 : parseInt(inputValue, 10);
+        const category = @Html.Raw(Json.Serialize(TempData["category"]));
+        console.log(category);
+    if (category == "no") {
+            // Swal.fire({
+            //     title: 'no action ',
+            //     text: 'category has not been Inserted',
+            //     icon: 'error',
+            //     showCancelButton: false,
+            // })
+            setTimeout(function () {
+            }, 1000);
+            window.location.href = "/Base/CategoryDashboard/?type=noaction";
+    }
+    const element = document.getElementById('cataDiv1');
+        if (category != "AddSubCat") {
+            document.getElementById('addCata').addEventListener('click', function (e) {
+                e.preventDefault();
+                // console.log(counter);
+                    sub1();
+                
+            });
+            if (element.hidden == false) {
+                sub1();
+            }
+        }
+
+    //close form
+    document.getElementById('cl').addEventListener('click', function () {
+        window.history.back();
+    });
+    // Form validation
+
+    document.getElementById('categoryName').addEventListener('input', function () {
+        const remaining = 30 - this.value.length;
+        const helpText = this.nextElementSibling;
+        helpText.textContent = `${remaining} characters remaining`;
+        helpText.style.color = remaining < 5 ? '#dc3545' : '#6c757d';
+    });
+    function sub1() {
+        document.getElementById('cataDiv1').hidden = false;
+        document.getElementById('category').disabled = false;
+
+        document.getElementById('del').addEventListener('click', function (e) {
+                document.getElementById('cataDiv1').hidden = true;
+                document.getElementById('category').disabled = true;
+            
+        });
+        
+        $.ajax({
+            url: "/Base/Categories",
+            type: "POST", // or "POST"
+            data: { Id: -1 }, // Convert object to JSON string
+            success: function (response) {
+                var select = document.getElementById("category");
+                select.innerHTML = `<option value="-1" > Select Category </option>`; // Clear existing options
+                console.log(response.ret);
+                response.ret.forEach(function (category) {
+                    var option = document.createElement("option");
+                    option.value = category.id;
+                    option.text = category.name;
+                    select.appendChild(option);
+                });
+
+            },
+            error: function (xhr, status, error) {
+                console.error("Error:", error);
+            }
+        });
+
+        // nameElments[1].addEventListener('change', function () {
+        //     const remaining = 30 - this.value.length;
+        //     const helpText = this.nextElementSibling;
+        //     helpText.textContent = `${remaining} characters remaining`;
+        //     helpText.style.color = remaining < 5 ? '#dc3545' : '#6c757d';
+        // });
+    }
+    // function sub2(){
+    //     document.getElementById('cataDiv2').hidden = false;
+    //     document.getElementById('category1').disabled = false;
+
+    //     document.getElementById('del1').addEventListener('click', function (e) {
+    //         console.log(counter);
+
+    //         document.getElementById('cataDiv2').hidden = true;
+    //         document.getElementById('category1').innerHTML = `<option value="0" > Select Category </option>`;
+    //         document.getElementById('category1').disabled = true;
+    //         counter = 1;
+
+    //     });
+    //     document.getElementById('category').addEventListener('change', function (e) {
+    //         const idValue = this.value;
+    //         $.ajax({
+    //             url: "/Base/Categories",
+    //             type: "POST", // or "POST"
+    //             data: { Id: idValue }, // Convert object to JSON string
+    //             success: function (response) {
+    //                 var select = document.getElementById("category1");
+    //                 select.innerHTML = `<option value="0" > Select Category </option>`; // Clear existing options
+
+    //                 response.ret.forEach(function (category) {
+    //                     var option = document.createElement("option");
+    //                     option.value = category.id;
+    //                     option.text = category.name;
+    //                     select.appendChild(option);
+    //                 });
+
+    //             },
+    //             error: function (xhr, status, error) {
+    //                 console.error("Error:", error);
+    //             }
+    //         });
+    //     });
+    //     // nameElments[2].addEventListener('input', function () {
+    //     //     const remaining = 30 - this.value.length;
+    //     //     const helpText = this.nextElementSibling;
+    //     //     helpText.textContent = `${remaining} characters remaining`;
+    //     //     helpText.style.color = remaining < 5 ? '#dc3545' : '#6c757d';
+    //     // });
+    // }
+    const form = document.getElementById('productForm');
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        // Reset previous validation states
+        document.querySelectorAll('.is-invalid').forEach(el => {
+            el.classList.remove('is-invalid');
+        });
+
+        let isValid = true;
+
+        // Validate required fields
+        const requiredFields = form.querySelectorAll('[required]');
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                field.classList.add('is-invalid');
+                isValid = false;
+            }
+        });
+
+
+        // Validate name length
+        const name = document.getElementById('categoryName').value;
+        if (name.length > 30) {
+            document.getElementById('name').classList.add('is-invalid');
+            isValid = false;
+        }
+
+
+
+        if (isValid) {
+            this.submit();
+            // Here you would normally submit the form to your server
+            alert('Product added successfully!');
+            console.log('Form data:', new FormData(form));
+        } else {
+            alert('Please fix the validation errors before submitting.');
+        }
+    });
+
+
+
+
+
+
+</script>
+}

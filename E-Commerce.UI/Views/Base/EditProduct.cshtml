@@ -1,0 +1,852 @@
+﻿<style>
+    .my-element {
+        all: unset; /* Resets all inherited properties */
+    }
+</style>
+<link href="~/css/product.css" rel="stylesheet" />
+@model ProductDTO
+<div class="form-container">
+    <div class="form-card">
+        <div class="breadcumb-wrapper background-image" style="background-image: url(&quot;/assets/img/bg/breadcumb-bg.jpg&quot;);">
+            <div class="container">
+                <div class="breadcumb-content position-relative">
+                    <h4><i class="fas fa-edit"></i> Edit @Model.Name Product</h4>
+                    <p>Fill in the details below to edit your product </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-body">
+            <form id="productForm" asp-action="EditProduct" method="post" enctype="multipart/form-data">
+                <!-- Basic Information Section -->
+                <input id="cataId" type="text" name="categoryId" hidden/>
+                <input asp-for="@Model.Id" hidden />
+
+                <input asp-for="@Model.category.Name" hidden />
+                <div class="form-section">
+                    <h3 class="section-title"><i class="fas fa-info-circle"></i> Basic Information</h3>
+
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label for="name" class="form-label required">Product Name</label>
+                                <input type="text" class="form-control" id="name" asp-for="Name" maxlength="30">
+                                <div class="form-text">Maximum 30 characters</div>
+                                <span class="text-danger" asp-validation-for="Name"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div id="FirstCata" class="form-group">
+                                <label for="category" class="form-label required">Category</label>
+                                <select class="form-select" id="category" required>
+                                    <option value="@Model.categoryId" selected>@Model.category.Name</option>
+                                </select>
+                                <span class="text-danger" asp-validation-for="categoryId"></span>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description" class="form-label required">Description</label>
+                        <textarea class="form-control" id="description" asp-for="Description" rows="4" required></textarea>
+                        <div class="form-text">Provide a detailed description of your product</div>
+                        <span class="text-danger" asp-validation-for="Description"></span>
+                    </div>
+                </div>
+
+                <!-- Pricing Section -->
+                <div class="form-section">
+                    <h3 class="section-title"><i class="fas fa-dollar-sign"></i> Pricing Information</h3>
+
+                    <div class="price-group">
+                        <div class="form-group">
+                            <label for="price" class="form-label required">Price (EGP)</label>
+                            <input type="number" class="form-control" id="price" asp-for="Price" min="1" max="50000" step="0.01" required>
+                            <span class="text-danger" asp-validation-for="Price"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="discount" class="form-label">Discount (%)</label>
+                            <input type="number" class="form-control" id="discount" asp-for="Discount" min="0" max="100" step="0.1">
+                            <span class="text-danger" asp-validation-for="Discount"></span>
+
+                        </div>
+
+                        <div class="form-group">
+                            <label class="pb-1 form-label">Final Price</label>
+                            <div id="finalPrice" class=" discount-display">0.00 EGP</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stock Information -->
+
+                <input type="text" asp-for="stock.Id" hidden/>
+                <div class="form-section">
+                    <h3 class="section-title"><i class="fas fa-boxes"></i> Stock & Inventory</h3>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="stock" class="form-label required">Stock Name</label>
+                                <select class="form-select" id="stock" asp-for="stock.stockId" asp-items="@ViewBag.Allstocks as SelectList" required>
+                                    <option value="">Select Stock</option>
+                                </select>
+                                <div class="form-text">Select the stock Name</div>
+                                <span class="text-danger" asp-validation-for="stock.stockId"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="expireDate" class="form-label">Expire Date</label>
+                                <input type="date" class="form-control" asp-for="stock.ExpireDate">
+                                <div class="form-text">Leave empty if product doesn't expire</div>
+                                <span class="text-danger" asp-validation-for="stock.ExpireDate"></span>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="quantity" class="form-label required">Quantity</label>
+                                <input type="number" class="form-control" id="quantity" asp-for="stock.Quantity" min="0" required>
+                                <div class="form-text">Total quantity in stock</div>
+                                <span class="text-danger" asp-validation-for="stock.Quantity"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="available" class="form-label required">Available</label>
+                                <input type="number" class="form-control" id="available" asp-for="stock.Available" min="0" required>
+                                <div class="form-text">Available quantity for sale</div>
+                                <span class="text-danger" asp-validation-for="stock.Available"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="colors" class="form-label">Product Color</label>
+
+                                <!-- Hidden input to store selected color for form submission -->
+                                <input type="hidden" id="colors" asp-for="stock.Color" />
+                                <!-- Color picker interface -->
+                                <div class="color-picker-container" id="selectedColors">
+                                    
+                                    @if (Model.stock.Color != null)
+                                    {
+                                        <div class="color-item">
+                                            <div class="color-preview" style="background-color: @Model.stock.Color.Split(':').Last()"></div>
+                                            <span class="color-name">@Model.stock.Color.Split(':').First()</span>
+                                            <button type="button" class="remove-color" onclick="removeColor()" title="Remove color">×</button>
+                                        </div>
+                                    }
+                                    <!-- Selected color will appear here -->
+                                </div>
+
+                                <!-- Add color interface -->
+
+                                <div class="color-input-group" id="colorInputGroup">
+                                    <input type="color" id="colorPicker" value="#ff0000">
+                                    <input type="text" id="colorName" placeholder="Enter color name (e.g., Bright Red)" maxlength="20">
+                                    <button type="button" onclick="setColor()">Set Color</button>
+                                </div>
+
+                                <button type="button" class="add-color-btn" onclick="toggleColorInput()" id="addColorBtn">
+                                    <i class="fas fa-palette"></i> Choose Color
+                                </button>
+
+                                <div class="form-text">Click "Choose Color" to select the product color</div>
+                                <span class="text-danger" asp-validation-for="stock.Color"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="sizes" class="form-label">Available Sizes</label>
+                                <select class="form-select" id="sizes" asp-for="stock.Size">
+                                    <option value="XXS">XXS - Extra Extra Small</option>
+                                    <option value="XS">XS - Extra Small</option>
+                                    <option value="S">S - Small</option>
+                                    <option value="M">M - Medium</option>
+                                    <option value="L">L - Large</option>
+                                    <option value="XL">XL - Extra Large</option>
+                                    <option value="XXL">XXL - Extra Extra Large</option>
+                                    <option value="XXXL">XXXL - Triple Extra Large</option>
+                                    <option value="One Size">One Size</option>
+                                    <option value="Free Size">Free Size</option>
+                                    <option value="28">28 (Waist)</option>
+                                    <option value="30">30 (Waist)</option>
+                                    <option value="32">32 (Waist)</option>
+                                    <option value="34">34 (Waist)</option>
+                                    <option value="36">36 (Waist)</option>
+                                    <option value="38">38 (Waist)</option>
+                                    <option value="40">40 (Waist)</option>
+                                    <option value="42">42 (Waist)</option>
+                                    <option value="44">44 (Waist)</option>
+                                    <option value="46">46 (Waist)</option>
+                                </select>
+                                <div class="form-text">Hold Ctrl/Cmd to select multiple sizes</div>
+                                <span class="text-danger" asp-validation-for="stock.Size"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Images -->
+                <div class="form-section">
+                    <h3 class="section-title"><i class="fas fa-images"></i> Product Images</h3>
+
+                    <div class="form-group">
+                        <label class="form-label required">Product Photos</label>
+                        @foreach (var path in Model.PhotoPaths)
+                        {
+                            <input type="hidden" name="PhotoPaths" value="@path" />
+                        }
+                        <div class="image-upload-section" id="image-dropzone">
+                            <div class="upload-icon">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <h4>Drag & Drop Images Here</h4>
+                            <p>or <strong>click to browse</strong></p>
+                            <small class="form-text">Supported formats: JPG, PNG, GIF (Max 5MB each)</small>
+                        </div>
+                        <input type="file" id="image-upload" asp-for="Photos" multiple accept="image/*" style="display: none;">
+                        <span class="text-danger" asp-validation-for="Photos"></span>
+                        
+                        <div class="image-previews" id="image-previews">
+                            @{
+                                if (Model.PhotoPaths != null)
+                                {
+                                    foreach (var item in Model.PhotoPaths)
+                                    {
+                                                                                        <div class="image-preview">
+                                                                                            <img src="@item">
+                                                                                            <button class="remove-btn">×</button>
+                                                                                        </div>
+                                    }
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Settings -->
+                <div class="form-section">
+                    <h3 class="section-title"><i class="fas fa-cog"></i> Additional Settings</h3>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="form-check form-switch">
+                                    <br />
+                                    <input class=" form-check-input" type="checkbox" id="filterType" asp-for="FilterType" hidden>
+                                    <label class="form-check-label" for="filterType">
+                                        Featured Product
+                                    </label>
+                                </div>
+                                <div class="form-text">Mark as featured to highlight this product</div>
+                                <span class="text-danger" asp-validation-for="FilterType"></span>
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="currency" class="form-label">Currency</label>
+                                <select class="form-select" id="currency" asp-for="Currency">
+                                    <option value="EGP" selected>Egyptian Pound (EGP)</option>
+                                    <option value="USD">US Dollar (USD)</option>
+                                    <option value="EUR">Euro (EUR)</option>
+                                </select>
+                            </div>
+                            <span class="text-danger" asp-validation-for="Currency"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="text-center">
+                    <button id="cl" type="button" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Update
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section lib {
+<script>
+
+    //check to redirect to another page
+
+    var check = @Html.Raw(Json.Serialize(ViewBag.result ?? new object()));
+    if (check == true) {
+            Swal.fire({
+                title: 'Updated',
+                text: 'Product has been Updated',
+                icon: 'success',
+                showCancelButton: false,
+            })
+
+            setTimeout(function () {
+                window.location.href = "/Base/ProductDashboard";
+            }, 1000);
+
+
+    }
+    // Color picker functionality
+    console.log(check);
+    let selectedColor = null;
+
+    function toggleColorInput() {
+        const inputGroup = document.getElementById('colorInputGroup');
+        const addBtn = document.getElementById('addColorBtn');
+
+        if (inputGroup.classList.contains('hidden')) {
+            inputGroup.classList.remove('hidden');
+            addBtn.innerHTML = '<i class="fas fa-minus"></i> Cancel';
+
+            // Pre-fill with current color if exists
+            if (selectedColor) {
+                document.getElementById('colorPicker').value = selectedColor.hex;
+                document.getElementById('colorName').value = selectedColor.name;
+            }
+        } else {
+            inputGroup.classList.add('hidden');
+            addBtn.innerHTML = '<i class="fas fa-palette"></i> Choose Color';
+            // Clear inputs only if no color is selected
+            if (!selectedColor) {
+                document.getElementById('colorPicker').value = '#ff0000';
+                document.getElementById('colorName').value = '';
+            }
+        }
+    }
+        var colorValue = "@(Model.stock.Color ?? "")";
+        if (colorValue !== "") {
+            document.getElementById('colorPicker').value = "@((Model.stock.Color ?? "").Split(':').Last())";
+            document.getElementById('colorName').value = "@((Model.stock.Color ?? "").Split(':').First())";
+            setColor();
+        }
+    function setColor() {
+            const colorPicker = document.getElementById('colorPicker');
+            const colorName = document.getElementById('colorName');
+            if (!colorName.value.trim()) {
+                alert('Please enter a color name');
+                return;
+            }
+            selectedColor = {
+                hex: colorPicker.value,
+                name: colorName.value.trim()
+            };
+        renderSelectedColor();
+        updateColorsInput();
+
+        // Hide the input group after setting color
+        toggleColorInput();
+    }
+
+    function removeColor() {
+        selectedColor = null;
+        renderSelectedColor();
+        updateColorsInput();
+    }
+
+    function renderSelectedColor() {
+        const container = document.getElementById('selectedColors');
+        container.innerHTML = '';
+
+        if (selectedColor) {
+            const colorItem = document.createElement('div');
+            colorItem.className = 'color-item';
+
+            colorItem.innerHTML = `
+                        <div class="color-preview" style="background-color: ${selectedColor.hex}"></div>
+                        <span class="color-name">${selectedColor.name}</span>
+                        <button type="button" class="remove-color" onclick="removeColor()" title="Remove color">×</button>
+                    `;
+
+            container.appendChild(colorItem);
+
+            // Update button text to "Change Color" when color is selected
+            const addBtn = document.getElementById('addColorBtn');
+            addBtn.innerHTML = '<i class="fas fa-palette"></i> Change Color';
+        } else {
+            // Reset button text when no color is selected
+            const addBtn = document.getElementById('addColorBtn');
+            addBtn.innerHTML = '<i class="fas fa-palette"></i> Choose Color';
+        }
+    }
+
+    function updateColorsInput() {
+        const hiddenInput = document.getElementById('colors');
+        if (selectedColor) {
+            hiddenInput.value = `${selectedColor.name}:${selectedColor.hex}`;
+        } else {
+            hiddenInput.value = '';
+        }
+    }
+
+    // Initialize color input as hidden
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('colorInputGroup').classList.add('hidden');
+        // this to intialize cats
+        $.ajax({
+            url: "/Base/Categories",
+            type: "POST", // or "POST"
+            data: { Id: 0 }, // Convert object to JSON string
+            success: function (response) {
+                var select = document.getElementById("category");
+                select.innerHTML = `<option value="0" > Select Category </option>
+                                        <option value="@Model.categoryId" selected> @(Model.category.Name ?? "")</option>`; // Clear existing options
+
+                response.ret.forEach(function (category) {
+                    var option = document.createElement("option");
+                    option.value = category.id;
+                    option.text = category.name;
+                    select.appendChild(option);
+                });
+
+            },
+            error: function (xhr, status, error) {
+                console.error("Error:", error);
+            }
+        });
+        // intialize products 
+        // Initialize with no color selected
+        selectedColor = null;
+        // renderSelectedColor();
+        updateColorsInput();
+    });
+
+    // Image upload functionality
+    const dropzone = document.getElementById('image-dropzone');
+    const fileInput = document.getElementById('image-upload');
+    const previewsContainer = document.getElementById('image-previews');
+    let uploadedFiles = [];
+
+    // Click to upload
+    dropzone.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    // Drag and drop events
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, unhighlight, false);
+    });
+
+    function highlight() {
+        dropzone.classList.add('dragover');
+    }
+
+    function unhighlight() {
+        dropzone.classList.remove('dragover');
+    }
+
+    // Handle dropped files
+    dropzone.addEventListener('drop', handleDrop, false);
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleFiles(files);
+    }
+
+    // Handle selected files
+    fileInput.addEventListener('change', function () {
+        handleFiles(this.files);
+    });
+
+    function handleFiles(files) {
+        uploadedFiles = [...files];
+        previewsContainer.innerHTML = '';
+        [...files].forEach(createPreview);
+
+        // Remove invalid state when files are selected
+        dropzone.classList.remove('is-invalid');
+    }
+
+    function createPreview(file, index) {
+        if (!file.type.match('image.*')) return;
+
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            const previewDiv = document.createElement('div');
+            previewDiv.className = 'image-preview';
+
+            const img = document.createElement('img');
+            img.src = e.target.result;
+
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-btn';
+            removeBtn.innerHTML = '×';
+            removeBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                previewDiv.remove();
+                uploadedFiles = uploadedFiles.filter((_, i) => i !== index);
+                updateFileInput();
+            });
+
+            previewDiv.appendChild(img);
+            previewDiv.appendChild(removeBtn);
+            previewsContainer.appendChild(previewDiv);
+        }
+
+        reader.readAsDataURL(file);
+    }
+
+
+    function updateFileInput() {
+        const dt = new DataTransfer();
+        const count = @(Model.Photos?.Count ?? 0);
+            uploadedFiles.forEach(file => dt.items.add(file));
+                fileInput.files = dt.files;
+    }
+    console.log(fileInput);
+    // Price calculation
+    const priceInput = document.getElementById('price');
+    const discountInput = document.getElementById('discount');
+    const finalPriceDisplay = document.getElementById('finalPrice');
+
+    function calculateFinalPrice() {
+        const price = parseFloat(priceInput.value) || 0;
+        const discount = parseFloat(discountInput.value) || 0;
+        const finalPrice = price - (price * discount / 100);
+        finalPriceDisplay.textContent = finalPrice.toFixed(2) + ' EGP';
+
+        // Update after discount field
+        const afterDiscountField = document.querySelector('input[name="AfterDiscount"]');
+        if (afterDiscountField) {
+            afterDiscountField.value = Math.round(finalPrice);
+        }
+    }
+
+    priceInput.addEventListener('input', calculateFinalPrice);
+    discountInput.addEventListener('input', calculateFinalPrice);
+
+    // Remove invalid feedback when user starts typing or selecting
+    function removeInvalidFeedback(element) {
+        element.classList.remove('is-invalid');
+    }
+    // document.addEventListener("DOMContentLoaded", function () {
+    //     $.ajax({
+    //         url: "/Base/Categories",
+    //         type: "POST", // or "POST"
+    //         data: { Id: 0 }, // Convert object to JSON string
+    //         success: function (response) {
+    //             var select = document.getElementById("category");
+    //             select.innerHTML = `<option value="0" > Select Category </option>`; // Clear existing options
+
+    //             response.ret.forEach(function (category) {
+    //                 var option = document.createElement("option");
+    //                 option.value = category.id;
+    //                 option.text = category.name;
+    //                 select.appendChild(option);
+    //             });
+
+    //         },
+    //         error: function (xhr, status, error) {
+    //             console.error("Error:", error);
+    //         }
+    //     });
+    //     // Your code here
+    // });
+    document.getElementById('cl').addEventListener('click', function () {
+        window.history.back();
+    });
+    // section for category
+    document.getElementById('category').addEventListener('change', function () {
+        var selected = this.value;
+        
+        if (selected=='0') {
+            $('#sub1').remove();
+            return;
+        }
+        $.ajax({
+            url: "/Base/Categories",
+            type: "POST", // or "POST"
+            data: { Id: selected }, // Convert object to JSON string
+            success: function (response) {
+                $('#sub1').remove();
+                $('#sub2').remove();
+                if (response.ret.length > 0) {
+                    $('#FirstCata').after(`<div id="sub1" class="form-group">
+                        <label for="category" class="form-label required">Sub Category</label>
+                        <select class="form-select" id="subCategory1" required>
+                            <option value="">Select Category</option>
+                        </select>
+                        <span class="text-danger" asp-validation-for="categoryId"></span>
+                    </div>`);
+                    var select = document.getElementById("subCategory1");
+                    select.innerHTML = `<option value="" > Select Category </option>`; // Clear existing options
+
+                    response.ret.forEach(function (category) {
+                        var option = document.createElement("option");
+                        option.value = category.id;
+                        option.text = category.name;
+                        select.appendChild(option);
+                    });
+
+
+                    ////////
+                    document.getElementById('subCategory1').addEventListener('change', function () {
+                        selected = document.getElementById('subCategory1').value;
+                        if (selected == '') {
+                            $('#sub2').remove();
+                            return;
+                        }
+                        $.ajax({
+                            url: "/Base/Categories",
+                            type: "POST", // or "POST"
+                            data: { Id: selected }, // Convert object to JSON string
+                            success: function (response) {
+                                $('#sub2').remove();
+                                if (response.ret.length > 0) {
+                                    $('#sub1').after(`<div id="sub2" class="form-group">
+                                <label for="category" class="form-label required">Sub Category</label>
+                                <select class="form-select" id="subCategory2" required>
+                                    <option value="">Select Category</option>
+                                </select>
+                                <span class="text-danger" asp-validation-for="categoryId"></span>
+                            </div>`);
+                                    var select = document.getElementById("subCategory2");
+                                    select.innerHTML = `<option value="" > Select Category </option>`; // Clear existing options
+
+                                    response.ret.forEach(function (category) {
+                                        var option = document.createElement("option");
+                                        option.value = category.id;
+                                        option.text = category.name;
+                                        select.appendChild(option);
+                                    });
+                                    select.addEventListener('change', function () {
+                                        document.getElementById('cataId').value = this.value;
+                                    });
+                                }
+                                else {
+                                    document.getElementById('cataId').value = selected;
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                console.error("Error:", error);
+                            }
+                        });
+                    });
+                }
+                else {
+                    document.getElementById('cataId').value = selected;
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Error:", error);
+            }
+        });
+    });
+
+   
+
+
+
+    // Add event listeners to all form inputs to remove invalid feedback
+    document.getElementById('name').addEventListener('input', function () {
+        removeInvalidFeedback(this);
+    });
+
+
+    document.getElementById('description').addEventListener('input', function () {
+        removeInvalidFeedback(this);
+    });
+
+    document.getElementById('price').addEventListener('input', function () {
+        removeInvalidFeedback(this);
+    });
+
+    document.getElementById('stock').addEventListener('input', function () {
+        removeInvalidFeedback(this);
+    });
+
+    // Handle multi-select for sizes
+    document.getElementById('sizes').addEventListener('change', function () {
+        removeInvalidFeedback(this);
+        updateSelectedValues('sizes');
+    });
+
+    function updateSelectedValues(selectId) {
+        const select = document.getElementById(selectId);
+        const selectedOptions = Array.from(select.selectedOptions);
+        const selectedValues = selectedOptions.map(option => option.value);
+
+        // You can use this to update the model binding or display selected values
+        console.log(`Selected ${selectId}:`, selectedValues);
+
+        // If you need to store as comma-separated string for your model
+        const hiddenInput = document.querySelector(`input[name="stock.${selectId.charAt(0).toUpperCase() + selectId.slice(1)}"]`);
+        if (hiddenInput) {
+            hiddenInput.value = selectedValues.join(',');
+        }
+    }
+
+    // Form validation
+    const form = document.getElementById('productForm');
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        // Reset previous validation states
+        document.querySelectorAll('.is-invalid').forEach(el => {
+            el.classList.remove('is-invalid');
+        });
+
+        let isValid = true;
+
+        // Validate required fields
+        const requiredFields = form.querySelectorAll('[required]');
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                field.classList.add('is-invalid');
+                isValid = false;
+            }
+        });
+
+        // Validate price range
+        const price = parseFloat(priceInput.value);
+        if (price < 1 || price > 50000) {
+            priceInput.classList.add('is-invalid');
+            isValid = false;
+        }
+
+        // Validate name length
+        const name = document.getElementById('name').value;
+        if (name.length > 30) {
+            document.getElementById('name').classList.add('is-invalid');
+            isValid = false;
+        }
+            const count = @(Model.PhotoPaths?.Count ?? 0);      
+                // Validate images
+        if (uploadedFiles.length === 0) {
+            if (count > 0) {
+                document.getElementById('image-upload').disabled = true;
+            }
+            else {
+                dropzone.classList.add('is-invalid');
+                isValid = false;
+            }
+        }
+            
+        // Process selected sizes before submission
+        updateSelectedValues('sizes');
+        $('#cataId').val($('#category option:selected').val());
+        if (isValid) {
+            this.submit();
+            console.log('Form data:', new FormData(form));
+            console.log('Selected colors:', selectedColors);
+        } else {
+            alert('Please fix the validation errors before submitting.');
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const quantityInput = document.getElementById('quantity');
+        const availableInput = document.getElementById('available');
+        const sizesSelect = document.getElementById('sizes');
+
+        // Remove invalid feedback when user starts typing
+        [quantityInput, availableInput].forEach(input => {
+            if (input) {
+                input.addEventListener('input', function () {
+                    this.classList.remove('is-invalid');
+                });
+            }
+        });
+
+        // Remove invalid feedback when user selects options
+        if (sizesSelect) {
+            sizesSelect.addEventListener('change', function () {
+                this.classList.remove('is-invalid');
+            });
+        }
+
+        // Validate that available quantity doesn't exceed total quantity
+        function validateQuantities() {
+            const quantity = parseInt(quantityInput.value) || 0;
+            const available = parseInt(availableInput.value) || 0;
+
+            if (available > quantity) {
+                availableInput.classList.add('is-invalid');
+                return false;
+            } else {
+                availableInput.classList.remove('is-invalid');
+                return true;
+            }
+        }
+
+        quantityInput.addEventListener('input', validateQuantities);
+        availableInput.addEventListener('input', validateQuantities);
+
+        // Update the form validation to include these new fields
+        const originalForm = document.getElementById('productForm');
+        if (originalForm) {
+            originalForm.addEventListener('submit', function (e) {
+                let isValid = true;
+
+                // Validate quantity and available fields
+                if (!quantityInput.value || parseInt(quantityInput.value) < 0) {
+                    quantityInput.classList.add('is-invalid');
+                    isValid = false;
+                }
+
+                if (!availableInput.value || parseInt(availableInput.value) < 0) {
+                    availableInput.classList.add('is-invalid');
+                    isValid = false;
+                }
+
+                // Validate that available doesn't exceed quantity
+                if (!validateQuantities()) {
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    e.preventDefault();
+                    alert('Please fix the validation errors in the stock information section.');
+                }
+            });
+        }
+    });
+
+    // Character counter for name field
+    document.getElementById('name').addEventListener('input', function () {
+        const remaining = 30 - this.value.length;
+        const helpText = this.nextElementSibling;
+        helpText.textContent = `${remaining} characters remaining`;
+        helpText.style.color = remaining < 5 ? '#dc3545' : '#6c757d';
+    });
+
+    // Initialize final price display
+    calculateFinalPrice();
+</script>
+}
+

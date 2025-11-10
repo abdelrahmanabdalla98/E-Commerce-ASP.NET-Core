@@ -1,0 +1,296 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>E_Commerce.UI</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Update="appsettings.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Views\Shopping\Products.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\css\site.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\css\site2.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\favicon.ico">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\js\site.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.min.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\jquery-validation-unobtrusive\LICENSE.txt">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\jquery-validation\dist\additional-methods.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\jquery-validation\dist\additional-methods.min.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\jquery-validation\dist\jquery.validate.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\jquery-validation\dist\jquery.validate.min.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\jquery-validation\LICENSE.md">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\jquery\dist\jquery.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\jquery\dist\jquery.min.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\jquery\dist\jquery.min.map">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\lib\jquery\LICENSE.txt">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Account\AccessDenied.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Views\Account\AccessDenied.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Account\ConfirmEmail.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Account\EmailConfirmationFailed.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Account\EmailConfirmed.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Account\EmailSent.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Account\EnableTwoFactor.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Account\ForgotPassword.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Account\ForgotPasswordConfirmation.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Account\Lockout.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Account\Login.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Account\Register.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Account\RegisterSuccess.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Account\ResendEmailConfirmation.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Account\ResetPassword.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Account\ResetPasswordConfirmation.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Account\ShowRecoveryCodes.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Account\TwoFactorAuthentication.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Shared\_ValidationScriptsPartial.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\_ViewImports.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\_ViewStart.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Account\ConfirmEmail.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Account\EmailConfirmationFailed.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Account\EmailConfirmed.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Account\EmailSent.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Account\EnableTwoFactor.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Account\ForgotPassword.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Account\ForgotPasswordConfirmation.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Account\Lockout.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Account\Login.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Account\Register.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Account\RegisterSuccess.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Account\ResendEmailConfirmation.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Account\ResetPassword.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Account\ResetPasswordConfirmation.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Account\ShowRecoveryCodes.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Account\TwoFactorAuthentication.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Shared\_ValidationScriptsPartial.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\_ViewImports.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\_ViewStart.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\assets\fonts\fontawesome\fa-brands-400.woff2" />
+    <None Include="wwwroot\assets\fonts\fontawesome\fa-light-300.woff2" />
+    <None Include="wwwroot\assets\fonts\fontawesome\fa-regular-400.woff2" />
+    <None Include="wwwroot\assets\fonts\fontawesome\fa-solid-900.woff2" />
+    <None Include="wwwroot\assets\img\brand\brand_2_1.svg" />
+    <None Include="wwwroot\assets\img\brand\brand_2_2.svg" />
+    <None Include="wwwroot\assets\img\brand\brand_2_3.svg" />
+    <None Include="wwwroot\assets\img\brand\brand_2_4.svg" />
+    <None Include="wwwroot\assets\img\brand\brand_2_5.svg" />
+    <None Include="wwwroot\assets\img\brand\brand_2_6.svg" />
+    <None Include="wwwroot\assets\img\icon\accessories.svg" />
+    <None Include="wwwroot\assets\img\icon\address.svg" />
+    <None Include="wwwroot\assets\img\icon\arrow-left3.svg" />
+    <None Include="wwwroot\assets\img\icon\arrow-right.svg" />
+    <None Include="wwwroot\assets\img\icon\arrow-right3.svg" />
+    <None Include="wwwroot\assets\img\icon\arrow.svg" />
+    <None Include="wwwroot\assets\img\icon\bag2.svg" />
+    <None Include="wwwroot\assets\img\icon\call-3.svg" />
+    <None Include="wwwroot\assets\img\icon\category_2_1.svg" />
+    <None Include="wwwroot\assets\img\icon\category_2_3.svg" />
+    <None Include="wwwroot\assets\img\icon\category_2_4.svg" />
+    <None Include="wwwroot\assets\img\icon\category_2_5.svg" />
+    <None Include="wwwroot\assets\img\icon\category_2_6.svg" />
+    <None Include="wwwroot\assets\img\icon\category_2_7.svg" />
+    <None Include="wwwroot\assets\img\icon\category_2_8.svg" />
+    <None Include="wwwroot\assets\img\icon\category_3_1.svg" />
+    <None Include="wwwroot\assets\img\icon\category_3_2.svg" />
+    <None Include="wwwroot\assets\img\icon\category_3_3.svg" />
+    <None Include="wwwroot\assets\img\icon\category_3_4.svg" />
+    <None Include="wwwroot\assets\img\icon\category_3_5.svg" />
+    <None Include="wwwroot\assets\img\icon\dresses.svg" />
+    <None Include="wwwroot\assets\img\icon\fax.svg" />
+    <None Include="wwwroot\assets\img\icon\feature_card_1.svg" />
+    <None Include="wwwroot\assets\img\icon\feature_card_2.svg" />
+    <None Include="wwwroot\assets\img\icon\feature_card_3.svg" />
+    <None Include="wwwroot\assets\img\icon\feature_card_4.svg" />
+    <None Include="wwwroot\assets\img\icon\fire.svg" />
+    <None Include="wwwroot\assets\img\icon\fire2.svg" />
+    <None Include="wwwroot\assets\img\icon\heaphone.svg" />
+    <None Include="wwwroot\assets\img\icon\marquee-icon2.svg" />
+    <None Include="wwwroot\assets\img\icon\message.svg" />
+    <None Include="wwwroot\assets\img\icon\pc.svg" />
+    <None Include="wwwroot\assets\img\icon\phone.svg" />
+    <None Include="wwwroot\assets\img\icon\phone2.svg" />
+    <None Include="wwwroot\assets\img\icon\phone7.svg" />
+    <None Include="wwwroot\assets\img\icon\quote2.svg" />
+    <None Include="wwwroot\assets\img\icon\secure.svg" />
+    <None Include="wwwroot\assets\img\icon\shoe.svg" />
+    <None Include="wwwroot\assets\img\icon\shuffle.svg" />
+    <None Include="wwwroot\assets\img\icon\truck.svg" />
+    <None Include="wwwroot\assets\img\icon\truck2.svg" />
+    <None Include="wwwroot\assets\img\icon\user.svg" />
+    <None Include="wwwroot\assets\img\logo-orange.svg" />
+    <None Include="wwwroot\assets\img\logo-red.svg" />
+    <None Include="wwwroot\assets\img\logo-white.svg" />
+    <None Include="wwwroot\assets\img\logo.svg" />
+    <None Include="wwwroot\assets\img\Logo1.svg" />
+    <None Include="wwwroot\assets\img\theme-img\title-shape.svg" />
+    <None Include="wwwroot\assets\js\bootstrap.min.js" />
+    <None Include="wwwroot\assets\js\gsap.min.js" />
+    <None Include="wwwroot\assets\js\imagesloaded.pkgd.min.js" />
+    <None Include="wwwroot\assets\js\isotope.pkgd.min.js" />
+    <None Include="wwwroot\assets\js\jquery-ui.min.js" />
+    <None Include="wwwroot\assets\js\jquery.counterup.min.js" />
+    <None Include="wwwroot\assets\js\jquery.magnific-popup.min.js" />
+    <None Include="wwwroot\assets\js\main.js" />
+    <None Include="wwwroot\assets\js\nice-select.min.js" />
+    <None Include="wwwroot\assets\js\swiper-bundle.min.js" />
+    <None Include="wwwroot\assets\js\tilt.jquery.min.js" />
+    <None Include="wwwroot\assets\js\vendor\bootstrap.bundle.min.js" />
+    <None Include="wwwroot\assets\js\vendor\jquery-3.7.1.min.js" />
+    <None Include="wwwroot\assets\maps.googleapis.com\maps-api-v3\api\js\60\12\common.js" />
+    <None Include="wwwroot\assets\maps.googleapis.com\maps-api-v3\api\js\60\12\geometry.js" />
+    <None Include="wwwroot\assets\maps.googleapis.com\maps-api-v3\api\js\60\12\main.js" />
+    <None Include="wwwroot\assets\maps.googleapis.com\maps-api-v3\api\js\60\12\map.js" />
+    <None Include="wwwroot\assets\maps.googleapis.com\maps-api-v3\api\js\60\12\overlay.js" />
+    <None Include="wwwroot\assets\maps.googleapis.com\maps-api-v3\api\js\60\12\search.js" />
+    <None Include="wwwroot\assets\maps.googleapis.com\maps-api-v3\api\js\60\12\util.js" />
+    <None Include="wwwroot\assets\maps.gstatic.com\maps-api-v3\embed\js\60\12\init_embed.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.105.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid.EntityFrameworkAdapter" Version="8.0.11" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.11">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
+    <PackageReference Include="SweetAlert2" Version="1.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\E-Commerce.BLL\E-Commerce.BLL.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\uploads\photos\" />
+  </ItemGroup>
+
+</Project>

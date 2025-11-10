@@ -1,0 +1,143 @@
+﻿@model PhoneDTO
+@{
+    ViewData["Title"] = "Phone Confirmation";
+}
+
+<div class="auth-card">
+    <div class="auth-header">
+        <i class="fas fa-mobile-alt" style="font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.9;"></i>
+        <h1>Phone Confirmation</h1>
+        <p>Verify your phone number to secure your account</p>
+    </div>
+
+    <div class="auth-body">
+        @if (TempData["StatusMessage"] != null)
+        {
+            <div class="alert alert-success" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                @TempData["StatusMessage"]
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <div asp-validation-summary="All" class="alert alert-danger" role="alert" style="display: none;"></div>
+
+        <form id="phoneForm" asp-action="SendPhoneConfirmation" method="post">
+            <input asp-for="ReturnUrl" type="hidden" />
+            
+            <div class="form-floating">
+                <input asp-for="PhoneNumber" 
+                       class="form-control" 
+                       id="phoneNumber" 
+                       placeholder="Enter your phone number"
+                       autocomplete="tel" />
+                <label asp-for="PhoneNumber">
+                    <i class="fas fa-phone me-2"></i>Phone Number
+                </label>
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+
+            <div class="phone-format-hint">
+                <small class="text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Format: +1234567890 or (123) 456-7890
+                </small>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100" id="sendOtpBtn">
+                <span class="btn-text">
+                    <i class="fas fa-paper-plane me-2"></i>Send OTP
+                </span>
+                <span class="loading-content" style="display: none;">
+                    <span class="loading-spinner"></span>Sending...
+                </span>
+            </button>
+        </form>
+
+        <div class="security-info">
+            <div class="security-item">
+                <i class="fas fa-shield-alt"></i>
+                <div>
+                    <strong>Secure Verification</strong>
+                    <p>We'll send a 6-digit code to verify your phone number</p>
+                </div>
+            </div>
+            <div class="security-item">
+                <i class="fas fa-clock"></i>
+                <div>
+                    <strong>Quick Process</strong>
+                    <p>The verification code will expire in 5 minutes</p>
+                </div>
+            </div>
+            <div class="security-item">
+                <i class="fas fa-user-lock"></i>
+                <div>
+                    <strong>Privacy Protected</strong>
+                    <p>Your phone number is kept secure and private</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-links">
+        <a asp-action="Login" asp-route-returnUrl="@Model.ReturnUrl">
+            <i class="fas fa-arrow-left me-1"></i>Back to Login
+        </a>
+        @if (!string.IsNullOrEmpty(Model.ReturnUrl))
+        {
+            <span class="mx-2">|</span>
+            <a href="@Model.ReturnUrl">Skip for now</a>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('phoneForm');
+            const submitBtn = document.getElementById('sendOtpBtn');
+            const phoneInput = document.getElementById('phoneNumber');
+
+            // Phone number formatting
+            phoneInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 10) {
+                    value = value.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+                }
+                e.target.value = value;
+            });
+
+            // Form submission handling
+            form.addEventListener('submit', function(e) {
+                const btnText = submitBtn.querySelector('.btn-text');
+                const loadingContent = submitBtn.querySelector('.loading-content');
+                
+                btnText.style.display = 'none';
+                loadingContent.style.display = 'inline-flex';
+                submitBtn.disabled = true;
+
+                // Re-enable button after 3 seconds in case of error
+                setTimeout(() => {
+                    btnText.style.display = 'inline-flex';
+                    loadingContent.style.display = 'none';
+                    submitBtn.disabled = false;
+                }, 3000);
+            });
+
+            // Show validation summary if there are errors
+            const validationSummary = document.querySelector('[asp-validation-summary]');
+            if (validationSummary && validationSummary.innerHTML.trim()) {
+                validationSummary.style.display = 'block';
+            }
+        });
+    </script>
+}
+
+<link href="~/css/phone.css" rel="stylesheet" />

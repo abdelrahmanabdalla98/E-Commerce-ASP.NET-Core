@@ -1,0 +1,39 @@
+﻿@model ResendEmailConfirmationDTO
+@{
+    ViewData["Title"] = "Resend Email Confirmation";
+}
+
+<div class="auth-card">
+    <div class="auth-header">
+        <h1><i class="fas fa-envelope me-2"></i>Resend Confirmation</h1>
+        <p>Get a new confirmation email</p>
+    </div>
+
+    <div class="auth-body">
+        @if (ViewData.ModelState.ErrorCount > 0)
+        {
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <asp-validation-summary />
+            </div>
+        }
+
+        <form asp-action="ResendEmailConfirmation" method="post" novalidate>
+            <div class="form-floating">
+                <input asp-for="Email" class="form-control" placeholder="Email Address" autocomplete="email" />
+                <label asp-for="Email"></label>
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-paper-plane me-2"></i>Send Confirmation Email
+            </button>
+        </form>
+    </div>
+
+    <div class="auth-links">
+        <a asp-action="Login" class="text-muted">
+            <i class="fas fa-arrow-left me-1"></i>Back to login
+        </a>
+    </div>
+</div>

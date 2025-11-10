@@ -1,0 +1,79 @@
+﻿@model RegisterDTO
+@{
+    ViewData["Title"] = "Create Account";
+}
+
+<div class="auth-card">
+    <div class="auth-header">
+        <h1><i class="fas fa-user-plus me-2"></i>Create Account</h1>
+        <p>Join us and get started today</p>
+    </div>
+
+    <div class="auth-body">
+        @if (ViewData.ModelState.ErrorCount > 0)
+        {
+            <div class="alert alert-danger text-danger" asp-validation-summary="All">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+            </div>
+        }
+
+        <form asp-action="Register" method="post" novalidate>
+            <input asp-for="ReturnUrl" type="hidden" />
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <input asp-for="FirstName" class="form-control" placeholder="First Name" autocomplete="given-name" />
+                        <label asp-for="FirstName"></label>
+                        <span asp-validation-for="FirstName" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <input asp-for="LastName" class="form-control" placeholder="Last Name" autocomplete="family-name" />
+                        <label asp-for="LastName"></label>
+                        <span asp-validation-for="LastName" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-floating">
+                <input asp-for="Email" class="form-control" placeholder="Email Address" autocomplete="email" />
+                <label asp-for="Email"></label>
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+
+            <div class="form-floating">
+                <input asp-for="Password" class="form-control" placeholder="Password" autocomplete="new-password" />
+                <label asp-for="Password"></label>
+                <span asp-validation-for="Password" class="text-danger small"></span>
+            </div>
+
+            <div class="form-floating">
+                <input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm Password" autocomplete="new-password" />
+                <label asp-for="ConfirmPassword"></label>
+                <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+            </div>
+
+            <div class="form-check">
+                <input asp-for="AgreeToTerms" class="form-check-input" />
+                <label asp-for="AgreeToTerms" class="form-check-label">
+                    I agree to the <a href="#" class="text-primary">Terms and Conditions</a>
+                </label>
+                <span asp-validation-for="AgreeToTerms" class="text-danger small d-block"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mb-3">
+                <i class="fas fa-user-plus me-2"></i>Create Account
+            </button>
+        </form>
+    </div>
+
+    <div class="auth-links">
+        <p class="mb-0">
+            Remember your password?
+            <a asp-action="Login">Sign in here</a>
+        </p>
+    </div>
+</div>
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>

@@ -1,0 +1,95 @@
+﻿        <!-- Notifications Tab -->
+<link href="~/css/profilecss1.css" rel="stylesheet" />
+
+        @model ProfileDTO
+<div class="profile-container">
+    @await Html.PartialAsync("ProfilePartial", Model)
+
+    <div id="notifications" class="tab-content active">
+        <div class="form-section">
+            <h2 class="section-title">Recent Notifications</h2>
+
+            <div class="notification-item">
+                <div class="notification-icon">📦</div>
+                <div class="notification-content">
+                    <div class="notification-title">Your order has been shipped</div>
+                    <div class="notification-time">2 hours ago</div>
+                </div>
+            </div>
+
+            <div class="notification-item">
+                <div class="notification-icon">💳</div>
+                <div class="notification-content">
+                    <div class="notification-title">Payment successful for order #EG-2025-001234</div>
+                    <div class="notification-time">1 day ago</div>
+                </div>
+            </div>
+
+            <div class="notification-item">
+                <div class="notification-icon">🏷️</div>
+                <div class="notification-content">
+                    <div class="notification-title">Special offer: 20% off on electronics</div>
+                    <div class="notification-time">3 days ago</div>
+                </div>
+            </div>
+
+            <div class="notification-item">
+                <div class="notification-icon">👤</div>
+                <div class="notification-content">
+                    <div class="notification-title">Profile updated successfully</div>
+                    <div class="notification-time">1 week ago</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2 class="section-title">Notification Preferences</h2>
+
+            <div class="security-item">
+                <div class="security-info">
+                    <h4>Order Updates</h4>
+                    <p>Get notified about your order status</p>
+                </div>
+                <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+
+            <div class="security-item">
+                <div class="security-info">
+                    <h4>Promotional Emails</h4>
+                    <p>Receive emails about deals and offers</p>
+                </div>
+                <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+
+            <div class="security-item">
+                <div class="security-info">
+                    <h4>SMS Notifications</h4>
+                    <p>Get text messages for important updates</p>
+                </div>
+                <div class="toggle-switch" onclick="toggleSwitch(this)">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+
+            <div class="security-item">
+                <div class="security-info">
+                    <h4>Push Notifications</h4>
+                    <p>Receive push notifications on your device</p>
+                </div>
+                <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    function toggleSwitch(element) {
+        element.classList.toggle('active');
+    }
+</script>

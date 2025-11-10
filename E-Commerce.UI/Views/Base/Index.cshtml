@@ -1,0 +1,2451 @@
+﻿@model ShopDTO
+
+<style>
+
+    /* Sort Controls Container */
+    .sort-controls {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        background: white;
+        padding: 16px 24px;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--border-light);
+        margin-bottom: 20px;
+    }
+
+    .sort-label {
+        font-weight: 600;
+        color: var(--text-dark);
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    /* Sort Arrows */
+    .sort-arrows {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        margin-right: 8px;
+        padding: 4px;
+        border-radius: var(--radius-sm);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+        .sort-arrows:hover {
+            background: var(--primary-light);
+        }
+
+    .sort-arrow {
+        width: 0;
+        height: 0;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+    }
+
+        .sort-arrow.up {
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 8px solid var(--text-light);
+            margin-bottom: 1px;
+        }
+
+        .sort-arrow.down {
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 8px solid var(--text-light);
+            margin-top: 1px;
+        }
+
+    /* Active states */
+    .sort-arrows.asc .sort-arrow.up {
+        border-bottom-color: var(--primary-color);
+        transform: scale(1.2);
+        filter: drop-shadow(0 2px 4px rgba(253, 91, 68, 0.3));
+    }
+
+    .sort-arrows.desc .sort-arrow.down {
+        border-top-color: var(--primary-color);
+        transform: scale(1.2);
+        filter: drop-shadow(0 2px 4px rgba(253, 91, 68, 0.3));
+    }
+
+    /* Hover effects */
+    .sort-arrows:hover .sort-arrow.up {
+        border-bottom-color: var(--primary-color);
+        opacity: 0.7;
+    }
+
+    .sort-arrows:hover .sort-arrow.down {
+        border-top-color: var(--primary-color);
+        opacity: 0.7;
+    }
+
+    /* Enhanced sort select */
+    .sort-select-wrapper {
+        position: relative;
+        flex: 1;
+        max-width: 250px;
+    }
+
+    .sort-select1 {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid var(--border-light);
+        border-radius: var(--radius-md);
+        font-size: 14px;
+        font-weight: 500;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        appearance: none;
+        padding-right: 45px;
+    }
+
+        .sort-select1:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px var(--primary-light);
+        }
+
+        .sort-select1:hover {
+            border-color: var(--primary-color);
+        }
+
+    /* Custom select arrow */
+    .select-arrow {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 6px solid var(--text-medium);
+        pointer-events: none;
+        transition: all 0.3s ease;
+    }
+
+    .sort-select-wrapper:hover .select-arrow {
+        border-top-color: var(--primary-color);
+    }
+
+    /* Quick sort buttons */
+    .quick-sort-buttons {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .quick-sort-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
+        background: white;
+        border: 2px solid var(--border-light);
+        border-radius: var(--radius-md);
+        color: var(--text-medium);
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+
+        .quick-sort-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .quick-sort-btn.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 12px rgba(253, 91, 68, 0.3);
+        }
+
+        .quick-sort-btn i {
+            font-size: 12px;
+        }
+
+    /* Results info */
+    .results-info {
+        color: var(--text-medium);
+        font-size: 14px;
+        font-weight: 500;
+    }
+    /* Animation keyframes */
+    @@keyframes sortPulse {
+        0% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.1);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    .sort-arrows.sorting {
+        animation: sortPulse 0.6s ease-in-out;
+    }
+
+    /* Responsive design */
+    @@media (max-width: 768px) {
+        .sort-controls {
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .quick-sort-buttons {
+            order: 3;
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    :root {
+        --primary-color: #fd5b44;
+        --primary-light: rgba(253, 91, 68, 0.1);
+        --primary-dark: #e54d37;
+        --text-dark: #1a1a1a;
+        --text-medium: #4a5568;
+        --text-light: #718096;
+        --bg-light: #f8fafc;
+        --white: #ffffff;
+        --border-light: #e2e8f0;
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+        --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+        --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+        --radius-sm: 8px;
+        --radius-md: 12px;
+        --radius-lg: 16px;
+        --radius-xl: 24px;
+    }
+
+
+    /* Hero Section */
+
+
+    /* Main Content */
+    .main-content {
+        padding: 60px 0;
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 40px;
+        align-items: start;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        position: sticky;
+        top: 20px;
+        background: white;
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+        border: 1px solid var(--border-light);
+    }
+
+    .widget1 {
+        padding: 32px;
+        border-bottom: 1px solid var(--border-light);
+    }
+
+        .widget1:last-child {
+            border-bottom: none;
+        }
+
+    .widget-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+        .widget-title::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border-radius: 2px;
+        }
+
+    /* Search Widget */
+    .search-form1 {
+        position: relative;
+    }
+
+    .search-input1 {
+        width: 100%;
+        padding: 16px 50px 16px 20px;
+        border: 2px solid var(--border-light);
+        border-radius: var(--radius-md);
+        font-size: 15px;
+        transition: all 0.3s ease;
+        background: var(--bg-light);
+    }
+
+        .search-input1:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: white;
+            box-shadow: 0 0 0 4px var(--primary-light);
+        }
+
+    .search-btn {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 6px 11px;
+        border-radius: var(--radius-xl);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .search-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-50%) scale(1.05);
+        }
+
+    /* Categories */
+    .category-list1 {
+        list-style: none;
+    }
+
+    .category-item1 {
+        margin-bottom: 12px;
+    }
+
+    .category-main1 {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        background: var(--bg-light);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+        .category-main1:hover {
+            background: white;
+            border-color: var(--primary-light);
+            transform: translateX(4px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .category-main1.active {
+            background: var(--primary-light);
+            border-color: var(--primary-color);
+        }
+
+    .category-name1 {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    .category-icon1 {
+        width: 8px;
+        height: 8px;
+        background: var(--primary-color);
+        border-radius: 50%;
+    }
+
+    .category-count {
+        background: var(--primary-color);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        min-width: 24px;
+        text-align: center;
+    }
+
+    .expand-icon {
+        width: 8px;
+        height: 8px;
+        border-right: 2px solid var(--primary-color);
+        border-bottom: 2px solid var(--primary-color);
+        transform: rotate(45deg);
+        transition: transform 0.3s ease;
+        margin-left: 8px;
+    }
+
+    /* Level 1 Subcategories */
+    .subcategories {
+        margin-top: 12px;
+        padding-left: 20px;
+        border-left: 2px solid var(--primary-light);
+        display: none;
+    }
+
+        .subcategories.show {
+            display: block;
+        }
+
+    .subcategory-item1 {
+        margin-bottom: 8px;
+    }
+
+    .subcategory-link {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        background: rgba(253, 91, 68, 0.03);
+        border-radius: var(--radius-sm);
+        color: var(--text-medium);
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 1px solid transparent;
+    }
+
+        .subcategory-link:hover {
+            background: var(--primary-light);
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            transform: translateX(4px);
+        }
+
+        .subcategory-link.active {
+            background: var(--primary-light);
+            border-color: var(--primary-color);
+        }
+
+    .subcategory-count {
+        background: var(--primary-light);
+        color: var(--primary-color);
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    /* Level 2 Sub-subcategories */
+    .sub-subcategories {
+        margin-top: 8px;
+        padding-left: 16px;
+        border-left: 2px solid rgba(253, 91, 68, 0.2);
+        display: none;
+    }
+
+        .sub-subcategories.show {
+            display: block;
+        }
+
+    .sub-subcategory-item {
+        margin-bottom: 6px;
+    }
+
+    .sub-subcategory-link {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 12px;
+        background: rgba(253, 91, 68, 0.02);
+        border-radius: 6px;
+        color: var(--text-light);
+        font-weight: 400;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 1px solid transparent;
+        position: relative;
+    }
+
+        .sub-subcategory-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 3px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .sub-subcategory-link:hover {
+            background: rgba(253, 91, 68, 0.08);
+            color: var(--primary-color);
+            border-color: rgba(253, 91, 68, 0.3);
+            transform: translateX(2px);
+            padding-left: 16px;
+        }
+
+        .sub-subcategory-link.active {
+            background: rgba(253, 91, 68, 0.1);
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            font-weight: 500;
+        }
+
+    .sub-subcategory-count {
+        background: rgba(253, 91, 68, 0.15);
+        color: var(--primary-color);
+        padding: 2px 6px;
+        border-radius: 8px;
+        font-size: 10px;
+        font-weight: 500;
+        min-width: 16px;
+        text-align: center;
+    }
+
+    /* Subcategory name styling with expand icon */
+    .subcategory-name {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 1;
+    }
+
+    .subcategory-expand-icon {
+        width: 6px;
+        height: 6px;
+        border-right: 1px solid var(--primary-color);
+        border-bottom: 1px solid var(--primary-color);
+        transform: rotate(45deg);
+        transition: transform 0.3s ease;
+        opacity: 0.7;
+    }
+
+    /* Price Filter */
+    .price-widget {
+        background: linear-gradient(135deg, var(--primary-light), rgba(255, 122, 99, 0.05));
+        border-radius: var(--radius-md);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .price-widget::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), #ff7a63, var(--primary-color));
+            background-size: 200% 100%;
+            animation: priceGradient 3s ease-in-out infinite;
+        }
+
+    @@keyframes priceGradient {
+        0%, 100% {
+            background-position: 0% 50%;
+        }
+
+        50% {
+            background-position: 100% 50%;
+        }
+    }
+
+    .price-display {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding: 16px 20px;
+        background: white;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--primary-light);
+    }
+
+    .price-current {
+        font-weight: 700;
+        color: var(--primary-color);
+        font-size: 16px;
+    }
+
+    .price-label {
+        font-size: 12px;
+        color: var(--text-light);
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .price-slider {
+        height: 6px;
+        background: var(--border-light);
+        border-radius: 6px;
+        position: relative;
+        margin: 32px 0;
+        cursor: pointer;
+    }
+
+    .slider-range {
+        background: linear-gradient(135deg, var(--primary-color), #ff7a63);
+        height: 100%;
+        border-radius: 6px;
+        position: absolute;
+    }
+
+    .slider-handle {
+        width: 20px;
+        height: 20px;
+        background: white;
+        border: 3px solid var(--primary-color);
+        border-radius: 50%;
+        position: absolute;
+        top: -7px;
+        cursor: grab;
+        transition: all 0.3s ease;
+        box-shadow: var(--shadow-md);
+    }
+
+        .slider-handle:hover {
+            transform: scale(1.2);
+            box-shadow: 0 8px 25px rgba(253, 91, 68, 0.3);
+        }
+
+        .slider-handle:active {
+            cursor: grabbing;
+        }
+
+    .price-inputs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .price-input-group {
+        position: relative;
+    }
+
+        .price-input-group label {
+            display: block;
+            font-weight: 600;
+            color: var(--text-medium);
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+    .price-input {
+        width: 100%;
+        padding: 14px 16px 14px 45px;
+        border: 2px solid var(--border-light);
+        border-radius: var(--radius-md);
+        font-size: 15px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+        .price-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px var(--primary-light);
+        }
+
+    .currency-symbol {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--primary-color);
+        font-weight: 700;
+        font-size: 14px;
+    }
+
+    /* Filter Chips */
+    .filter-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+        gap: 12px;
+    }
+
+    .filter-chip {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 16px;
+        background: white;
+        border: 2px solid var(--border-light);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 14px;
+        font-weight: 500;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .filter-chip::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(253,91,68,0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .filter-chip:hover::before {
+            left: 100%;
+        }
+
+        .filter-chip:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .filter-chip.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(253, 91, 68, 0.3);
+        }
+
+    .color-chip {
+        /*         justify-content: space-between;
+         */ gap: 8px;
+    }
+
+    .color-swatch {
+        width: 16px;
+        height: 16px;
+        border-radius: 4px;
+        border: 2px solid white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        flex-shrink: 0;
+    }
+
+    /* Action Buttons */
+    .filter-actions1 {
+        display: flex;
+        gap: 12px;
+        padding: 24px 32px;
+        background: var(--bg-light);
+    }
+
+    .btn-primary {
+        flex: 1;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(253, 91, 68, 0.3);
+        }
+
+    .btn-secondary1 {
+        background: white;
+        color: var(--text-medium);
+        border: 2px solid var(--border-light);
+        padding: 14px 20px;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .btn-secondary1:hover {
+            border-color: red;
+            color: white;
+            background: red;
+            transform: translateY(-1px);
+        }
+
+    /* Filter Summary */
+    .filter-summary {
+        background: white;
+        padding: 20px 32px;
+        border-bottom: 1px solid var(--border-light);
+        display: none;
+    }
+
+        .filter-summary.active {
+            display: block;
+        }
+
+    .filter-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .filter-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--primary-color);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+        .filter-tag button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+
+            .filter-tag button:hover {
+                background: rgba(255,255,255,0.2);
+            }
+
+    /* Product Grid */
+    .products-section {
+        background: white;
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+    }
+
+    .products-header1 {
+        padding: 32px;
+        border-bottom: 1px solid var(--border-light);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: linear-gradient(135deg, var(--bg-light) 0%, white 100%);
+    }
+
+    .results-count1 {
+        color: var(--text-medium);
+        font-weight: 500;
+    }
+
+    .sort-select1 {
+        width: 40%;
+        padding: 12px 16px;
+        border: 2px solid var(--border-light);
+        border-radius: var(--radius-md);
+        font-size: 14px;
+        font-weight: 500;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .sort-select1:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px var(--primary-light);
+        }
+
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 32px;
+        padding: 32px;
+    }
+
+    /* Product Card */
+    .product-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-light);
+        position: relative;
+        group: hover;
+    }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(253, 91, 68, 0.15);
+            border-color: var(--primary-light);
+        }
+
+    .product-image {
+        position: relative;
+        overflow: hidden;
+        aspect-ratio: 1;
+        background: var(--bg-light);
+    }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+    .product-card:hover .product-image img {
+        transform: scale(1.05);
+    }
+
+    .product-tag {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        background: var(--primary-color);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        z-index: 2;
+    }
+
+    .product-actions {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        opacity: 0;
+        transform: translateX(20px);
+        transition: all 0.3s ease;
+    }
+
+    .product-card:hover .product-actions {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .action-btn {
+        width: 44px;
+        height: 44px;
+        background: white;
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: var(--shadow-md);
+    }
+
+        .action-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+        }
+
+    .product-content {
+        padding: 24px;
+    }
+
+    .product-rating {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .stars {
+        display: flex;
+        gap: 2px;
+    }
+
+    .star {
+        color: #fbbf24;
+        font-size: 14px;
+    }
+
+    .rating-text {
+        font-size: 12px;
+        color: var(--text-light);
+    }
+
+    .product-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 8px;
+        line-height: 1.4;
+    }
+
+        .product-title a {
+            color: inherit;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+            .product-title a:hover {
+                color: var(--primary-color);
+            }
+
+    .product-price {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 700;
+    }
+
+    .price-original {
+        color: var(--text-light);
+        text-decoration: line-through;
+        font-size: 14px;
+    }
+
+    .price-current {
+        color: var(--primary-color);
+        font-size: 18px;
+    }
+
+    .color-options {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border-light);
+    }
+
+    .color-title {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-medium);
+        margin-bottom: 8px;
+    }
+
+    .color-swatches {
+        display: flex;
+        gap: 6px;
+    }
+
+    .color-option {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 2px solid white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .color-option:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+    /* Pagination */
+    .pagination-wrapper {
+        padding: 32px;
+        display: flex;
+        justify-content: center;
+        background: var(--bg-light);
+    }
+
+    .pagination {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        list-style: none;
+    }
+
+        .pagination a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            background: white;
+            color: var(--text-medium);
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 2px solid var(--border-light);
+        }
+
+            .pagination a:hover {
+                border-color: var(--primary-color);
+                color: var(--primary-color);
+                transform: translateY(-2px);
+            }
+
+            .pagination a.active {
+                background: var(--primary-color);
+                color: white;
+                border-color: var(--primary-color);
+            }
+
+            .pagination a.disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+                pointer-events: none;
+            }
+
+    /* Responsive Design */
+    @@media (max-width: 1024px) {
+        .main-content {
+            grid-template-columns: 1fr;
+            gap: 32px;
+        }
+
+        .sidebar {
+            position: static;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .hero-title {
+            font-size: 36px;
+        }
+
+        .main-content {
+            padding: 40px 0;
+        }
+
+        .products-grid {
+            grid-template-columns: 1fr;
+            gap: 24px;
+            padding: 24px;
+        }
+
+        .products-header1 {
+            flex-direction: column;
+            gap: 16px;
+            align-items: stretch;
+        }
+
+        .filter-actions1 {
+            flex-direction: column;
+        }
+    }
+
+    @@media (max-width: 1024px) and (min-width: 769px) {
+        .products-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    /* Loading States */
+    .loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 60px;
+        color: var(--text-light);
+    }
+
+    .spinner {
+        width: 32px;
+        height: 32px;
+        border: 3px solid var(--border-light);
+        border-top: 3px solid var(--primary-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 12px;
+    }
+
+    @@keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 80px 32px;
+        color: var(--text-light);
+    }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+            color: var(--text-medium);
+        }
+</style>
+
+<!-- Hero Section -->
+<div class="breadcumb-wrapper background-image" style="background-image: url(&quot;/assets/img/bg/breadcumb-bg.jpg&quot;);">
+    <div class="container">
+        <div class="breadcumb-content">
+            <h1 class="breadcumb-title">Shop All Products</h1>
+            <ul class="breadcumb-menu">
+                <li><a asp-controller="Base" asp-action="Home">Home</a></li>
+                <li>Shop</li>
+
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="container">
+    <div class="main-content">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <!-- Filter Summary -->
+            <div class="filter-summary" id="filterSummary">
+                <strong>Active Filters:</strong>
+                <div class="filter-tags" id="filterTags"></div>
+            </div>
+
+            <!-- Search Widget -->
+            <div class="widget1">
+                <h3 class="widget-title">
+                    <i class="fas fa-search"></i>
+                    Search Products
+                </h3>
+                <form id="searchForm" asp-action="Filter" method="post" class="search-form1">
+                    <input type="hidden" id="dataPayload2" name="Obj" />
+                    <div style="position: relative;">
+                        <input type="text" id="search" class="search-input1" placeholder="Search products...">
+                        <button type="button" onclick="searchFilter(this)" class="search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Categories Widget -->
+            <div class="widget1">
+                <h3 class="widget-title">
+                    <i class="fas fa-layer-group"></i>
+                    Categories
+                </h3>
+
+                <ul class="category-list1">
+                    <!-- Sample categories - replace with your server-side data -->
+                    @{
+                        if (Model.AvailableCategories.Count() > 0)
+                        {
+                            foreach (var category in Model.AvailableCategories)
+                            {
+                                <li class="category-item1">
+                                    <div class="category-main1" onclick="toggleCategory(this)">
+                                        <div class="category-name1">
+                                            <span class="category-icon1"></span>
+                                            <span onclick="toggleFilter(this, 'category', 1)">@category.Name</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <span class="category-count">@category.SubCategories.Count</span>
+                                            <div class="expand-icon"></div>
+                                        </div>
+                                    </div>
+                                    <div class="subcategories">
+                                        @if (category.SubCategories != null)
+                                        {
+                                            @foreach (var subCategory in category.SubCategories)
+                                            {
+                                                <!-- Dresses Subcategory -->
+                                                <div class="subcategory-item1">
+                                                    <div class="subcategory-link" onclick="toggleSubcategory(this)">
+                                                        <div class="subcategory-name">
+                                                            <span onclick="toggleFilter(this, 'subcategory', 11)">@subCategory.Name</span>
+                                                            <div class="subcategory-expand-icon"></div>
+                                                        </div>
+                                                        <span class="subcategory-count">@subCategory.SubCategories.Count</span>
+                                                    </div>
+                                                    <div class="sub-subcategories">
+                                                        @if (subCategory.SubCategories != null)
+                                                        {
+                                                            @foreach (var subCategory2 in subCategory.SubCategories)
+                                                            {
+                                                                <div class="sub-subcategory-item">
+                                                                    <div id="cat@(@subCategory2.Id)" class="sub-subcategory-link" onclick="toggleFilter(this, 'sub-subcategory', @subCategory2.Id)">
+                                                                        <span>@subCategory2.Name</span>
+                                                                        <span class="sub-subcategory-count">@subCategory2.SubCategories.Count</span>
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                        }
+                                                    </div>
+                                                </div>
+                                            }
+                                        }
+                                    </div>
+                                </li>
+                            }
+
+                        }
+                    }
+                </ul>
+            </div>
+
+            <!-- Price Filter Widget -->
+            <div class="widget1 price-widget">
+                <h4 class="widget-title">
+                    <i class="fas fa-dollar-sign"></i>
+                    Filter By Price
+                </h4>
+                <div class="price_slider_wrapper">
+                    <!-- Current Price Display -->
+                    <div class="price-display">
+                        <span class="price-current" id="current-range">10 EGP - 10,000 EGP</span>
+                        <span class="price-label">Range</span>
+                    </div>
+
+                    <!-- Interactive Slider -->
+                    <div class="price-slider" id="price-slider">
+                        <div class="slider-range" id="slider-range" style="left: 0%; width: 100%;"></div>
+                        <span class="slider-handle" id="handle-min" style="left: 0%;"></span>
+                        <span class="slider-handle" id="handle-max" style="left: 100%;"></span>
+                    </div>
+
+                    <!-- Price Input Fields -->
+                    <div class="price-inputs">
+                        <div class="price-input-group">
+                            <label for="price-from">From:</label>
+                            <div style="position: relative;">
+                                <span class="currency-symbol">EGP</span>
+                                <input type="number" id="price-from" class="price-input" value="10" min="0">
+                            </div>
+                        </div>
+                        <div class="price-input-group">
+                            <label for="price-to">To:</label>
+                            <div style="position: relative;">
+                                <span class="currency-symbol">EGP</span>
+                                <input type="number" id="price-to" class="price-input" value="10000" min="0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Size Widget -->
+            <div class="widget1">
+                <h3 class="widget-title">
+                    <i class="fas fa-ruler"></i>
+                    Size
+                </h3>
+                <div class="filter-grid">
+                    @{
+                        if (Model.AvailableSizes.Count > 0)
+                        {
+                            foreach (var item in Model.AvailableSizes)
+                            {
+                                <div id="size@(@item.Size)" class="filter-chip" onclick="toggleFilter(this, 'size','@item.Size')">
+                                    <input type="checkbox" hidden>
+                                    <span>@item.Size</span>
+                                </div>
+                            }
+                        }
+                    }
+
+                </div>
+            </div>
+
+            <!-- Color Widget -->
+            <div class="widget1">
+                <h3 class="widget-title">
+                    <i class="fas fa-palette"></i>
+                    Color
+                </h3>
+                <div class="filter-grid">
+                    @{
+                        if (Model.AvailableColors.Count > 0)
+                        {
+                            foreach (var item in Model.AvailableColors)
+                            {
+                                if (item.Color != "null")
+                                {
+                                    <div id="color@(@item.Color.Split(':').First())" class="filter-chip color-chip" onclick="toggleFilter(this, 'color','@item.Color')">
+                                        <span>@item.Color.Split(':').First()</span>
+                                        <span class="color-swatch" style="background: @item.Color.Split(':').Last()"></span>
+                                    </div>
+                                }
+                            }
+                        }
+                    }
+                </div>
+            </div>
+
+            <!-- Filter Actions -->
+            <form id="filterForm" method="post" asp-action="Filter">
+
+                <div class="filter-actions1">
+                    <input type="hidden" id="dataPayload" name="Obj" />
+                    <button type="button" class="btn-primary" onclick="applyFilters()">
+                        <i class="fas fa-filter"></i>
+                        Apply Filters
+                    </button>
+
+                    <button type="button" class="btn-secondary1" onclick="clearAllFilters()">
+                        <i class="fas fa-times"></i>
+                        Clear All
+                    </button>
+                </div>
+            </form>
+
+        </aside>
+
+        <!-- Products Section -->
+        <main class="products-section">
+            <!-- Products Header -->
+            <div class="products-header1">
+                <div class="results-count1" id="paginationInfo">
+                    Showing 1 to 12 of 124 products
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div class="sort-arrows" id="sortArrows" onclick="applySorting()">
+
+                        <div class="sort-arrow up"></div>
+                        <div class="sort-arrow down"></div>
+                    </div>
+                    <form id="sortForm" asp-action="GetPage" method="post">
+
+                        <select asp-for="@Model.SortType" id="sortSelect" class="sort-select1" name="orderby" style="width: 250px;">
+                            <option value=1>Sort by popularity</option>
+                            <option value=2>Sort by average rating</option>
+                            <option value=3>Sort by latest</option>
+                            <option value=4>Sort by price</option>
+                        </select>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="products-grid" id="productsGrid">
+                <!-- Sample Products -->
+                @{
+                    if (Model.Products.Count() > 0)
+                    {
+                        foreach (var prod in Model.Products)
+                        {
+                            <div class="product-card">
+                                <div class="product-image">
+                                    <img src="@prod.MainPhotoPath" alt="Designer Handbag">
+
+                                    @{
+                                        var DaysCount = (DateTime.Now - prod.CreatedOn).Days;
+                                        if (prod.IsSale)
+                                        {
+                                            <span class="product-tag">On Sale</span>
+                                        }
+                                        else if (DaysCount < 20)
+                                        {
+                                            <span class="product-tag">New</span>
+
+                                        }
+                                    }
+
+                                    <div class="product-actions">
+                                        <form id="wlForm" asp-action="AddToWL" method="post">
+                                            <input id="wishListId" name="Obj" hidden />
+                                            <button type="button" onclick="addToWL('@prod.Id')" class="action-btn" title="Add to Wishlist">
+                                                @{
+                                                    if (Model.ProductsWL.Contains(prod.Id))
+                                                    {
+                                                        <i class="fas fa-heart"></i>
+
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="far fa-heart"></i>
+
+                                                    }
+                                                }
+                                            </button>
+                                        </form>
+
+                                        <button class="popup-content action-btn" title="Quick View" href="#QuickView@(prod.Id)">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+
+                                        <button class="action-btn" title="Add to Cart">
+                                            <i class="fas fa-shopping-bag"></i>
+                                        </button>
+
+                                    </div>
+                                </div>
+                                <div class="product-content">
+                                    <div class="product-rating">
+                                        <div class="stars">
+
+                                            @{
+                                                if (prod.ReviewRate > 0)
+                                                {
+                                                    for (int f = 0; f < prod.ReviewRate; f++)
+                                                    {
+                                                        <i class="fas fa-star star"></i>
+
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    for (int f = 0; f < 5; f++)
+                                                    {
+                                                        <i class="fal fa-star" style="color: #FFD43B;"></i>
+                                                    }
+                                                }
+                                            }
+                                        </div>
+
+                                        <span class="rating-text">(@prod.ReviewCount reviews)</span>
+                                    </div>
+                                    <h3 class="product-title">
+                                        <a href="#">@prod.Name</a>
+                                    </h3>
+                                    <div class="product-price">
+                                        @if (prod.Discount != null)
+                                        {
+                                            <span class="price-original">@Math.Round((decimal)prod.Price, 2) EGP</span>
+                                            <span class="price-current">@Math.Round((decimal)prod.AfterDiscount, 2) EGP</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="price-current">@prod.Price EGP</span>
+                                        }
+                                    </div>
+
+                                </div>
+                            </div>
+                            <!-- this section is for quick view -->
+                            <div class="mfp-wrap mfp-close-btn-in mfp-auto-cursor mfp-ready" tabindex="-1" style="overflow: hidden auto;display:none">
+                                <div class="mfp-container mfp-s-ready mfp-inline-holder">
+                                    <div class="mfp-content">
+                                        <div id="QuickView@(prod.Id)" class="white-popup">
+                                            <div class="container bg-white rounded-20">
+                                                <div class="row gx-60">
+                                                    <div class="col-lg-6">
+                                                        <div class="product-big-img">
+                                                            <div class="img"><img src="@prod.MainPhotoPath" alt="Product Image"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 align-self-center">
+                                                        <div class="product-about">
+                                                            @{
+                                                                @if (prod.Discount != null)
+                                                                {
+                                                                    <p class="price">@Math.Round((decimal)prod.AfterDiscount, 2) EGP <del> @Math.Round((decimal)prod.Price, 2) EGP</del></p>
+
+                                                                }
+                                                            }
+                                                            <h2 class="product-title">@prod.Name</h2>
+                                                            @{
+                                                                var RatePercent = (prod.ReviewRate * 100) / 5;
+                                                                <div class="product-rating">
+                                                                    <div class="star-rating" role="img" aria-label="Rated @prod.ReviewRate out of 5">
+                                                                        <span style="width:@RatePercent%">
+                                                                            Rated
+                                                                            <strong class="rating">5.00</strong>
+                                                                            out of 5 based on <span class="rating">1</span> customer rating
+                                                                        </span>
+                                                                    </div>
+                                                                    <a href="shop-details.html" class="woocommerce-review-link">(<span class="count">@prod.ReviewCount</span> customer reviews)</a>
+                                                                </div>
+                                                            }
+                                                            <p class="text">@prod.Description</p>
+
+                                                            <div class="mt-2 link-inherit">
+                                                                <p>
+                                                                    <strong class="text-title me-3">Availability:</strong>
+                                                                    @{
+                                                                        if (prod.stock.Quantity > 0)
+                                                                        {
+                                                                            <span class="stock in-stock"><i class="far fa-check-square me-2 ms-1"></i>In Stock</span>
+                                                                            <div class="actions">
+                                                                                <div class="quantity"><input type="number" class="qty-input" step="1" min="1" max="@prod.stock.Quantity" name="quantity" value="1" title="Qty"> <button class="quantity-plus qty-btn"><i class="far fa-chevron-up"></i></button> <button class="quantity-minus qty-btn"><i class="far fa-chevron-down"></i></button></div>
+                                                                                <button class="th-btn">Add to Cart</button>
+                                                                                <a href="wishlist.html" class="icon-btn"><i class="far fa-heart"></i></a>
+                                                                            </div>
+
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <span class="stock in-stock text-danger"> <i class="fa-solid fa-ban"></i> Out Of Stock </span>
+                                                                        }
+                                                                    }
+                                                                </p>
+                                                            </div>
+
+                                                            <div class="product_meta">
+                                                                <span class="sku_wrapper">SKU: <span class="sku">Stock:@prod.stock.stockId - @prod.stock.Id</span></span>
+                                                                <span class="posted_in">Category: <a href="shop.html">@prod.category.ParentCategory.ParentCategory.Name, @prod.category.ParentCategory.Name, @prod.category.Name</a></span>
+                                                                <span>Tags: <a href="shop.html">Fashion</a></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <button title="Close (Esc)" type="button" class="mfp-close">×</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mfp-preloader">Loading...</div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div>
+                            No Products Found
+                        </div>
+                    }
+                }
+
+
+
+
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination-wrapper">
+                <form id="paginationForm" method="post" asp-action="GetPage">
+                    <input type="hidden" id="dataPayload1" name="Obj" />
+                    <ul class="pagination" id="paginationControls">
+                        <li><a href="#" class="disabled"><i class="fas fa-chevron-left"></i></a></li>
+                        <li><a href="#" class="active">1</a></li>
+                        <li><a href="#" class="disabled"><i class="fas fa-chevron-right"></i></a></li>
+                    </ul>
+                </form>
+            </div>
+        </main>
+    </div>
+</div>
+@section lib {
+    <script>
+
+
+        var retModel = @Html.Raw(Json.Serialize(Model));
+
+
+        console.log(retModel);
+        // State Management
+        let currentFilters = {
+            search: '',
+            categories: [],
+            sizes: [],
+            colors: [],
+            priceMin: 10,
+            priceMax: 10000
+        };
+        let clearable;
+
+        let currentPage = retModel.pageIndex;
+        let itemsPerPage = 10;
+        let totalItems = retModel.productsSize;
+
+        // Price Slider
+        let minPrice = 10;
+        let maxPrice = 10000;
+        let currentMin = 10;
+        let currentMax = 10000;
+        let isDragging = false;
+        let activeHandle = null;
+
+        // document.getElementById('sortSelect').value = retModel.sortType;
+
+        // Filter Management
+        function toggleFilter(element, type, value) {
+            element.classList.toggle('active');
+
+            if (element.classList.contains('active')) {
+                if (type == "sub-subcategory") {
+                    currentFilters.categories.push(value);
+                }
+                else if (type == "size") {
+                    currentFilters.sizes.push(value);
+
+                }
+                else if (type == "color") {
+                    currentFilters.colors.push(value);
+
+                }
+            }
+            else {
+                if (type == "sub-subcategory") {
+                    currentFilters.categories.pop();
+                }
+                else if (type == "size") {
+                    currentFilters.sizes.pop();
+
+                }
+                else if (type == "color") {
+                    currentFilters.colors.pop();
+
+                }
+                console.log(currentFilters);
+            }
+
+            // Add ripple effect
+            const rect = element.getBoundingClientRect();
+            const ripple = document.createElement('div');
+            ripple.style.cssText = `
+                                                                                position: absolute;
+                                                                                border-radius: 50%;
+                                                                                background: rgba(253, 91, 68, 0.3);
+                                                                                transform: scale(0);
+                                                                                animation: ripple 0.6s linear;
+                                                                                pointer-events: none;
+                                                                                width: 40px;
+                                                                                height: 40px;
+                                                                                left: 50%;
+                                                                                top: 50%;
+                                                                                margin-left: -20px;
+                                                                                margin-top: -20px;
+                                                                            `;
+
+            element.style.position = 'relative';
+            element.appendChild(ripple);
+
+            setTimeout(() => ripple.remove(), 600);
+
+            // Update filters based on type
+            updateFilters();
+        }
+
+        function toggleCategory(element) {
+            const subcategories = element.parentElement.querySelector('.subcategories');
+            const expandIcon = element.querySelector('.expand-icon');
+
+            if (subcategories.classList.contains('show')) {
+                subcategories.classList.remove('show');
+                expandIcon.style.transform = 'rotate(45deg)';
+            } else {
+                subcategories.classList.add('show');
+                expandIcon.style.transform = 'rotate(225deg)';
+            }
+        }
+        function toggleSubcategory(element) {
+            const subcategories = element.parentElement.querySelector('.sub-subcategories');
+            const expandIcon = element.querySelector('.subcategory-expand-icon');
+
+            if (subcategories.classList.contains('show')) {
+                subcategories.classList.remove('show');
+                expandIcon.style.transform = 'rotate(45deg)';
+            } else {
+                subcategories.classList.add('show');
+                expandIcon.style.transform = 'rotate(225deg)';
+            }
+        }
+
+        function addToWL(value) {
+            retModel.wishListProduct = value;
+            retModel.wishListAdded = false;
+            document.getElementById('wishListId').value = JSON.stringify(retModel);
+
+            document.getElementById('wlForm').submit();
+        }
+        function updateFilters() {
+            // Update filter summary
+            updateFilterSummary();
+
+            // You can add AJAX call here to update products
+            console.log('Current filters:', currentFilters);
+        }
+
+        function updateFilterSummary() {
+            const filterSummary = document.getElementById('filterSummary');
+            const filterTags = document.getElementById('filterTags');
+
+            const activeFilters = [];
+
+            // Add search filter
+            if (currentFilters.search) {
+                activeFilters.push({ type: 'search', value: currentFilters.search });
+            }
+            if (currentFilters.priceMin > 10) {
+                activeFilters.push({ type: 'From_Price', value: currentFilters.priceMin });
+
+            }
+            if (currentFilters.priceMax < 10000) {
+                activeFilters.push({ type: 'To_Price', value: currentFilters.priceMax });
+
+            }
+
+            // Add category filters
+            currentFilters.categories.forEach(cat => {
+                activeFilters.push({ type: 'category', value: cat });
+            });
+
+            // Add size filters
+            currentFilters.sizes.forEach(size => {
+                activeFilters.push({ type: 'size', value: size });
+            });
+
+            // Add color filters
+            currentFilters.colors.forEach(color => {
+                activeFilters.push({ type: 'color', value: color });
+            });
+
+            if (activeFilters.length > 0) {
+                filterSummary.classList.add('active');
+                filterTags.innerHTML = activeFilters.map(filter => `
+                                                                                    <span class="filter-tag">
+                                                                                        ${filter.type} : ${filter.value}
+                                                                                        <button onclick="removeFilter('${filter.type}', '${filter.value}')">
+                                                                                            <i class="fas fa-times"></i>
+                                                                                        </button>
+                                                                                    </span>
+                                                                                `).join('');
+            } else {
+                filterSummary.classList.remove('active');
+            }
+            clearable = activeFilters.length;
+
+
+        }
+
+        function removeFilter(type, value) {
+            // Remove specific filter and update UI
+            var id;
+            if (type == "search") {
+                currentFilters.search = '';
+                document.getElementById('search').value = '';
+            }
+            else if (type == "color") {
+                id = "color" + value.split(":", 1);
+                currentFilters.colors = currentFilters.colors.filter(color => color !== value);
+                document.getElementById(id).classList.remove('active');
+            }
+            else if (type == "size") {
+                id = "size" + value;
+                index = currentFilters.sizes.indexOf(value);
+                currentFilters.sizes = currentFilters.sizes.filter(size => size !== value);
+                document.getElementById(id).classList.remove('active');
+
+            }
+            else if (type == "category") {
+                id = "cat" + parseInt(value);
+                currentFilters.categories = currentFilters.categories.filter(catg => catg !== parseInt(value));
+                document.getElementById(id).classList.remove('active');
+
+            }
+            else if (type == "From_Price") {
+                currentFilters.priceMin = minPrice;
+                currentMin = minPrice;
+            }
+            else if (type == "To_Price") {
+                currentFilters.priceMax = maxPrice;
+                currentMax = maxPrice;
+            }
+            updatePriceDisplay();
+            updateFilterSummary();
+
+            if (clearable == 0)
+                window.location.href = "/Base/Index";
+        }
+        function searchFilter(element) {
+            //this to call filter post method for filter search
+            retModel.filter = currentFilters;
+            document.getElementById('dataPayload2').value = JSON.stringify(retModel);
+            document.getElementById('searchForm').submit();
+        }
+        function applyFilters() {
+            // Add loading state
+            const btn = event.target;
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<div class="spinner"></div>Applying...';
+            btn.disabled = true;
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+
+                // var request = {
+                //     search: "dd",
+                //     categories: currentFilters.categories,
+                //     categoryElements: currentFilters.categoryElements,
+                //     sizes: currentFilters.sizes,
+                //     sizeElements: currentFilters.sizeElements,
+                //     colors: currentFilters.colors,
+                //     colorElements: currentFilters.colorElements,
+                //     priceMin: currentFilters.priceMin,
+                //     priceMax: currentFilters.priceMax
+
+                // };
+
+                retModel.filter = currentFilters;
+
+                console.log(retModel.filter, "ret");
+                document.getElementById("dataPayload").value = JSON.stringify(retModel);
+
+                if (currentFilters.search != "" || currentFilters.categories.length > 0 || currentFilters.colors.length > 0
+                    || currentFilters.sizes.length > 0
+                    || currentFilters.priceMin != minPrice
+                    || currentFilters.priceMax != maxPrice) {
+                    // Show success feedback
+                    btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                    btn.innerHTML = '<i class="fas fa-check"></i>Applied!';
+                    setTimeout(() => {
+                        btn.innerHTML = originalHTML;
+                        btn.style.background = '';
+
+                    }, 2000);
+
+                    document.getElementById('filterForm').submit();
+                }
+
+                // ajax call
+                // $.ajax({
+                //     url: "/Base/Filter",
+                //     type: "POST", // or "POST"
+                //     data: JSON.stringify(request), // Convert object to JSON string
+                //     contentType: "application/json; charset=utf-8",
+                //     success: function (response) {
+                //     },
+                //     error: function (xhr, status, error) {
+                //         console.error("Error:", error);
+                //     }
+                // });
+
+                // fetch('/Base/Filter', {
+                //     method: 'POST',
+                //     headers: {
+                //         'Content-Type': 'application/json'
+                //     },
+                //     body: JSON.stringify(request)
+                // })
+                //     .then(response => response.text())
+                //     .then(html => {
+                //         document.body.innerHTML = html; // Replace page content with returned view
+                //     });
+
+            }, 1000);
+
+            console.log('Applying filters:', currentFilters);
+        }
+
+        function clearAllFilters() {
+            // var valid = false;
+            // // Reset all filters
+            // document.querySelectorAll('.filter-chip.active').forEach(chip => {
+            //     chip.classList.remove('active');
+            // });
+
+            // document.querySelectorAll('.sub-subcategory-link.active').forEach(cat => {
+            //     cat.classList.remove('active');
+            // });
+
+            // document.getElementById('search').value = '';
+            // // Reset price slider
+            // currentMin = minPrice;
+            // currentMax = maxPrice;
+            // updatePriceDisplay();
+
+            // if (currentFilters.search != "" || currentFilters.categories.length > 0 || currentFilters.colors.length > 0
+            //     || currentFilters.sizes.length > 0
+            //     || currentFilters.priceMin != minPrice
+            //     || currentFilters.priceMax != maxPrice) {
+            //     valid = true;
+            // }
+            // console.log(currentFilters);
+
+            if (clearable > 0) {
+                // Reset filter state
+                currentFilters = {
+                    search: '',
+                    categories: [],
+                    sizes: [],
+                    colors: [],
+                    priceMin: minPrice,
+                    priceMax: maxPrice
+                };
+
+                retModel.filter = currentFilters;
+
+                document.getElementById('dataPayload1').value = JSON.stringify(retModel);
+                // updateFilterSummary();
+                // Add clear feedback
+                const btn = event.target;
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i>Cleared!';
+                btn.style.background = '#10b981';
+
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.style.background = '';
+
+                    document.getElementById('paginationForm').submit();
+
+                    // if (valid) {
+                    //     // window.location.href = "/Base/Index";
+                    // }
+
+                }, 1500);
+            }
+
+        }
+
+        // Price Slider Functionality
+        function updatePriceDisplay() {
+            document.getElementById('current-range').textContent = `${currentMin} EGP - ${currentMax.toLocaleString()} EGP`;
+            document.getElementById('price-from').value = currentMin;
+            document.getElementById('price-to').value = currentMax;
+
+            const minPercent = ((currentMin - minPrice) / (maxPrice - minPrice)) * 100;
+            const maxPercent = ((currentMax - minPrice) / (maxPrice - minPrice)) * 100;
+
+            const range = document.getElementById('slider-range');
+            const minHandle = document.getElementById('handle-min');
+            const maxHandle = document.getElementById('handle-max');
+
+            if (range && minHandle && maxHandle) {
+                range.style.left = minPercent + '%';
+                range.style.width = (maxPercent - minPercent) + '%';
+                minHandle.style.left = minPercent + '%';
+                maxHandle.style.left = maxPercent + '%';
+            }
+
+        }
+
+        function initPriceSlider() {
+            const slider = document.getElementById('price-slider');
+            const minHandle = document.getElementById('handle-min');
+            const maxHandle = document.getElementById('handle-max');
+
+            if (!slider || !minHandle || !maxHandle) return;
+
+            function handleMouseDown(e, handle) {
+                isDragging = true;
+                activeHandle = handle;
+                e.preventDefault();
+            }
+
+            function handleMouseMove(e) {
+                if (!isDragging || !activeHandle) return;
+
+                const rect = slider.getBoundingClientRect();
+                const percent = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
+                const value = Math.round(minPrice + (percent / 100) * (maxPrice - minPrice));
+
+                if (activeHandle === minHandle) {
+                    currentMin = Math.min(value, currentMax - 50);
+                } else {
+                    currentMax = Math.max(value, currentMin + 50);
+                }
+                currentFilters.priceMin = currentMin;
+                currentFilters.priceMax = currentMax;
+
+                updatePriceDisplay();
+                updateFilterSummary();
+            }
+
+            function handleMouseUp() {
+                isDragging = false;
+                activeHandle = null;
+            }
+
+            minHandle.addEventListener('mousedown', (e) => handleMouseDown(e, minHandle));
+            maxHandle.addEventListener('mousedown', (e) => handleMouseDown(e, maxHandle));
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+
+            // Touch events for mobile
+            minHandle.addEventListener('touchstart', (e) => handleMouseDown(e.touches[0], minHandle));
+            maxHandle.addEventListener('touchstart', (e) => handleMouseDown(e.touches[0], maxHandle));
+            document.addEventListener('touchmove', (e) => e.touches[0] && handleMouseMove(e.touches[0]));
+            document.addEventListener('touchend', handleMouseUp);
+        }
+
+        // Search functionality
+        function setupSearch() {
+            const searchInput = document.getElementById('search');
+            let searchTimeout;
+
+            searchInput.addEventListener('input', function () {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    currentFilters.search = this.value.trim();
+                    updateFilters();
+                }, 300);
+            });
+        }
+
+        // Pagination
+        function changePage(page) {
+            if (page < 1 || page > Math.ceil(totalItems / itemsPerPage)) return;
+
+            currentPage = page;
+
+            retModel.pageIndex = currentPage;
+            document.getElementById('dataPayload1').value = JSON.stringify(retModel);
+
+
+            // //call ajax call to get second 10 items
+            // window.location.href = `/Base/Index?PageIndex=${currentPage}&PageSize=${itemsPerPage}`;
+
+            updatePaginationInfo();
+            updatePaginationControls();
+
+            // Smooth scroll to top of products
+            document.querySelector('.products-section').scrollIntoView({
+                behavior: 'smooth'
+            });
+            document.getElementById('paginationForm').submit();
+        }
+
+        function updatePaginationInfo() {
+            const startItem = ((currentPage - 1) * itemsPerPage) + 1;
+            const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+
+            document.getElementById('paginationInfo').textContent =
+                `Showing ${startItem} to ${endItem} of ${totalItems} products`;
+        }
+
+        function updatePaginationControls() {
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const paginationControls = document.getElementById('paginationControls');
+
+            let html = `<li><a href="#" onclick="changePage(${currentPage - 1})" class="${currentPage === 1 ? 'disabled' : ''}"><i class="fas fa-chevron-left"></i></a></li>`;
+
+            for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
+                html += `<li><a href="#" onclick="changePage(${i})" class="${i === currentPage ? 'active' : ''}">${i}</a></li>`;
+            }
+
+            html += `<li><a href="#" onclick="changePage(${currentPage + 1})" class="${currentPage === totalPages ? 'disabled' : ''}"><i class="fas fa-chevron-right"></i></a></li>`;
+
+            paginationControls.innerHTML = html;
+        }
+
+        // Animation styles
+        const animationStyles = `
+                                                                            @@keyframes ripple {
+                                                                                to {
+                                                                                    transform: scale(4);
+                                                                                    opacity: 0;
+                                                                                }
+                                                                            }
+
+                                                                            @@keyframes fadeInUp {
+                                                                                from {
+                                                                                    opacity: 0;
+                                                                                    transform: translateY(30px);
+                                                                                }
+                                                                                to {
+                                                                                    opacity: 1;
+                                                                                    transform: translateY(0);
+                                                                                }
+                                                                            }
+
+                                                                            .product-card {
+                                                                                animation: fadeInUp 0.6s ease forwards;
+                                                                            }
+
+                                                                            .product-card:nth-child(1) { animation-delay: 0.1s; }
+                                                                            .product-card:nth-child(2) { animation-delay: 0.2s; }
+                                                                            .product-card:nth-child(3) { animation-delay: 0.3s; }
+                                                                            .product-card:nth-child(4) { animation-delay: 0.4s; }
+                                                                            .product-card:nth-child(5) { animation-delay: 0.5s; }
+                                                                            .product-card:nth-child(6) { animation-delay: 0.6s; }
+                                                                        `;
+
+        document.getElementById('sortSelect').addEventListener('change', function (e) {
+            e.preventDefault();
+            const val = this.value;
+
+
+            retModel.sortType = parseInt(val);
+
+            const element = document.createElement('input');
+            element.type = "hidden";
+            element.name = "Obj";
+            element.value = JSON.stringify(retModel);
+            this.parentElement.appendChild(element);
+            this.parentElement.submit();
+
+        })
+
+        // Initialize everything when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function () {
+            // var filters = @Html.Raw(Json.Serialize(ViewBag.Filters));
+            // if (filters != null) {
+            //     currentFilters.priceMin = filters.priceMin;
+            //     currentFilters.sizes.push(filters.sizes[0]);
+            //     updateFilters();
+            // }
+
+
+            console.log(retModel);
+            if (retModel.filter != null) {
+                itemsPerPage = retModel.productsSize;
+                currentFilters = retModel.filter;
+                if (currentFilters.categories != null) {
+                    currentFilters.categories.forEach(cat => {
+                        document.getElementById("cat" + cat).classList.add('active');
+                    });
+                }
+                if (currentFilters.sizes != null) {
+                    currentFilters.sizes.forEach(size => {
+                        document.getElementById("size" + size).classList.add('active');
+                    });
+                }
+                if (currentFilters.colors != null) {
+                    currentFilters.colors.forEach(color => {
+                        document.getElementById("color" + color.split(":", 1)).classList.add('active');
+                    });
+                }
+                if (currentFilters.search != null) {
+                    document.getElementById('search').value = currentFilters.search;
+                }
+                currentMin = currentFilters.priceMin;
+                currentMax = currentFilters.priceMax;
+                updateFilters();
+
+
+            }
+
+
+            // Add animation styles
+            const styleSheet = document.createElement('style');
+            styleSheet.textContent = animationStyles;
+            document.head.appendChild(styleSheet);
+
+            // Initialize components
+            initPriceSlider();
+            setupSearch();
+            updatePriceDisplay();
+            updatePaginationInfo();
+            updatePaginationControls();
+
+            // Add smooth scroll behavior
+            document.documentElement.style.scrollBehavior = 'smooth';
+
+            // Price input event listeners
+            document.getElementById('price-from').addEventListener('input', function () {
+                const value = parseInt(this.value) || minPrice;
+                currentMin = Math.max(minPrice, Math.min(value, currentMax - 50));
+                updatePriceDisplay();
+                currentFilters.priceMin = currentMin;
+            });
+
+            document.getElementById('price-to').addEventListener('input', function () {
+                const value = parseInt(this.value) || maxPrice;
+                currentMax = Math.min(maxPrice, Math.max(value, currentMin + 50));
+                updatePriceDisplay();
+                currentFilters.priceMax = currentMax;
+            });
+
+            // Intersection Observer for product cards animation
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            // Observe all product cards
+            document.querySelectorAll('.product-card').forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(card);
+            });
+            // Sort functionality for product grid
+            document.getElementById('sortArrows').className = 'sort-arrows asc';
+
+            // Add keyboard support
+            document.addEventListener('keydown', function (e) {
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    toggleSort();
+                }
+            });
+
+        });
+
+
+        function applySorting() {
+
+            const element = document.getElementById('sortArrows');
+            if (element.classList.contains('asc')) {
+                element.className = 'sort-arrows desc';
+                showSortFeedback('desc');
+                retModel.sortDir = "desc";
+            }
+            else {
+                element.className = 'sort-arrows asc';
+                showSortFeedback('asc');
+                retModel.sortDir = "asc";
+
+
+            }
+            const productGrid = document.getElementById('productsGrid');
+            if (!productGrid) return;
+
+            const products = Array.from(productGrid.children);
+            const sortedProducts = products.reverse();
+
+            console.log(sortedProducts, "ss");
+
+
+            // Clear the grid and re-append sorted products with animation
+            productGrid.innerHTML = '';
+
+            // Add products with staggered animation
+            sortedProducts.forEach((product, index) => {
+                product.style.opacity = '0';
+                product.style.transform = 'translateY(30px)';
+                productGrid.appendChild(product);
+
+                // Animate in with delay
+                setTimeout(() => {
+                    product.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                    product.style.opacity = '1';
+                    product.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+
+        }
+
+        function showSortFeedback(direction) {
+            // Remove existing feedback
+            const existing = document.querySelector('.sort-feedback');
+            if (existing) existing.remove();
+
+            // Create feedback element
+            const feedback = document.createElement('div');
+            feedback.className = 'sort-feedback';
+            feedback.style.cssText = `
+                                                                position: fixed;
+                                                                top: 20px;
+                                                                right: 20px;
+                                                                background: var(--primary-color);
+                                                                color: white;
+                                                                padding: 12px 20px;
+                                                                border-radius: var(--radius-md);
+                                                                box-shadow: var(--shadow-lg);
+                                                                z-index: 1000;
+                                                                font-weight: 500;
+                                                                font-size: 14px;
+                                                                transform: translateX(100%);
+                                                                transition: transform 0.3s ease;
+                                                                display: flex;
+                                                                align-items: center;
+                                                                gap: 8px;
+                                                            `;
+
+            const directionIcon = direction === 'asc' ? '↑' : '↓';
+            const directionText = direction === 'asc' ? 'ascending' : 'descending';
+
+            feedback.innerHTML = `
+                                                                <i class="fas fa-sort"></i>
+                                                                Sorted by ${directionIcon} (${directionText})
+                                                            `;
+
+            document.body.appendChild(feedback);
+
+            // Animate in
+            setTimeout(() => {
+                feedback.style.transform = 'translateX(0)';
+            }, 100);
+
+            // Animate out and remove
+            setTimeout(() => {
+                feedback.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (feedback.parentNode) {
+                        feedback.remove();
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Add to cart functionality (placeholder)
+        function addToCart(productId) {
+            // Add cart animation
+            const btn = event.target;
+            btn.style.transform = 'scale(0.95)';
+
+            setTimeout(() => {
+                btn.style.transform = 'scale(1)';
+                // Here you would make an AJAX call to add to cart
+                console.log('Added product to cart:', productId);
+            }, 150);
+        }
+
+        // Wishlist functionality (placeholder)
+        function toggleWishlist(element, productId) {
+            element.classList.toggle('active');
+            const icon = element.querySelector('i');
+
+            if (element.classList.contains('active')) {
+                icon.className = 'fas fa-heart';
+                element.style.color = '#fd5b44';
+            } else {
+                icon.className = 'far fa-heart';
+                element.style.color = '';
+            }
+
+            console.log('Toggled wishlist for product:', productId);
+        }
+    </script>
+}
+@*     check it important
+                                         search all stocks to check all colors of product
+                                     <div class="color-options">
+ <div class="color-title">Available Colors:</div>
+ <div class="color-swatches">
+         <div class="color-option" style="background: #8B4513;"></div>
+         <div class="color-option" style="background: #000000;"></div>
+         <div class="color-option" style="background: #ff69b4;"></div>
+
+    </div>
+
+</div> *@
+
+@* <h3 class="product-title">
+    <a href="#">@prod.Name</a>  //handle it later
+</h3> *@

@@ -1,0 +1,571 @@
+﻿     <!-- Personal Information Tab -->
+<link href="~/css/profilecss1.css" rel="stylesheet" />
+
+@model ProfileDTO
+<div class="profile-container">
+    @await Html.PartialAsync("ProfilePartial", Model)
+    <form id="personal" asp-action="PersonalInfo" method="post">
+        <div id="personal" class="tab-content active">
+            <div class="form-section">
+                <h2 class="section-title">Personal Information</h2>
+                <input type="text" asp-for="@Model.Id" hidden />
+                <input type="text" asp-for="@Model.PhotoPath" hidden />
+                @{
+                    for (int i = 0; i < Model.SavedPhotos.Count; i++)
+                    {
+                        <input asp-for="@Model.SavedPhotos[i]" hidden />
+                    }
+                }
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label asp-for="@Model.FirstName" class="form-label">First Name</label>
+                        <input asp-for="@Model.FirstName" type="text" class="form-control" placeholder="Enter first name">
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="@Model.LastName" class="form-label">Last Name</label>
+                        <input asp-for="@Model.LastName" type="text" class="form-control"  placeholder="Enter last name">
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="@Model.Email" class="form-label">Email Address</label>
+                        <input asp-for="@Model.Email" type="email" class="form-control" placeholder="Enter email">
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="@Model.PhoneNumber" class="form-label">Phone Number</label>
+                        <div class="form-group">
+                            <div class="phone-field">
+                                <input asp-for="@Model.PhoneNumber" type="tel" id="phoneNumber" class="form-control" placeholder="Enter phone number">
+                            </div>
+                            <div class="verification-status unverified" id="verificationStatus">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span>Not Verified</span>
+                            </div>
+                            <button type="button" class="btn-secondary" onclick="openPSM()">
+                                <i class="fas fa-shield-alt"></i> Verify
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="@Model.Birthday" class="form-label">Date of Birth</label>
+                        <input asp-for="@Model.Birthday" type="date" class="form-control" >
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="@Model.Gender" class="form-label">Gender</label>
+                        <select asp-for="@Model.Gender" class="form-control" asp-items="Html.GetEnumSelectList<GenderList>()">
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div style="text-align: right; margin-top: 30px;">
+                <button class="btn-secondary">Cancel</button>
+                <button class="btn-primary">Save Changes</button>
+            </div>
+        </div>
+    </form>
+
+    <div id="phoneValidationModal" class="modal">
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card shadow modal-content">
+                        <span class="close cl" onclick="closePSM()">&times;</span>
+                        <h2 style="text-align: center; margin-bottom: 20px; color: #333;">
+                            <i class="fas fa-mobile-alt" style="color: #fd5b44;"></i>
+                            Verify Phone Number
+                        </h2>
+                        <div class="card-body">
+                            @if (TempData["SuccessMessage"] != null)
+                            {
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    @TempData["SuccessMessage"]
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            }
+
+                            <form id="phoneForm">
+                                @Html.AntiForgeryToken()
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        Phone Number <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-phone"></i>
+                                        </span>
+                                        <input class="form-control"
+                                               placeholder="Enter your phone number (e.g., +1234567890)"
+                                               id="phoneNumberV" />
+                                    </div>
+                                    <div id="phoneValidation" class="validation-message"></div>
+                                </div>
+
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary btn-lg" id="sendOtpBtn">
+                                        <i class="fas fa-paper-plane me-2"></i>
+                                        Send OTP
+                                    </button>
+                                </div>
+                            </form>
+
+                            <div class="mt-3 text-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-shield-alt me-1"></i>
+                                    We'll send you a 6-digit verification code
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="PhoneVerifyModal" class="modal">
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card shadow modal-content">
+                        <span class="close cl" onclick="closePVM()">&times;</span>
+                        <h2 style="text-align: center; margin-bottom: 20px; color: #333;">
+                            <i class="fas fa-mobile-alt" style="color: #fd5b44;"></i>
+                            Verify OTP
+                        </h2>
+                        <div class="card-body">
+                            @if (TempData["SuccessMessage"] != null)
+                            {
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    @TempData["SuccessMessage"]
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            }
+
+                            @if (TempData["ErrorMessage"] != null)
+                            {
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    @TempData["ErrorMessage"]
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            }
+
+                            <div class="alert alert-info mb-4">
+                                <i class="fas fa-info-circle me-2"></i>
+                                We've sent a 6-digit code to <strong id="code_sent"></strong>
+                            </div>
+
+                            <form id="otpForm">
+                                @Html.AntiForgeryToken()
+                                @*                         <input asp-for="PhoneNumber" type="hidden" />
+                                *@
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        Verification Code <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="otp-input-container">
+                                        <input class="form-control text-center"
+                                               placeholder="Enter 6-digit code"
+                                               maxlength="6"
+                                               pattern="[0-9]{6}"
+                                               id="otpCode"
+                                               autocomplete="one-time-code" />
+                                    </div>
+                                    <span class="text-dark">Please enter 6-digit verification code sent to you phone
+                                        <span class="text-success" id="ph1"></span>
+                                    </span>
+                                </div>
+                                <div id="otpValidation" class="validation-message"></div>
+                                <br />
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-success btn-lg" id="verifyBtn">
+                                        <i class="fas fa-check me-2"></i>
+                                        Verify Code
+                                    </button>
+                                </div>
+                            </form>
+
+                            <div class="mt-3 text-center">
+                                <p class="mb-2">
+                                    <small class="text-muted">
+                                        Code expires in <span id="countdown">5:00</span>
+                                    </small>
+                                </p>
+                                <form id="resendBtn" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-link p-0 text-decoration-none" >
+                                        <i class="fas fa-redo me-1"></i>
+                                        Resend Code
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="mt-3 text-center">
+                                <a onclick="ChangePhone()" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>
+                                    Change Phone Number
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section lib{
+<script>
+    const phoneInput = document.getElementById('phoneNumberV');
+    const OtpCode = document.getElementById('otpCode');
+    const phoneValidation = document.getElementById('phoneValidation');
+    const otpValidation = document.getElementById('otpValidation');
+    var timeLeft, countdownInterval, SendOtpResp;
+    // Phone Validation Functions
+    phoneInput.addEventListener('input', function () {
+        const phone = this.value;
+        const result = validate(phone);
+
+        // Update input styling
+        this.classList.remove('valid', 'invalid');
+        phoneValidation.classList.remove('valid-message', 'invalid-message');
+
+        if (phone.trim() === '') {
+            phoneValidation.textContent = '';
+            return;
+        }
+
+        if (result.valid) {
+            this.classList.add('valid');
+            phoneValidation.classList.add('valid-message');
+            phoneValidation.textContent = `✓ ${result.message}`;
+        } else {
+            this.classList.add('invalid');
+            phoneValidation.classList.add('invalid-message');
+            phoneValidation.textContent = `✗ ${result.message}`;
+        }
+    });
+    function cleanPhone(phone) {
+        return phone.replace(/\D/g, '');
+    }
+    function validate(phone) {
+        if (!phone || phone.trim() === '') {
+            return { valid: false, message: 'Phone number is required' };
+        }
+
+        const cleaned = this.cleanPhone(phone);
+        // Check for valid characters
+        if (!/^[\d\s\-\.\(\)\+]+$/.test(phone)) {
+            return { valid: false, message: 'Invalid characters in phone number' };
+        }
+        // Check minimum length
+        if (cleaned.length < 11) {
+            return { valid: false, message: 'Phone number too short' };
+        }
+
+        // Check maximum length
+        if (cleaned.length > 11) {
+            return { valid: false, message: 'Phone number too long' };
+        }
+
+
+
+        return { valid: true, message: 'Valid phone number' };
+    }
+    function validateOTP(code) {
+        if (!code || code.trim() === '') {
+            return { valid: false, message: 'OTP Code is required' };
+        }
+
+        const cleaned = this.cleanPhone(code);
+        // Check for valid characters
+        if (!/^[\d\s\-\.\(\)\+]+$/.test(code)) {
+            return { valid: false, message: 'Invalid characters in OTP Code' };
+        }
+        // Check minimum length
+        if (cleaned.length < 6) {
+            return { valid: false, message: 'OTP Code too short' };
+        }
+
+        // Check maximum length
+        if (cleaned.length > 6) {
+            return { valid: false, message: 'OTP Code too long' };
+        }
+
+
+
+        return { valid: true, message: 'Valid OTP Code' };
+    }
+    // Additional utility functions
+    window.phoneUtils = {
+        // Quick validation function
+        isValidPhone: function (phone) {
+            return validate(phone).valid;
+        },
+
+
+        // Get phone type
+        getPhoneType: function (phone) {
+            const result = phoneValidator.validate(phone);
+            return result.valid ? result.type : null;
+        }
+    };
+    function openPSM() {
+        const btn = document.getElementById('sendOtpBtn');
+        btn.innerHTML = `<i class="fas fa-paper-plane me-2"></i>Send OTP`;
+        btn.disabled = false;
+        document.getElementById('phoneNumberV').value = "";
+
+        const modal = document.getElementById('phoneValidationModal');
+        modal.style.display = 'block';
+    }
+    function closePSM() {
+        phoneValidation.textContent = '';
+        phoneInput.classList.remove('valid', 'invalid');
+        phoneValidation.classList.remove('valid-message', 'invalid-message');
+        document.getElementById('phoneValidationModal').style.display = 'none';
+    }
+    function openPVM() {
+        const btn = document.getElementById('verifyBtn');
+        btn.innerHTML = `<i class="fas fa-check me-2"></i>Verify Code`;
+        btn.disabled = false;
+        document.getElementById('otpCode').value = "";
+        runCountdown();
+        const modal = document.getElementById('PhoneVerifyModal');
+        modal.style.display = 'block';
+        document.getElementById('ph1').innerText += "+20";
+        for (let f = 0; f < 11; f++) {
+            if (f >= 8) {
+                document.getElementById('ph1').innerText += phoneInput.value[f];
+            }
+            else {
+                document.getElementById('ph1').innerText += '*';
+            }
+            
+        }
+
+    }
+    function closePVM() {
+        otpValidation.textContent = '';
+        OtpCode.classList.remove('valid', 'invalid');
+        otpValidation.classList.remove('valid-message', 'invalid-message');
+        document.getElementById('PhoneVerifyModal').style.display = 'none';
+    }
+    function delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    document.getElementById('phoneForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const phone = $("#phoneNumberV").val();
+        const result = validate(phone);
+        if (result.valid) {
+            const btn = document.getElementById('sendOtpBtn');
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
+            btn.disabled = true;
+            var request = {
+                PhoneNumber: phone
+            };
+            await delay(1000);
+            clearInterval(countdownInterval);
+            // ajax call
+            $.ajax({
+                url: "/Profile/SendOtpAjax",
+                type: "POST", // or "POST"
+                data: JSON.stringify(request), // Convert object to JSON string
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    console.log("Success:", response);
+                    // $("#result").html(response); // Update UI
+                    SendOtpResp = response;
+                    closePSM();
+                    openPVM();
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error:", error);
+                }
+            });
+
+
+        } else {
+            phoneInput.classList.add('invalid');
+            phoneValidation.classList.add('invalid-message');
+            phoneValidation.textContent = `✗ ${result.message}`;
+        }
+
+
+    });
+    document.getElementById('resendBtn').addEventListener('submit', function (e) {
+        e.preventDefault();
+        resendOTP();
+
+    });
+
+    function resendOTP() {
+        const phone = $("#phoneNumberV").val();
+        var request = {
+            PhoneNumber: phone
+        };
+        $.ajax({
+            url: "/Profile/SendOtpAjax",
+            type: "POST", // or "POST"
+            data: JSON.stringify(request), // Convert object to JSON string
+            contentType: "application/json; charset=utf-8",
+            success: function (response) {
+                console.log("Success:", response);
+                // $("#result").html(response); // Update UI
+                SendOtpResp = response;
+            },
+            error: function (xhr, status, error) {
+                console.error("Error:", error);
+            }
+        });
+        clearInterval(countdownInterval);
+        runCountdown();
+        showToast("OTP Resent Successfully");
+    }
+    // Usage
+    function showToast(message) {
+            // Toast configuration
+            const showToast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true
+            });
+            showToast.fire({
+                icon: 'success',
+                title: message
+            });
+    }
+    // Auto-format phone number this for main phone number
+    document.getElementById('phoneNumber').addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 0 && !value.startsWith('+')) {
+            value = '+' + value;
+        }
+        e.target.value = value;
+    });
+    // OTP input formatting
+    OtpCode.addEventListener('input', function () {
+        const code = this.value;
+        const result = validateOTP(code);
+
+        // Update input styling
+        this.classList.remove('valid', 'invalid');
+        otpValidation.classList.remove('valid-message', 'invalid-message');
+
+        if (code.trim() === '') {
+            otpValidation.textContent = '';
+            return;
+        }
+
+        if (result.valid) {
+            this.classList.add('valid');
+            otpValidation.classList.add('valid-message');
+            otpValidation.textContent = `✓ ${result.message}`;
+        } else {
+            this.classList.add('invalid');
+            otpValidation.classList.add('invalid-message');
+            otpValidation.textContent = `✗ ${result.message}`;
+        }
+    });
+    const countdownElement = document.getElementById('countdown');
+    const resendBtn = document.getElementById('resendBtn');
+
+    function runCountdown() {
+        // Countdown timer
+         timeLeft = 300; // 5 minutes in seconds
+        // Update countdown every second
+        countdownInterval = setInterval(updateCountdown, 1000);
+        
+    }
+    function updateCountdown(){
+
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        countdownElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+        if (timeLeft <= 0) {
+            countdownElement.textContent = 'Expired';
+            countdownElement.classList.add('countdown-expired');
+            resendBtn.style.display = 'inline-block';
+            
+        } else {
+            timeLeft--;
+        }
+    }
+    // Form submission
+    document.getElementById('otpForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const result = validateOTP(OtpCode.value);
+        if (result.valid) {
+            if (timeLeft > 0) {
+                const btn = document.getElementById('verifyBtn');
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Verifying...';
+                btn.disabled = true;
+
+                var OtpResponse;
+                var VerifyRequest = {
+                    SessionId: SendOtpResp.SessionId,
+                    PhoneNumber: phoneInput.value,
+                    OtpCode: OtpCode.value
+                };
+                await delay(2000);
+                // ajax call
+                $.ajax({
+                    url: "/Profile/VerifyOtpAjax",
+                    type: "POST", // or "POST"
+                    data: JSON.stringify(VerifyRequest), // Convert object to JSON string
+                    contentType: "application/json; charset=utf-8",
+                    success: function (response) {
+                        // Update UI
+                        OtpResponse = response;
+                        if (OtpResponse.success) {
+                            document.getElementById('phoneNumber').value = "+2" + phoneInput.value;
+                            alert(`OTP Code is valid!\nOriginal: ${OtpCode.value}}`);
+                            const btn = document.getElementById('verificationStatus');
+                            btn.innerHTML = '<i class="fas fa-check-circle"></i><span>Verified</span>';
+                            closePVM();
+                            window.location.href = "/Base/Profile2";
+                        }
+                        else {
+                            const btn = document.getElementById('verifyBtn');
+                            btn.innerHTML = `<i class="fas fa-check me-2"></i>Verify Code`;
+                            btn.disabled = false;
+                            document.getElementById('otpCode').value = "";
+
+                            otpValidation.classList.add('invalid');
+                            otpValidation.classList.add('invalid-message');
+                            otpValidation.textContent = `✗ ${OtpResponse.message}`;
+                        }
+
+
+
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error:", error);
+                    }
+                });
+            }
+            else {
+                OtpCode.classList.add('invalid');
+                otpValidation.classList.add('invalid-message');
+                otpValidation.textContent = `✗ Code expired please resend OTP code`;
+            }
+        }
+        else {
+            OtpCode.classList.add('invalid');
+            otpValidation.classList.add('invalid-message');
+            otpValidation.textContent = `✗ ${result.message}`;
+        }
+    });
+    function ChangePhone() {
+        closePVM();
+        openPSM();
+    }
+
+</script>
+}

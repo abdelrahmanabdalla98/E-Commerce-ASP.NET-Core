@@ -1,0 +1,1001 @@
+﻿@inject UserManager<ApplicationUser> UserManager
+
+@{
+    var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    var user = await UserManager.FindByIdAsync(userId);
+}
+<!DOCTYPE html>
+<html class="no-js" lang="zxx">
+<head>
+    <style>
+        body {
+            transition: opacity ease-in 0.2s;
+        }
+
+            body[unresolved] {
+                opacity: 0;
+                display: block;
+                overflow: hidden;
+                position: relative;
+            }
+    </style>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>@ViewBag.title</title>
+    <meta name="author" content="EG-SOUQ">
+    <meta name="description" content="EG-SOUQ Home Electronics Shop">
+    <meta name="keywords" content="EG-SOUQ - Home Electronics Shop">
+    <meta name="robots" content="INDEX,FOLLOW">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
+    <link rel="apple-touch-icon" sizes="57x57" href="/assets/img/favicons/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/assets/img/favicons/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicons/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/assets/img/favicons/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicons/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/assets/img/favicons/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/assets/img/favicons/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/assets/img/favicons/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicons/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="~/assets/img/collection (3).png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/assets/img/favicons/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png">
+    <link rel="manifest" href="/assets/img/favicons/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/assets/img/favicons/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/fontawesome.min.css">
+    <link rel="stylesheet" href="/assets/css/magnific-popup.min.css">
+    <link rel="stylesheet" href="/assets/css/swiper-bundle.min.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link href="~/assets/css/css2.css" rel="stylesheet" />
+    @await RenderSectionAsync("cssFile", false)
+    @await RenderSectionAsync("testCss", false)
+
+</head>
+<body class="electronics-shop">
+    <div class="th-menu-wrapper">
+        <div class="th-menu-area text-center">
+            <button class="th-menu-toggle"><i class="fal fa-times"></i></button>
+            <div class="mobile-logo">
+                <a asp-controller="Base" asp-action="Home">
+                    <img src="~/assets/img/logo1.svg" />
+                </a>
+            </div>
+            <div class="th-mobile-menu">
+                <ul>
+                    <li>
+                        <a asp-controller="Base" asp-action="Home">Home</a>
+                    </li>
+                    <li>
+                        <a asp-controller="Shopping" asp-action="Products">Shop</a>
+                    </li>
+                    <li>
+                        <a href="#">About Us</a>
+                    </li>
+                    <li>
+                        <a asp-controller="Base" asp-action="Contact">Contact Us</a>
+                    </li>
+                    <li class="menu-item-has-children">
+                        <a href="#">Admin</a>
+                        <ul class="sub-menu">
+                            <li><a asp-controller="Base" asp-action="ProductDashboard">Product Dashboard</a></li>
+                            <li><a asp-controller="Base" asp-action="CategoryDashboard">Category Dashboard</a></li>
+                            <li><a href="error.html">Error Page</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+
+    <header class="th-header header-layout2">
+        <div class="header-top">
+            <div class="container th-container">
+                <div class="row justify-content-center justify-content-md-between align-items-center gy-2">
+                    <div class="col-lg-4"></div>
+                    <div class="col-lg-4">
+                        <div class="header-right">
+                            <div class="currency-menu">
+                                <select class="form-select nice-select" style="display: none;">
+                                    <option selected="">English</option>
+                                    <option>Spanish</option>
+                                    <option>Hindi</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="menu-top">
+            <div class="container th-container">
+                <div class="row justify-content-center justify-content-lg-between align-items-center gy-2">
+                    <div class="col-auto">
+                        <div class="header-logo d-none d-lg-block">
+                            <a asp-controller="Base" asp-action="Home">
+                                <img src="~/assets/img/logo1.svg" />
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-auto d-none d-lg-block me-xl-auto">
+                        <div class="header-form">
+                            <div>
+                                @*                                 <div class="row justify-content-between align-items-center">
+                                *@@*                                 <div class="col-auto">
+                                <div class="currency-menu">
+                                <select class="form-select nice-select" style="display: none;">
+                                <option selected="">All Categories</option>
+                                <option>Mobile Devices</option>
+                                <option>Smart Home</option>
+                                <option>Computers</option>
+                                <option>Gaming</option>
+                                <option>Accessories</option>
+                                <option>Headphones</option>
+                                <option>Wearable Tech</option>
+                                <option>Cameras</option>
+                                </select>
+                                </div>
+                                </div> *@
+                                <div class="col-auto me-lg-auto">
+                                    <div class="top-search">
+                                        <form class="header-search">
+                                            <div class="box-search">
+                                                <input type="text" placeholder="Search for a product or brand...">
+                                                <button type="submit" class="th-btn">
+                                                    <i class="far fa-search"></i>
+                                                </button>
+                                                @* <div class="search-suggestions">
+                                                <div class="box-suggestions">
+                                                <div class="product-grid style9 style-flex">
+                                                <div class="box-img">
+                                                <img src="/assets/img/product/product_2_1.png" alt="">
+                                                </div>
+                                                <div class="product-grid-content">
+                                                <h3 class="box-title">
+                                                <a href="shop-details.html">Apple iPad Air 4 10.9-inch Wi-Fi 106GB</a>
+                                                </h3>
+                                                <span class="box-price">
+                                                $995.00 <del>$1109.00</del>
+                                                </span>
+                                                </div>
+                                                </div>
+                                                <div class="product-grid style9 style-flex">
+                                                <div class="box-img">
+                                                <img src="/assets/img/product/product_2_2.png" alt="">
+                                                </div>
+                                                <div class="product-grid-content">
+                                                <h3 class="box-title">
+                                                <a href="shop-details.html">Apple iPhone 14 Pro Max 6.7inch 48MP</a>
+                                                </h3>
+                                                <span class="box-price">
+                                                $895.00 <del>$1109.00</del>
+                                                </span>
+                                                </div>
+                                                </div>
+                                                <div class="product-grid style9 style-flex">
+                                                <div class="box-img">
+                                                <img src="/assets/img/product/product_2_6.png" alt="">
+                                                </div>
+                                                <div class="product-grid-content">
+                                                <h3 class="box-title">
+                                                <a href="shop-details.html">Samsung Galaxy Watch7 Aluminum Smartwatch</a>
+                                                </h3>
+                                                <span class="box-price">
+                                                $795.00 <del>$1109.00</del>
+                                                </span>
+                                                </div>
+                                                </div>
+                                                <div class="product-grid style9 style-flex">
+                                                <div class="box-img">
+                                                <img src="/assets/img/product/product_2_7.png" alt="">
+                                                </div>
+                                                <div class="product-grid-content">
+                                                <h3 class="box-title">
+                                                <a href="shop-details.html">Fujifilm Instax Mini 12 Instant Print Camera</a>
+                                                </h3>
+                                                <span class="box-price">
+                                                $895.00 <del>$1109.00</del>
+                                                </span>
+                                                </div>
+                                                </div>
+                                                <div class="product-grid style9 style-flex">
+                                                <div class="box-img">
+                                                <img src="/assets/img/product/product_2_11.png" alt="">
+                                                </div>
+                                                <div class="product-grid-content">
+                                                <h3 class="box-title">
+                                                <a href="shop-details.html">Xiaomi Redmi Note 12 Pro 5G 128 GB, 6 GB RAM</a>
+                                                </h3>
+                                                <span class="box-price">
+                                                $595.00 <del>$1109.00</del>
+                                                </span>
+                                                </div>
+                                                </div>
+                                                </div>
+                                                </div> *@
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="header2-wrapp">
+                            <div class="header-info-wrap">
+                                @{
+                                    if (User.Identity.IsAuthenticated)
+                                    {
+                                        <div class="header-info">
+                                            <div class="photo-circle" style="width:48px;height:48px">
+                                            <img class="profile-photo" src="@user.ProfilePhoto" alt="">
+                                            </div>
+                                            <div class="dropdown">
+                                                <span class="header-info_label " href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    Hello <strong>Mr.@user.FirstName.Substring(0, Math.Min(10, user.FirstName.Length))</strong>
+                                                </span>
+
+                                                <ul class="dropdown-menu custom-menu" aria-labelledby="dropdownMenuLink">
+                                                    <li><a class="dropdown-item" asp-controller="Base" asp-action="Home"><i class="fas fa-home"></i> Home</a></li>
+                                                    <li><a class="dropdown-item" asp-controller="Profile" asp-action="PersonalInfo"><i class="fas fa-user"></i> Profile</a></li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-controller="Profile" asp-action="OrderHistory">
+                                                            <i class="fas fa-list"></i>
+                                                            Orders
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-controller="Shopping" asp-action="GetWisList">
+                                                            <i class="far fa-heart"></i>
+                                                            WishList
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-controller="Profile" asp-action="Address">
+                                                            <i class="fas fa-map-marker-alt"></i>
+                                                            Addresses
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-controller="Profile" asp-action="SecurityInfo">
+                                                            <i class="far fa-shield-alt"></i>
+                                                            Security
+                                                        </a>
+                                                    </li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <form asp-controller="Account" asp-action="Logout" method="post">
+                                                    <li><button class="dropdown-item text-danger"><i class="fas fa-sign-out-alt"></i> Logout</button></li>
+                                                    </form>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="header-info">
+                                            <a asp-controller="Account" asp-action="Login">
+
+                                                <div class="icon-btn">
+                                                    <img src="/assets/img/icon/user.svg" alt="">
+                                                </div>
+                                            </a>
+
+                                            <div class="media-body">
+                                                <span class="header-info_label">My Account</span>
+                                                <p class="header-info_link">
+                                                    <a asp-controller="Account" asp-action="Login">Login / Register</a>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+
+
+                                <div class="header-info">
+                                    <div class="dropdown">
+                                        <div class="icon-btn">
+                                            <img src="/assets/img/icon/bag2.svg" alt="">
+                                            <span class="badge">2</span>
+                                        </div>
+                                        <div>
+                                            <span class="header-info_label">Your Cart</span>
+                                            <a href="#" class="header-info_link">$00.00</a>
+                                            <div class="cart-dropdown-menu">
+                                                <div class="widget woocommerce widget_shopping_cart style2">
+                                                    <div class="widget_shopping_cart_content">
+                                                        <ul class="woocommerce-mini-cart cart_list product_list_widget">
+                                                            <li class="woocommerce-mini-cart-item mini_cart_item">
+                                                                <a href="#" class="remove remove_from_cart_button">
+                                                                    <i class="far fa-times"></i>
+                                                                </a>
+                                                                <a href="#">
+                                                                    <img src="/assets/img/product/product_2_8.png" alt="Cart Image">Smart TV
+                                                                </a>
+                                                                <span class="quantity">
+                                                                    1 × <span class="woocommerce-Price-amount amount">
+                                                                        <span class="woocommerce-Price-currencySymbol">$</span>990.00 USD
+                                                                    </span>
+                                                                </span>
+                                                            </li>
+                                                            <li class="woocommerce-mini-cart-item mini_cart_item">
+                                                                <a href="#" class="remove remove_from_cart_button">
+                                                                    <i class="far fa-times"></i>
+                                                                </a>
+                                                                <a href="#">
+                                                                    <img src="/assets/img/product/product_2_7.png" alt="Cart Image">Camera
+                                                                </a>
+                                                                <span class="quantity">
+                                                                    1 × <span class="woocommerce-Price-amount amount">
+                                                                        <span class="woocommerce-Price-currencySymbol">$</span> 690.00 USD
+                                                                    </span>
+                                                                </span>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="sticky-wrapper">
+            <div class="menu-area">
+                <div class="container th-container">
+                    <div class="row align-items-center justify-content-between">
+                        <div class="col-auto d-none d-xl-block">
+                            <div class="category-menu-wrap">
+                                <a class="menu-expand" href="#">
+                                    <span class="icon">
+                                        <i class="fa-light fa-bars"></i>
+                                    </span>All Categories <i class="fa-light fa-angle-down"></i>
+                                </a>
+                                <nav class="category-menu">
+                                    <ul>
+                                        <li class="menu-item-has-children">
+                                            <a href="shop.html">
+                                                <img src="/assets/img/icon/category_3_1.svg" alt="Icon">Mobile Devices
+                                            </a>
+                                            <div class="sub-menu">
+                                                <div class="row gx-0">
+                                                    <div class="col-4">
+                                                        <div class="mega-menu">
+                                                            <h3 class="box-title">
+                                                                <img src="/assets/img/icon/heaphone.svg" alt="Icon">Audio &amp; Video
+                                                            </h3>
+                                                            <ul class="">
+                                                                <li>
+                                                                    <a href="#">Headphone</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Bluetooth Speakers</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Earbuds</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Microphones</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Cases &amp; Covers</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Storage</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Cameras</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Mobile holder</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">DSLR</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Laptop Holder</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Apple Pod</a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <div class="mega-menu">
+                                                            <h3 class="box-title">
+                                                                <img src="/assets/img/icon/heaphone.svg" alt="Icon">Accessories
+                                                            </h3>
+                                                            <ul class="">
+                                                                <li>
+                                                                    <a href="#">Cases &amp; Covers</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Moble holder</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Eveningwear</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Light Stand</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Laptop Holder</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Tripot</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Monitor Stand</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Power Bank</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Mobile Holder</a>
+                                                                </li>
+                                                            </ul>
+                                                            <div class="">
+                                                                <a href="contact.html" class="th-btn style4 radius">Show All</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <div class="mega-menu">
+                                                            <div class="box-img mb-0">
+                                                                <img src="/assets/img/normal/black-friday2.png" alt="">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <a href="shop.html">
+                                                <img src="/assets/img/icon/category_3_2.svg" alt="Icon">Smart Home <span>12</span>
+                                            </a>
+                                        </li>
+                                        <li class="menu-item-has-children">
+                                            <a href="shop.html">
+                                                <img src="/assets/img/icon/category_3_3.svg" alt="Icon">Computers
+                                            </a>
+                                            <div class="sub-menu">
+                                                <div class="row gx-0">
+                                                    <div class="col-4">
+                                                        <div class="mega-menu">
+                                                            <h3 class="box-title">
+                                                                <img src="/assets/img/icon/pc.svg" alt="Icon">Computers
+                                                            </h3>
+                                                            <ul class="">
+                                                                <li>
+                                                                    <a href="#">Apple iMac</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Ultraslim Laptop</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Tablets</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Monitors</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Keyboards</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Laptop Bags</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Gaming Laptop</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Brand PC</a>
+                                                                </li>
+                                                            </ul>
+                                                            <div class="">
+                                                                <a href="contact.html" class="th-btn style4 radius">Show All</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-3">
+                                                        <div class="mega-menu">
+                                                            <h3 class="box-title">
+                                                                <img src="/assets/img/icon/pc.svg" alt="Icon">Accessories
+                                                            </h3>
+                                                            <ul class="">
+                                                                <li>
+                                                                    <a href="#">UPS</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">RAM</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">ROM</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Mouse</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Keyboards</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Motherborad</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Casing</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Monitors</a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-5">
+                                                        <div class="mega-menu style2">
+                                                            <div class="box-img mb-0">
+                                                                <img src="/assets/img/normal/offer8.png" alt="">
+                                                            </div>
+                                                            <div class="box-img mb-0">
+                                                                <img src="/assets/img/normal/black-friday4.png" alt="">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <a href="shop.html">
+                                                <img src="/assets/img/icon/category_3_4.svg" alt="Icon">Gaming <span>16</span>
+                                            </a>
+                                        </li>
+                                        <li class="menu-item-has-children">
+                                            <a href="shop.html">
+                                                <img src="/assets/img/icon/category_3_5.svg" alt="Icon">Accessories
+                                            </a>
+                                            <div class="sub-menu">
+                                                <div class="row gx-0">
+                                                    <div class="col-4">
+                                                        <div class="mega-menu">
+                                                            <h3 class="box-title">
+                                                                <img src="/assets/img/icon/accessories.svg" alt="Icon">Accessories
+                                                            </h3>
+                                                            <ul class="">
+                                                                <li>
+                                                                    <a href="#">Charging Devices</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Adapters</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Cables</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Memory Cards</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Cases &amp; Covers</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Storage</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Power Bank</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Moble holder</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Light Stand</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Laptop Holder</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#">Tripot</a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-8">
+                                                        <div class="mega-menu">
+                                                            <div class="box-img mb-0">
+                                                                <img src="/assets/img/normal/black-friday3.png" alt="">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <a href="shop.html">
+                                                Headphones <span>28</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="shop.html">
+                                                Wearable Tech <span>13</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="shop.html">
+                                                <span>10</span>Cameras
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                        <div class="col-auto me-xl-auto">
+                            <nav class="main-menu d-none d-lg-inline-block">
+                                <ul>
+                                    <li>
+                                        <a asp-controller="Base" asp-action="Home">Home</a>
+                                    </li>
+                                    <li>
+                                        <a asp-controller="Shopping" asp-action="Products">Shop</a>
+                                    </li>
+                                    <li>
+                                        <a href="#">About Us</a>
+                                    </li>
+                                    <li>
+                                        <a asp-controller="Base" asp-action="Contact">Contact Us</a>
+                                    </li>
+                                    <li class="menu-item-has-children">
+                                        <a href="#">Admin</a>
+                                        <ul class="sub-menu">
+                                            <li><a asp-controller="Base" asp-action="ProductDashboard">Product Dashboard</a></li>
+                                            <li><a asp-controller="Base" asp-action="CategoryDashboard">Category Dashboard</a></li>
+                                            <li><a href="error.html">Error Page</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </nav>
+                            <div class="header-logo d-block d-lg-none">
+                                <a asp-controller="Base" asp-action="Home">
+                                    <img src="~/assets/img/logo1.svg" />
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="call-btn d-none d-lg-inline-flex">
+                                <div class="box-icon">
+                                    <img src="/assets/img/icon/truck2.svg" alt="">
+                                </div>
+                                <div class="media-body">
+                                    <span class="box-label">Free Shipping</span>
+                                    <h3 class="box-link mb-0">Over Order 1000 EGP</h3>
+                                </div>
+                            </div>
+                            <button type="button" class="th-menu-toggle d-block d-lg-none">
+                                <i class="far fa-bars"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header> @RenderBody()
+    <footer class="footer-wrapper footer-layout2">
+        <div class="container th-container">
+            <div class="widget-area">
+                <div class="row justify-content-between">
+                    <div class="col-md-6 col-xl-3">
+                        <div class="widget footer-widget">
+                            <div class="th-widget-about ">
+                                <a asp-controller="Base" asp-action="Home">
+                                    <svg width="220" height="65" viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg">
+                                        <defs>
+                                            <linearGradient id="whiteGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+                                                <stop offset="100%" style="stop-color:#f0f0f0;stop-opacity:1" />
+                                            </linearGradient>
+                                            <linearGradient id="lightGoldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+                                                <stop offset="100%" style="stop-color:#f8f8f8;stop-opacity:1" />
+                                            </linearGradient>
+                                            <filter id="whiteShadow">
+                                                <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#ffffff" flood-opacity="0.3" />
+                                            </filter>
+                                        </defs>
+
+                                        <!-- Minimal icon -->
+                                        <g transform="translate(30,25)" filter="url(#whiteShadow)">
+                                            <circle cx="15" cy="15" r="15" fill="none" stroke="url(#whiteGradient)" stroke-width="2" />
+
+                                            <!-- Elegant shopping symbol -->
+                                            <g transform="translate(15,15) scale(0.7)">
+                                                <path d="M-8,-5 L8,-5 Q10,-5 10,-3 L8,8 Q8,10 6,10 L-6,10 Q-8,10 -8,8 L-10,-3 Q-10,-5 -8,-5 Z"
+                                                      fill="none" stroke="url(#whiteGradient)" stroke-width="2" />
+                                                <path d="M-3,-5 Q0,-10 3,-5" stroke="url(#whiteGradient)" stroke-width="2"
+                                                      fill="none" stroke-linecap="round" />
+                                            </g>
+
+                                            <!-- White accent dot -->
+                                            <circle cx="25" cy="5" r="2" fill="url(#lightGoldGradient)" />
+                                        </g>
+
+                                        <!-- EG in luxury font -->
+                                        <text x="80" y="40" font-family="'Times New Roman', serif" font-size="36"
+                                              font-weight="300" fill="url(#whiteGradient)" filter="url(#whiteShadow)">
+                                            EG
+                                        </text>
+
+                                        <!-- Elegant separator -->
+                                        <line x1="130" y1="35" x2="145" y2="35" stroke="url(#lightGoldGradient)" stroke-width="1" />
+
+                                        <!-- SOUQ in luxury font -->
+                                        <text x="155" y="40" font-family="'Times New Roman', serif" font-size="36"
+                                              font-weight="300" fill="url(#whiteGradient)" filter="url(#whiteShadow)">
+                                            SOUQ
+                                        </text>
+
+                                        <!-- Minimal tagline -->
+                                        <text x="80" y="60" font-family="'Arial', sans-serif" font-size="8"
+                                              font-weight="300" fill="url(#whiteGradient)" opacity="0.8" letter-spacing="3px">
+                                            PREMIUM ELECTRONICS
+                                        </text>
+                                    </svg>
+                                </a>
+                                <p class="about-text"> EG-SOUQ is the biggest online shopping marketplace with all electroincs computers , labtops , mobile phones and screens </p>
+                                <div class="call-btn d-none d-lg-inline-flex">
+                                    <div class="box-icon">
+                                        <img src="/assets/img/icon/call-3.svg" alt="">
+                                    </div>
+                                    <div class="media-body">
+                                        <span class="box-label">Got Questions? 24/7 Hotline Call</span>
+                                        <h3 class="box-link mb-0">
+                                            <a href="tel: +00123456789">+20-01068304347</a>
+                                        </h3>
+                                    </div>
+                                </div>
+                                <div class="th-social style2 mt-30">
+                                    <a href="https://www.facebook.com/">
+                                        <i class="fab fa-facebook-f"></i>
+                                    </a>
+                                    <a href="https://www.twitter.com/">
+                                        <i class="fab fa-twitter"></i>
+                                    </a>
+                                    <a href="https://www.instagram.com/">
+                                        <i class="fab fa-instagram"></i>
+                                    </a>
+                                    <a href="https://www.linkedin.com/">
+                                        <i class="fab fa-linkedin-in"></i>
+                                    </a>
+                                    <a href="https://www.youtube.com/">
+                                        <i class="fa-brands fa-youtube"></i>
+                                    </a>
+                                    <a href="https://telegram.org/">
+                                        <i class="fa-brands fa-telegram"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-xl-auto">
+                        <div class="widget widget_nav_menu footer-line footer-widget">
+                            <h3 class="widget_title">About Company</h3>
+                            <div class="menu-all-pages-container">
+                                <ul class="menu">
+                                    <li>
+                                        <a href="about.html">About EG-Souq</a>
+                                    </li>
+                                    <li>
+                                        <a href="contact.html">Affiliate Program</a>
+                                    </li>
+                                    <li>
+                                        <a href="contact.html">Privacy Policy</a>
+                                    </li>
+                                    <li>
+                                        <a href="contact.html">Awards &amp; Ranking</a>
+                                    </li>
+                                    <li>
+                                        <a href="contact.html">Erna Careers</a>
+                                    </li>
+                                    <li>
+                                        <a href="contact.html">Newsroom</a>
+                                    </li>
+                                    <li>
+                                        <a href="contact.html">Erna Insider</a>
+                                    </li>
+                                    <li>
+                                        <a href="contact.html">Hours &amp; Locations</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-xl-auto">
+                        <div class="widget widget_nav_menu footer-line footer-widget">
+                            <h3 class="widget_title">Customer Services</h3>
+                            <div class="menu-all-pages-container">
+                                <ul class="menu">
+                                    <li>
+                                        <a href="contact.html">Help Center</a>
+                                    </li>
+                                    <li>
+                                        <a href="contact.html">Track an Order</a>
+                                    </li>
+                                    <li>
+                                        <a href="contact.html">Return an Item</a>
+                                    </li>
+                                    <li>
+                                        <a href="contact.html">Gift Card</a>
+                                    </li>
+                                    <li>
+                                        <a href="contact.html">Report Abuse</a>
+                                    </li>
+                                    <li>
+                                        <a href="about.html">Submit and Dispute</a>
+                                    </li>
+                                    <li>
+                                        <a href="contact.html">Policies &amp; Rules</a>
+                                    </li>
+                                    <li>
+                                        <a href="contact.html">Redeem Voucher</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-xl-auto">
+                        <div class="widget widget_nav_menu footer-line footer-widget">
+                            <h3 class="widget_title">My Account</h3>
+                            <div class="menu-all-pages-container">
+                                <ul class="menu">
+                                    <li>
+                                        <a href="contact.html">Login/Registert</a>
+                                    </li>
+                                    <li>
+                                        <a href="contact.html">Browsing History</a>
+                                    </li>
+                                    <li>
+                                        <a href="course.html">Order History</a>
+                                    </li>
+                                    <li>
+                                        <a href="course.html">Returns History</a>
+                                    </li>
+                                    <li>
+                                        <a href="contact.html">Address Book</a>
+                                    </li>
+                                    <li>
+                                        <a href="contact.html">Wish Lists</a>
+                                    </li>
+                                    <li>
+                                        <a href="contact.html">Subscription Orders</a>
+                                    </li>
+                                    <li>
+                                        <a href="contact.html">Email Notifications</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-xl-auto">
+                        <div class="widget widget_nav_menu footer-line footer-widget">
+                            <h3 class="widget_title">Information</h3>
+                            <div class="menu-all-pages-container">
+                                <ul class="menu">
+                                    <li>
+                                        <a href="contact.html">Become a Vendor</a>
+                                    </li>
+                                    <li>
+                                        <a href="contact.html">Affiliate Program</a>
+                                    </li>
+                                    <li>
+                                        <a href="course.html">Privacy Policy</a>
+                                    </li>
+                                    <li>
+                                        <a href="course.html">Our Suppliers</a>
+                                    </li>
+                                    <li>
+                                        <a href="contact.html">Extended Plan</a>
+                                    </li>
+                                    <li>
+                                        <a href="contact.html">Extended Plan</a>
+                                    </li>
+                                    <li>
+                                        <a href="contact.html">Community</a>
+                                    </li>
+                                    <li>
+                                        <a href="contact.html">Locality</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-xl-auto">
+                        <div class="widget widget_nav_menu footer-widget">
+                            <h3 class="widget_title">Tools &amp; Resources</h3>
+                            <div class="menu-all-pages-container">
+                                <ul class="menu">
+                                    <li>
+                                        <a href="contact.html">Become a Supplier</a>
+                                    </li>
+                                    <li>
+                                        <a href="contact.html">Sell on EG-Souq</a>
+                                    </li>
+                                    <li>
+                                        <a href="course.html">Become an Affiliate</a>
+                                    </li>
+                                    <li>
+                                        <a href="course.html">EG-Souq Creators</a>
+                                    </li>
+                                    <li>
+                                        <a href="contact.html">Shop by Brand</a>
+                                    </li>
+                                    <li>
+                                        <a href="contact.html">Mobile App</a>
+                                    </li>
+                                    <li>
+                                        <a href="contact.html">Build Showcase</a>
+                                    </li>
+                                    <li>
+                                        <a href="contact.html">Rules &amp; Policy</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="copyright-wrap">
+                    <div class="row gy-2 align-items-center">
+                        <div class="col-lg-6">
+                            <p class="copyright-text">EG-SOUQ eCommerce <i class="fal fa-copyright"></i> 2025 <a href="electronics-shop.html">EG-Souq</a>. All Rights Reserved. </p>
+                        </div>
+                        <div class="col-lg-6 text-center text-lg-end">
+                            <div class="footer-card">
+                                <span class="footer-title">We Are Acepting</span>
+                                <img src="/assets/img/shape/cards.png" alt="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <div class="scroll-top">
+        <svg class="progress-circle svg-content" width="100%" height="100%" viewBox="-1 -1 102 102">
+            <path d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98" style="transition: stroke-dashoffset 10ms linear; stroke-dasharray: 307.919, 307.919; stroke-dashoffset: 307.919;"></path>
+        </svg>
+    </div>
+    <script src="/assets/js/vendor/jquery-3.7.1.min.js"></script>
+    <script src="/assets/js/swiper-bundle.min.js"></script>
+    <script src="/assets/js/bootstrap.min.js"></script>
+    <script src="/assets/js/jquery.magnific-popup.min.js"></script>
+    <script src="/assets/js/jquery.counterup.min.js"></script>
+    <script src="/assets/js/tilt.jquery.min.js"></script>
+    <script src="/assets/js/imagesloaded.pkgd.min.js"></script>
+    <script src="/assets/js/isotope.pkgd.min.js"></script>
+    <script src="/assets/js/jquery-ui.min.js"></script>
+    <script src="/assets/js/nice-select.min.js"></script>
+    @*       <script src="/assets/js/gsap.min.js"></script>
+    *@
+    <script src="/assets/js/main.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @await RenderSectionAsync("lib", false);
+</body>
+</html>
+
+
+
+@* <li><a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Settings</a></li>
+ *@
+
+
+
+
+
+
+
+

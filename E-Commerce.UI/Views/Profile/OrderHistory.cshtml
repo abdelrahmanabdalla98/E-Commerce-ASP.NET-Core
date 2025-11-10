@@ -1,0 +1,87 @@
+﻿<link href="~/css/profilecss1.css" rel="stylesheet" />
+
+@model ProfileDTO
+    <div class="profile-container">
+    @await Html.PartialAsync("ProfilePartial", Model)
+    
+        <div id="orders" class="tab-content active">
+            <div class="form-section">
+                <h2 class="section-title">Recent Orders</h2>
+
+                <div class="order-card">
+                    <div class="order-header">
+                        <div>
+                            <div class="order-id">Order #EG-2025-001234</div>
+                            <div style="color: #666; font-size: 14px;">Placed on June 8, 2025</div>
+                        </div>
+                        <span class="order-status status-delivered">
+                            <i class="fas fa-check-circle status-icon"></i>
+                            Delivered
+                        </span>
+                    </div>
+                    <div class="order-items">
+                        <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100&h=100&fit=crop" alt="iPhone" class="item-image">
+                        <div class="item-details">
+                            <div class="item-name">Apple iPhone 14 Pro Max 256GB</div>
+                            <div class="item-price">1,299.00 EGP</div>
+                        </div>
+                    </div>
+                    <div class="delivery-progress">
+                        <div class="progress-text">
+                            <i class="fas fa-truck"></i>
+                            Delivered on June 10, 2025 at 2:30 PM
+                        </div>
+                    </div>
+                    <div style="text-align: right; margin-top: 16px;">
+                        <button class="btn-secondary" style="margin-right: 0;">View Details</button>
+                    </div>
+                </div>
+
+                <div class="order-card">
+                    <div class="order-header">
+                        <div>
+                            <div class="order-id">Order #EG-2025-001233</div>
+                            <div style="color: #666; font-size: 14px;">Placed on June 5, 2025</div>
+                        </div>
+                        <span class="order-status status-processing">
+                            <i class="fas fa-spinner status-icon"></i>
+                            Processing
+                        </span>
+                    </div>
+                    <div class="order-items">
+                        <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100&h=100&fit=crop" alt="Headphones" class="item-image">
+                        <div class="item-details">
+                            <div class="item-name">Sony WH-1000XM5 Headphones</div>
+                            <div class="item-price">399.00 EGP</div>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <button class="btn-secondary" style="margin-right: 0;">Track Order</button>
+                    </div>
+                </div>
+
+                <div class="order-card">
+                    <div class="order-header">
+                        <div>
+                            <div class="order-id">Order #EG-2025-001232</div>
+                            <div style="color: #666; font-size: 14px;">Placed on June 1, 2025</div>
+                        </div>
+                        <span class="order-status status-pending">
+                            <i class="fas fa-clock status-icon"></i>
+                            Pending
+                        </span>
+                    </div>
+                    <div class="order-items">
+                        <img src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=100&h=100&fit=crop" alt="Laptop" class="item-image">
+                        <div class="item-details">
+                            <div class="item-name">MacBook Pro M3 14-inch</div>
+                            <div class="item-price">2,499.00 EGP</div>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <button class="btn-secondary" style="margin-right: 0;">View Details</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

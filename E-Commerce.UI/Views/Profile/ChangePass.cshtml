@@ -1,0 +1,653 @@
+﻿@* <link href="~/css/profilecss1.css" rel="stylesheet" /> *@
+@* <link href="~/css/address.css" rel="stylesheet" />
+ *@
+ @model ChangePasswordDTO
+
+<div class="profile-container">
+    <div class="tab-content active">
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner"></div>
+        </div>
+
+        <div class="form-section">
+            <h2 class="section-title">
+                <i class="fas fa-key"></i>
+                Change Password
+            </h2>
+
+            <div id="alertContainer"></div>
+
+            <form id="changePasswordForm" asp-action="ChangePass" method="post">
+                <input id="Count" value="@ViewBag.Ok" hidden />
+                @if (ViewData.ModelState.ErrorCount > 0)
+                {
+                    <div asp-validation-summary="All" class="text-danger"></div>
+                }
+                <input type="datetime" asp-for="@Model.ChangeTime" value="@DateTime.Now" hidden />
+                <input id="str" asp-for="@Model.Strength" hidden />
+                <input asp-for="@Model.Id" hidden />
+                <div class="form-group">
+                    <label class="form-label" for="currentPassword">Current Password</label>
+                    <div class="password-input-container">
+                        <input type="password"
+                               id="currentPassword"
+                               asp-for="@Model.CurrentPassword"
+                               class="form-control"
+                               placeholder="Enter your current password"
+                               required autocomplete="off">
+                        <button type="button" class="password-toggle" data-target="currentPassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="error-message" id="currentPasswordError">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="newPassword">New Password</label>
+                    <div class="password-input-container">
+                        <input type="password"
+                               id="newPassword"
+                               asp-for="@Model.Password"
+                               class="form-control"
+                               placeholder="Enter your new password"
+                               required autocomplete="off">
+                        <button type="button" class="password-toggle" data-target="newPassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="password-strength">
+                        <div class="strength-indicator" id="strengthIndicator">
+                            <div class="strength-bar"></div>
+                        </div>
+                        <span class="strength-label" id="strengthLabel">Enter password</span>
+                    </div>
+                    <div class="error-message" id="newPasswordError">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span></span>
+                    </div>
+
+                    <div class="password-requirements">
+                        <div class="requirement" id="req-length">
+                            <i class="fas fa-times"></i>
+                            At least 6 characters long
+                        </div>
+                        <div class="requirement" id="req-uppercase">
+                            <i class="fas fa-times"></i>
+                            Contains uppercase letter
+                        </div>
+                        <div class="requirement" id="req-lowercase">
+                            <i class="fas fa-times"></i>
+                            Contains lowercase letter
+                        </div>
+                        <div class="requirement" id="req-number">
+                            <i class="fas fa-times"></i>
+                            Contains number
+                        </div>
+                        <div class="requirement" id="req-special">
+                            <i class="fas fa-times"></i>
+                            Contains special character (!@@#$%^&*)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="confirmPassword">Confirm New Password</label>
+                    <div class="password-input-container">
+                        <input type="password"
+                               id="confirmPassword"
+                               asp-for="@Model.ConfirmPassword"
+                               class="form-control"
+                               placeholder="Confirm your new password"
+                               required autocomplete="off">
+                        <button type="button" class="password-toggle" data-target="confirmPassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="error-message" id="confirmPasswordError">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span></span>
+                    </div>
+                    <div class="success-message" id="confirmPasswordSuccess">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Passwords match</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <a type="button" class="btn-secondary text-center" asp-action="SecurityInfo">
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn-primary" id="submitBtn">
+                        <i class="fas fa-key"></i>
+                        Change Password
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+    class PasswordValidator {
+        constructor() {
+            this.form = document.getElementById('changePasswordForm');
+            this.currentPassword = document.getElementById('currentPassword');
+            this.newPassword = document.getElementById('newPassword');
+            this.confirmPassword = document.getElementById('confirmPassword');
+            this.submitBtn = document.getElementById('submitBtn');
+            this.loadingOverlay = document.getElementById('loadingOverlay');
+
+            this.requirements = {
+                length: document.getElementById('req-length'),
+                uppercase: document.getElementById('req-uppercase'),
+                lowercase: document.getElementById('req-lowercase'),
+                number: document.getElementById('req-number'),
+                special: document.getElementById('req-special')
+            };
+
+            this.strengthIndicator = document.getElementById('strengthIndicator');
+            this.strengthLabel = document.getElementById('strengthLabel');
+
+            this.init();
+        }
+
+        init() {
+            //check password validation
+
+            if ("@ViewBag.Ok" !=""){
+                if ("@ViewBag.Ok" == '1') {
+                    // Success
+                    this.showAlert('success', 'Password changed successfully!');
+
+                    // Simulate redirect after success
+                    setTimeout(() => {
+                        this.showAlert('success', 'Redirecting to Security page...');
+                        setTimeout(() => {
+                            // Replace with actual redirect
+                            window.location.href = "/Profile/SecurityInfo";
+                        }, 2000);
+                    }, 2000);
+                }
+                else {
+                    this.showAlert('error','Failed to change password. Please try again.');
+                }
+            }
+            // Password toggle functionality
+            document.querySelectorAll('.password-toggle').forEach(toggle => {
+                toggle.addEventListener('click', this.togglePasswordVisibility.bind(this));
+            });
+
+            // Real-time validation with debouncing
+            this.currentPassword.addEventListener('input', this.debounce(this.validateCurrentPassword.bind(this), 300));
+            this.newPassword.addEventListener('input', this.debounce(this.validateNewPassword.bind(this), 300));
+            this.confirmPassword.addEventListener('input', this.debounce(this.validateConfirmPassword.bind(this), 300));
+
+            // Form submission
+            this.form.addEventListener('submit', this.handleSubmit.bind(this));
+
+            // Prevent form submission on Enter in password fields
+            [this.currentPassword, this.newPassword, this.confirmPassword].forEach(field => {
+                field.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (this.validateForm()) {
+                            this.handleSubmit(e);
+                        }
+                    }
+                });
+            });
+
+            // Auto-focus first field
+            setTimeout(() => this.currentPassword.focus(), 100);
+        }
+
+        debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        togglePasswordVisibility(e) {
+            const target = e.currentTarget.dataset.target;
+            const input = document.getElementById(target);
+            const icon = e.currentTarget.querySelector('i');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        }
+
+        validateCurrentPassword() {
+            const value = this.currentPassword.value.trim();
+            const errorElement = document.getElementById('currentPasswordError');
+            if (!value) {
+                this.showError(this.currentPassword, errorElement, 'Current password is required');
+                return false;
+            } else if (value.length < 3) {
+                this.showError(this.currentPassword, errorElement, 'Please enter your current password');
+                return false;
+            } else {
+                this.showSuccess(this.currentPassword, errorElement);
+                return true;
+            }
+        }
+
+        validateNewPassword() {
+            const value = this.newPassword.value;
+            const errorElement = document.getElementById('newPasswordError');
+
+            if (!value) {
+                this.showError(this.newPassword, errorElement, 'New password is required');
+                this.updatePasswordStrength(0, 'Enter password');
+                this.updateRequirements(value);
+                return false;
+            }
+
+            // Check if new password is same as current
+            if (value === this.currentPassword.value && this.currentPassword.value) {
+                this.showError(this.newPassword, errorElement, 'New password must be different from current password');
+                this.updatePasswordStrength(0, 'Choose different password');
+                return false;
+            }
+
+            const strength = this.calculatePasswordStrength(value);
+            this.updatePasswordStrength(strength.score, strength.label);
+            this.updateRequirements(value);
+
+            if (strength.score < 3) {
+                this.showError(this.newPassword, errorElement, 'Password is too weak. Please meet all requirements.');
+                return false;
+            } else {
+                this.showSuccess(this.newPassword, errorElement);
+                return true;
+            }
+        }
+
+        validateConfirmPassword() {
+            const value = this.confirmPassword.value;
+            const newPasswordValue = this.newPassword.value;
+            const errorElement = document.getElementById('confirmPasswordError');
+            const successElement = document.getElementById('confirmPasswordSuccess');
+
+            if (!value) {
+                this.showError(this.confirmPassword, errorElement, 'Please confirm your new password');
+                successElement.classList.remove('show');
+                return false;
+            } else if (value !== newPasswordValue) {
+                this.showError(this.confirmPassword, errorElement, 'Passwords do not match');
+                successElement.classList.remove('show');
+                return false;
+            } else {
+                this.showSuccess(this.confirmPassword, errorElement);
+                successElement.classList.add('show');
+                return true;
+            }
+        }
+
+        calculatePasswordStrength(password) {
+            let score = 0;
+            let label = 'Very Weak';
+
+            const checks = {
+                length: password.length >= 8,
+                uppercase: /[A-Z]/.test(password),
+                lowercase: /[a-z]/.test(password),
+                number: /\d/.test(password),
+                special: /[!@@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+            };
+
+            // Calculate score based on requirements met
+            Object.values(checks).forEach(check => {
+                if (check) score++;
+            });
+
+            // Bonus points for longer passwords
+            if (password.length >= 12) score += 0.5;
+            if (password.length >= 16) score += 0.5;
+
+            // Determine label
+            if (score < 2) label = 'Very Weak';
+            else if (score < 3) label = 'Weak';
+            else if (score < 4) label = 'Fair';
+            else if (score < 5) label = 'Good';
+            else label = 'Strong';
+
+            return { score: Math.min(score, 5), label, checks };
+        }
+
+        updatePasswordStrength(score, label) {
+            this.strengthIndicator.className = 'strength-indicator';
+            this.strengthLabel.className = 'strength-label';
+
+            if (score > 0) {
+                let strengthClass;
+                if (score < 2) strengthClass = 'weak';
+                else if (score < 3) strengthClass = 'fair';
+                else if (score < 4.5) strengthClass = 'good';
+                else strengthClass = 'strong';
+
+                this.strengthIndicator.classList.add(strengthClass);
+                this.strengthLabel.classList.add(strengthClass);
+                document.getElementById('str').value = strengthClass + '/' + label;
+            }
+
+            this.strengthLabel.textContent = label;
+        }
+
+        updateRequirements(password) {
+            const checks = {
+                length: password.length >= 8,
+                uppercase: /[A-Z]/.test(password),
+                lowercase: /[a-z]/.test(password),
+                number: /\d/.test(password),
+                special: /[!@@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+            };
+
+            Object.keys(checks).forEach(requirement => {
+                const element = this.requirements[requirement];
+                const icon = element.querySelector('i');
+
+                if (checks[requirement]) {
+                    element.classList.add('valid');
+                    icon.className = 'fas fa-check';
+                } else {
+                    element.classList.remove('valid');
+                    icon.className = 'fas fa-times';
+                }
+            });
+        }
+
+        showError(input, errorElement, message) {
+            input.classList.remove('success');
+            input.classList.add('error');
+            errorElement.querySelector('span').textContent = message;
+            errorElement.classList.add('show');
+        }
+
+        showSuccess(input, errorElement) {
+            input.classList.remove('error');
+            input.classList.add('success');
+            errorElement.classList.remove('show');
+        }
+
+        validateForm() {
+            const currentValid = this.validateCurrentPassword();
+            const newValid = this.validateNewPassword();
+            const confirmValid = this.validateConfirmPassword();
+
+            return currentValid && newValid && confirmValid;
+        }
+
+        showAlert(type, message) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                        ${message}
+                    `;
+
+            alertContainer.innerHTML = '';
+            alertContainer.appendChild(alert);
+
+            // Show alert with animation
+            setTimeout(() => alert.classList.add('show'), 10);
+
+            // Auto-hide success alerts after 5 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    alert.classList.remove('show');
+                    setTimeout(() => alert.remove(), 300);
+                }, 5000);
+            }
+        }
+
+        async handleSubmit(e) {
+            e.preventDefault();
+            if (!this.validateForm()) {
+                this.showAlert('error', 'Please fix the errors below before submitting.');
+                return;
+            }
+
+            // Show loading state
+            this.setLoadingState(true);
+
+                // Simulate API call (replace with actual submission)
+            this.form.submit();
+        }
+
+        setLoadingState(loading) {
+            if (loading) {
+                this.submitBtn.disabled = true;
+                this.submitBtn.innerHTML = '<div class="spinner"></div>Changing Password...';
+                this.loadingOverlay.classList.add('show');
+
+                // Disable form inputs
+                [this.currentPassword, this.newPassword, this.confirmPassword].forEach(input => {
+                   
+                });
+            } else {
+                this.submitBtn.disabled = false;
+                this.submitBtn.innerHTML = '<i class="fas fa-key"></i>Change Password';
+                this.loadingOverlay.classList.remove('show');
+
+                // Enable form inputs
+                [this.currentPassword, this.newPassword, this.confirmPassword].forEach(input => {
+                    input.disabled = false;
+                });
+            }
+        }
+
+        // async simulatePasswordChange() {
+        //     return new Promise((resolve, reject) => {
+        //         setTimeout(() => {
+        //             // Simulate different scenarios
+        //             const scenarios = [
+        //                 { success: true },
+        //                 { success: false, error: 'Current password is incorrect' },
+        //                 { success: false, error: 'New password does not meet security requirements' }
+        //             ];
+
+        //             // 80% success rate for demo
+
+        //             const scenario = "@ViewBag.Ok" == '1' ? scenarios[0] : "@ViewBag.Ok" == '0' ? scenarios[1] : scenarios[2];
+        //             if ("@ViewBag.Ok" == "") {
+        //             }
+
+        //                 if (scenario.success) {
+        //                     resolve();
+        //                 } else {
+        //                     reject(new Error(scenario.error));
+        //                 }
+                    
+        //         }, 2000); // Simulate 2 second API call
+        //     });
+        // }
+
+        resetValidationStates() {
+            // Reset all input states
+            [this.currentPassword, this.newPassword, this.confirmPassword].forEach(input => {
+                input.classList.remove('error', 'success');
+                input.value = '';
+            });
+
+            // Reset error messages
+            document.querySelectorAll('.error-message, .success-message').forEach(msg => {
+                msg.classList.remove('show');
+            });
+
+            // Reset password strength
+            this.updatePasswordStrength(0, 'Enter password');
+
+            // Reset requirements
+            Object.values(this.requirements).forEach(req => {
+                req.classList.remove('valid');
+                req.querySelector('i').className = 'fas fa-times';
+            });
+
+            // Clear alerts
+            document.getElementById('alertContainer').innerHTML = '';
+        }
+    }
+    // Initialize the password validator when DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+        new PasswordValidator();
+
+        // Add some entrance animations
+        setTimeout(() => {
+            document.querySelector('.tab-content').style.transform = 'translateY(0)';
+            document.querySelector('.tab-content').style.opacity = '1';
+        }, 100);
+    });
+
+    // Cancel function
+    function cancelPasswordChange() {
+        if (confirm('Are you sure you want to cancel? All changes will be lost.')) {
+            // Reset form
+            const validator = new PasswordValidator();
+            validator.resetValidationStates();
+
+            // Simulate going back to security page
+            window.history.back();
+        }
+    }
+
+    // Add some interactive features
+    document.addEventListener('DOMContentLoaded', () => {
+        // Add copy to clipboard for generated passwords (if needed)
+        const addCopyFeature = () => {
+            const strengthLabel = document.getElementById('strengthLabel');
+            if (strengthLabel && strengthLabel.textContent === 'Strong') {
+                strengthLabel.style.cursor = 'pointer';
+                strengthLabel.title = 'Strong password detected!';
+            }
+        };
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Escape key to cancel
+            if (e.key === 'Escape') {
+                cancelPasswordChange();
+            }
+
+            // Ctrl/Cmd + Enter to submit
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                const submitBtn = document.getElementById('submitBtn');
+                if (submitBtn && !submitBtn.disabled) {
+                    submitBtn.click();
+                }
+            }
+        });
+
+        // Add tooltips for requirements
+        const requirements = document.querySelectorAll('.requirement');
+        requirements.forEach(req => {
+            req.addEventListener('mouseenter', () => {
+                req.style.backgroundColor = 'rgba(253,91,68,0.05)';
+            });
+
+            req.addEventListener('mouseleave', () => {
+                req.style.backgroundColor = 'transparent';
+            });
+        });
+
+        // Add progress indicator for form completion
+        const updateFormProgress = () => {
+            const inputs = [
+                document.getElementById('currentPassword'),
+                document.getElementById('newPassword'),
+                document.getElementById('confirmPassword')
+            ];
+
+            const filledInputs = inputs.filter(input => input.value.trim() !== '').length;
+            const progress = (filledInputs / inputs.length) * 100;
+
+            // Update the top border gradient based on progress
+            const tabContent = document.querySelector('.tab-content');
+            if (progress > 0) {
+                tabContent.style.setProperty('--progress', `${progress}%`);
+            }
+        };
+
+        // Listen for input changes
+        ['currentPassword', 'newPassword', 'confirmPassword'].forEach(id => {
+            const input = document.getElementById(id);
+            if (input) {
+                input.addEventListener('input', updateFormProgress);
+            }
+        });
+
+        // Add smooth scrolling for mobile devices
+        if (window.innerWidth <= 768) {
+            const inputs = document.querySelectorAll('.form-control');
+            inputs.forEach(input => {
+                input.addEventListener('focus', () => {
+                    setTimeout(() => {
+                        input.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                    }, 300);
+                });
+            });
+        }
+
+        // Add haptic feedback for mobile devices (if supported)
+        const addHapticFeedback = (type = 'light') => {
+            if ('vibrate' in navigator) {
+                const patterns = {
+                    light: [10],
+                    medium: [20],
+                    heavy: [30],
+                    success: [10, 50, 10],
+                    error: [100, 50, 100]
+                };
+                navigator.vibrate(patterns[type] || patterns.light);
+            }
+        };
+
+        // Add haptic feedback to buttons
+        document.querySelectorAll('button, .btn-primary, .btn-secondary').forEach(btn => {
+            btn.addEventListener('click', () => addHapticFeedback('light'));
+        });
+
+        // Add success/error haptic feedback
+        const originalShowAlert = window.showAlert;
+        window.showAlert = function (type, message) {
+            addHapticFeedback(type);
+            if (originalShowAlert) {
+                originalShowAlert(type, message);
+            }
+        };
+    });
+
+    // Add some Easter eggs for developers
+    console.log('🔐 Enhanced Password Change Form loaded successfully!');
+    console.log('💡 Tips: Use Escape to cancel, Ctrl/Cmd+Enter to submit');
+
+    // Add performance monitoring
+    const startTime = performance.now();
+    window.addEventListener('load', () => {
+        const loadTime = performance.now() - startTime;
+        console.log(`⚡ Form loaded in ${loadTime.toFixed(2)}ms`);
+    });
+</script>
+@section cssFile{
+    <link href="~/css/passwordchange.css" rel="stylesheet" />
+}

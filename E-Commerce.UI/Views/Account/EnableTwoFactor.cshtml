@@ -1,0 +1,67 @@
+﻿@model EnableTwoFactorDTO
+@{
+    ViewData["Title"] = "Enable Two-Factor Authentication";
+}
+
+<div class="auth-card" style="max-width: 600px;">
+    <div class="auth-header">
+        <h1><i class="fas fa-shield-alt me-2"></i>Enable 2FA</h1>
+        <p>Secure your account with two-factor authentication</p>
+    </div>
+
+    <div class="auth-body">
+        @if (ViewData.ModelState.ErrorCount > 0)
+        {
+            <div asp-validation-summary="All" class="text-danger">
+            </div>
+        }
+
+        <div class="alert alert-info">
+            <h6><i class="fas fa-info-circle me-2"></i>Setup Instructions</h6>
+            <ol class="mb-0 ps-3">
+                <li>Install an authenticator app (Google Authenticator, Authy, etc.)</li>
+                <li>Scan the QR code or enter the key manually</li>
+                <li>Enter the 6-digit code from your app</li>
+            </ol>
+        </div>
+
+        <div class="qr-code-container">
+            <h6>Scan QR Code</h6>
+            <div id="qrcode" class="mb-3"></div>
+            <p class="small text-muted">Or enter this key manually:</p>
+            <code class="user-select-all">@Model.SharedKey</code>
+        </div>
+
+        <form asp-action="EnableTwoFactor" method="post" novalidate>
+            <input asp-for="SharedKey" type="hidden" />
+            <input asp-for="AuthenticatorUri" type="hidden" />
+            <input asp-for="ReturnUrl" type="hidden" />
+            <div class="form-floating">
+                <input asp-for="Code" class="form-control text-center" placeholder="000000"
+                       autocomplete="one-time-code" maxlength="6" style="font-size: 1.5rem; letter-spacing: 0.5rem;" />
+                <label asp-for="Code"></label>
+                <span asp-validation-for="Code" class="text-danger small"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-check me-2"></i>Enable Two-Factor Authentication
+            </button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var qr = new QRious({
+                element: document.createElement('canvas'),
+                value: '@Html.Raw(Model.AuthenticatorUri)',
+                size: 200,
+                background: 'white',
+                foreground: 'black'
+            });
+            document.getElementById('qrcode').appendChild(qr.canvas);
+        });
+    </script>
+}

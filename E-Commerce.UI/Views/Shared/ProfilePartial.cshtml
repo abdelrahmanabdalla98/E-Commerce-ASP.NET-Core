@@ -1,0 +1,187 @@
+﻿@model ProfileDTO
+<div class="profile-header breadcumb-wrapper background-image" style="background-image: url(&quot;/assets/img/bg/breadcumb-bg.jpg&quot;);">
+    @* <div style="display: flex; align-items: center; gap: 30px; flex-wrap: wrap;">
+        <div>
+            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face" alt="Profile Avatar" class="profile-avatar">
+        </div>
+        <div style="flex: 1;">
+            <h1 class="profile-name">Abdelrahman Ahmed</h1>
+            <p class="profile-email">abdelrahman.ahmed@example.com</p>
+            <span class="profile-status">Premium Member</span>
+        </div>
+        <div>
+            <button class="btn-secondary" onclick="openUploadModal()">Change Photo</button>
+        </div>
+    </div> *@
+    <form asp-action="UpdateProfile" method="post" enctype="multipart/form-data" id="profileForm">
+        <input type="text" asp-for="Id" hidden/>
+        <input type="text" asp-for="PhoneNumber" hidden />
+
+        @{
+            for (int i = 0; i < Model.SavedPhotos.Count; i++)
+            {
+                <input asp-for="@Model.SavedPhotos[i]" hidden />
+            }
+            for (int i = 0; i < Model.LoginHistory.Count; i++)
+            {
+                <input asp-for="@Model.LoginHistory[i]" hidden />
+            }
+        }
+        <input name="url" value="@ViewBag.ActiveTab" type="text" hidden />
+        <div style="display: flex; align-items: center; gap: 30px; flex-wrap: wrap;" >
+            <!-- Display current photo -->
+            <div class="current-photo">
+                @if (!string.IsNullOrEmpty(Model.PhotoPath))
+                {
+                    <div class="photo-circle" id="photoPreview">
+                        <img src="@Model.PhotoPath" alt="Profile Photo" class="profile-photo" />
+                    </div>
+                }
+                else
+                {
+                    <div class="photo-circle no-photo-placeholder" id="photoPreview">
+                        <img src="~/assets/img/icon/user.svg"  style="width:50px;height:500px;"/>
+                    </div>
+                }
+            </div>
+
+            <div style="flex: 1;">
+                <h1 class="profile-name">@Model.FirstName @Model.LastName</h1>
+                <p class="profile-email">@Model.Email</p>
+                <span class="profile-status">Premium Member</span>
+            </div>
+            <!-- Hidden file input -->
+            <input type="file"
+                   asp-for="PhotoFile"
+                   id="photoInput"
+                   accept="image/*"
+                   style="display: none;"
+                   onchange="previewPhoto(this)" />
+            <input type="text" asp-for="Id" hidden />
+            <input type="text" asp-for="PhoneNumber" hidden />
+            @{
+                for (int i = 0; i < Model.SavedPhotos.Count; i++)
+                {
+                    <input asp-for="@Model.SavedPhotos[i]" hidden />
+                }
+            }
+
+            <!-- Your styled button -->
+            <button type="button"
+                    class="btn-secondary"
+                    onclick="document.getElementById('photoInput').click()">
+                Change Photo
+            </button>
+
+            <!-- Submit button (can be hidden until photo is selected) -->
+            <button type="submit" class="btn btn-primary" id="saveBtn" style="display: none;">
+                Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Profile Navigation Tabs -->
+<div class="profile-tabs">
+    <a class="tab-button @(ViewBag.ActiveTab == "PersonalInfo" ? "active" : "") text-center" asp-action="PersonalInfo" >
+        Personal Info</a>
+    <a class="text-center @(ViewBag.ActiveTab == "OrderHistory" ? "active" : "") tab-button" asp-action="OrderHistory">
+        Order History</a>
+    <a class="tab-button text-center @(ViewBag.ActiveTab == "Address" ? "active" : "")" asp-action="Address">Addresses</a>
+    <a class="tab-button text-center @(ViewBag.ActiveTab == "SecurityInfo" ? "active" : "")" asp-action="SecurityInfo">Security</a>
+
+    <a class="tab-button text-center @(ViewBag.ActiveTab == "Notification" ? "active" : "")" asp-action="Notification">Notifications</a>
+</div>
+<script>
+    function previewPhoto(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                const preview = document.getElementById('photoPreview');
+
+                // Always create/update the image inside the circle container
+                preview.innerHTML = `<img src="${e.target.result}" alt="Profile Photo" class="profile-photo" />`;
+
+                // Remove placeholder styling and add photo styling
+                preview.classList.remove('no-photo-placeholder');
+                preview.classList.add('has-photo');
+
+                // Show save button
+                document.getElementById('saveBtn').style.display = 'inline-block';
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // Auto-submit form when photo is selected (optional)
+    function autoSubmitPhoto(input) {
+        if (input.files && input.files[0]) {
+            // Show loading state
+            const button = document.querySelector('.btn-secondary');
+            const photoCircle = document.getElementById('photoPreview');
+
+            button.textContent = 'Uploading...';
+            button.disabled = true;
+            photoCircle.classList.add('loading');
+
+            // Submit form
+            document.getElementById('profileForm').submit();
+        }
+    }
+
+    // Optional: Add drag and drop functionality
+    function setupDragAndDrop() {
+        const photoCircle = document.getElementById('photoPreview');
+        const fileInput = document.getElementById('photoInput');
+
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            photoCircle.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        // Highlight drop area when item is dragged over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            photoCircle.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            photoCircle.addEventListener(eventName, unhighlight, false);
+        });
+
+        // Handle dropped files
+        photoCircle.addEventListener('drop', handleDrop, false);
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function highlight(e) {
+            photoCircle.style.borderColor = '#007bff';
+            photoCircle.style.backgroundColor = '#e3f2fd';
+        }
+
+        function unhighlight(e) {
+            photoCircle.style.borderColor = '#ddd';
+            photoCircle.style.backgroundColor = '#f8f9fa';
+        }
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+
+            if (files.length > 0) {
+                fileInput.files = files;
+                previewPhoto(fileInput);
+            }
+        }
+    }
+
+    // Initialize drag and drop when page loads
+    document.addEventListener('DOMContentLoaded', function () {
+        setupDragAndDrop();
+    });
+</script>

@@ -1,0 +1,469 @@
+﻿@model Address
+<link href="~/css/profileCss1.css" rel="stylesheet" />
+<div class="profile-container">
+    <!-- Modern Add Address Modal -->
+    <div id="addressModal" class="address-modal">
+        <div class="modal-content" style="padding:0">
+            <div class="modal-header">
+                <h2 class="modal-title">Add New Address</h2>
+                <a class="modal-close" onclick="closeAddressModal()" asp-action="Address">
+                    <i class="fas fa-times"></i>
+                </a>
+            </div>
+
+            <form id="addressForm" asp-action="AddAddress" class="modal-body" method="post">
+                
+                @*dont forget handle validations *@
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label" asp-for="@Model.StreetName">
+                            <i class="fas fa-road"></i> Street Name *
+                        </label>
+                        <input type="text" id="streetName" asp-for="@Model.StreetName" class="form-control"
+                               placeholder="Enter street name" maxlength="100" required>
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Street name is required (max 100 characters)</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" asp-for="@Model.BuildingNo">
+                            <i class="fas fa-building"></i> Building Number *
+                        </label>
+                        <input type="text" id="buildingNo" asp-for="@Model.BuildingNo" class="form-control"
+                               placeholder="Building/House number" required>
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Building number is required</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-globe"></i> Country *
+                        </label>
+                        <select id="country" asp-items="(SelectList)ViewBag.countries " class="form-control" required>
+                            <option value="">Select Country</option>
+                        </select>
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Please select a country</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-city"></i> City *
+                        </label>
+                        <select id="city" class="form-control" required>
+                            <option value="">Select City</option>
+                        </select>
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>City is required</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" asp-for="@Model.AreaId">
+                            <i class="fas fa-map-marker-alt"></i> Area *
+                        </label>
+                        <select id="area" asp-for="@Model.AreaId" class="form-control" required>
+                            <option value="">Select Area</option>
+                        </select>
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Area is required</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" asp-for="@Model.CountryCode">
+                            <i class="fas fa-flag"></i> Country Code *
+                        </label>
+                        <select id="countryCode" asp-for="@Model.CountryCode" asp-items="ViewBag.countrycodes" class="form-control" required>
+                            <option value="">Select Code</option>
+                        </select>
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Please select country code</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" asp-for="@Model.NearestLandmark">
+                        <i class="fas fa-landmark"></i> Nearest Landmark
+                    </label>
+                    <textarea id="nearestLandmark" asp-for="@Model.NearestLandmark" class="form-control"
+                              placeholder="Optional: Describe nearby landmarks to help with delivery"
+                              maxlength="200" rows="3"></textarea>
+                    <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                        <span id="landmarkCount">0</span>/200 characters
+                    </div>
+                </div>
+
+                <div class="checkbox-group">
+                    <label class="custom-checkbox">
+                        <input type="checkbox" id="isDefault" asp-for="@Model.IsDefault">
+                        <span class="checkmark"></span>
+                    </label>
+                    <label asp-for="@Model.IsDefault" class="checkbox-label">
+                        <i class="fas fa-star" style="color: #ffd700; margin-right: 5px;"></i>
+                        Set as default address
+                    </label>
+                </div>
+                <div class="modal-footer">
+                    <a type="button" class="btn-secondary" asp-action="Address" onclick="closeAddressModal()">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn-save" onclick="saveAddress()">
+                        <i class="fas fa-save"></i> Save Address
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    // Modal functionality
+        const modal = document.getElementById('addressModal');
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+
+        // Focus first input
+        setTimeout(() => {
+            document.getElementById('streetName').focus();
+        }, 300);
+    
+
+    function closeAddressModal() {
+        const modal = document.getElementById('addressModal');
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+
+        // Reset form
+        document.getElementById('addressForm').reset();
+        clearValidation();
+    }
+
+    // Form validation
+    function validateField(field) {
+        const value = field.value.trim();
+        const errorDiv = field.parentNode.querySelector('.error-message');
+
+        if (field.hasAttribute('required') && !value) {
+            field.classList.add('error');
+            field.classList.remove('success');
+            errorDiv.classList.add('show');
+            return false;
+        } else if (field.hasAttribute('maxlength') && value.length > field.getAttribute('maxlength')) {
+            field.classList.add('error');
+            field.classList.remove('success');
+            errorDiv.classList.add('show');
+            return false;
+        } else {
+            field.classList.remove('error');
+            field.classList.add('success');
+            errorDiv.classList.remove('show');
+            return true;
+        }
+    }
+
+    function clearValidation() {
+        const fields = document.querySelectorAll('.form-control');
+        const errors = document.querySelectorAll('.error-message');
+
+        fields.forEach(field => {
+            field.classList.remove('error', 'success');
+        });
+
+        errors.forEach(error => {
+            error.classList.remove('show');
+        });
+    }
+
+    // Character counter for landmark
+    document.getElementById('nearestLandmark').addEventListener('input', function () {
+        const count = this.value.length;
+        document.getElementById('landmarkCount').textContent = count;
+
+        if (count > 200) {
+            this.classList.add('error');
+        } else {
+            this.classList.remove('error');
+        }
+    });
+
+    // Real-time validation
+    document.querySelectorAll('.form-control').forEach(field => {
+        field.addEventListener('blur', function () {
+            validateField(this);
+        });
+
+        field.addEventListener('input', function () {
+            if (this.classList.contains('error')) {
+                validateField(this);
+            }
+        });
+    });
+    // document.getElementById('addressForm').addEventListener("submit", function() {
+        
+    //     saveAddress();
+
+    // });
+    // modal.addEventListener('animationend', () => {
+    //     // Now safe to submit
+    //     form.submit();
+    // }, { once: true });
+    // Save address function
+
+    function saveAddress() {
+        const form = document.getElementById('addressForm');
+        const fields = form.querySelectorAll('.form-control[required]');
+        let isValid = true;
+
+        // Validate all required fields
+        fields.forEach(field => {
+            if (!validateField(field)) {
+                isValid = false;
+            }
+        });
+
+        if (!isValid) {
+            // Shake animation for invalid form
+            const modal = document.querySelector('.modal-content');
+            modal.style.animation = 'shake 0.5s ease-in-out';
+            setTimeout(() => {
+                modal.style.animation = '';
+            }, 500);
+            return;
+        }
+
+        // Show loading state
+        const saveBtn = document.querySelector('.btn-save');
+        const originalContent = saveBtn.innerHTML;
+        saveBtn.innerHTML = '<div class="spinner"></div> Saving...';
+        saveBtn.disabled = true;
+
+        // Simulate API call
+        setTimeout(() => {
+            // Success feedback
+            saveBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+            saveBtn.style.background = 'linear-gradient(135deg, #27ae60, #2ecc71)';
+
+            setTimeout(() => {
+                closeAddressModal();
+                // Reset button
+                saveBtn.innerHTML = originalContent;
+                saveBtn.disabled = false;
+                saveBtn.style.background = '';
+
+                // Show success message (you can implement this)
+                alert('Address saved successfully!');
+            }, 1000);
+        }, 2000);
+    }
+
+    // Close modal on escape key
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && document.getElementById('addressModal').classList.contains('active')) {
+            closeAddressModal();
+        }
+    });
+
+    // Close modal on backdrop click
+    document.getElementById('addressModal').addEventListener('click', function (e) {
+        if (e.target === this) {
+            closeAddressModal();
+        }
+    });
+
+    // Add shake animation for invalid form
+    const style = document.createElement('style');
+    //comment to update
+    style.textContent = `
+        @@keyframes shake {
+                        0%, 100% { transform: translateX(0); }
+                        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+                        20%, 40%, 60%, 80% { transform: translateX(5px); }
+                    }
+                `;
+    document.head.appendChild(style);
+
+    document.getElementById('country').addEventListener('change',function () {
+        document.getElementById('city').innerHTML = `<option value="">Select city</option>`;
+        var countryId = $("#country option:selected").val();
+        $.ajax({
+            url: '/Profile/GetCities',       // Replace with your server URL
+            type: 'POST',                // Or 'GET'
+            data: { Id : countryId }, // Data to send
+            dataType: 'json',            // Expected response type
+            success: function (response) {
+                console.log(response);
+                response.forEach(c => {
+                    const option = new Option(c.name, c.id);
+                    document.getElementById('city').add(option);
+                });
+            },
+            error: function (xhr, status, error) {
+                console.error('Error:', error);
+                // Handle errors here
+            }
+        });
+    });
+    document.getElementById('city').addEventListener('change', function () {
+        document.getElementById('area').innerHTML = `<option value="">Select area</option>`;
+        var cityId = $("#city option:selected").val();
+        $.ajax({
+            url: '/Profile/GetAreas',       // Replace with your server URL
+            type: 'POST',                // Or 'GET'
+            data: { Id: cityId }, // Data to send
+            dataType: 'json',            // Expected response type
+            success: function (response) {
+                response.forEach(c => {
+                    const option = new Option(c.name, c.id);
+                    document.getElementById('area').add(option);
+                });
+            },
+            error: function (xhr, status, error) {
+                console.error('Error:', error);
+                // Handle errors here
+            }
+        });
+    });
+</script>
+<script>
+    // Field validation function
+    function validateField(field) {
+        const value = field.value.trim();
+        const errorMessage = field.parentElement.querySelector('.error-message');
+
+        // Remove previous validation classes
+        field.classList.remove('error', 'success');
+        if (errorMessage) {
+            errorMessage.classList.remove('show');
+        }
+
+        // Check if field is required and empty
+        if (field.hasAttribute('required') && !value) {
+            field.classList.add('error');
+            if (errorMessage) {
+                errorMessage.classList.add('show');
+            }
+            return false;
+        }
+
+        // Additional validation for specific fields
+        if (field.id === 'streetName' && value.length > 100) {
+            field.classList.add('error');
+            if (errorMessage) {
+                errorMessage.classList.add('show');
+            }
+            return false;
+        }
+
+        // If validation passes
+        if (value) {
+            field.classList.add('success');
+        }
+        return true;
+    }
+
+    // Form submit handler that integrates with your saveAddress function
+    // function handleFormSubmit(event) {
+    //     // Prevent default form submission
+    //     return true;
+
+    // }
+
+    // Your custom save function (modified to work with MVC form submission)
+    function saveAddress() {
+        const form = document.getElementById('addressForm');
+        const fields = form.querySelectorAll('.form-control[required]');
+        let isValid = true;
+
+        // Validate all required fields
+        fields.forEach(field => {
+            if (!validateField(field)) {
+                isValid = false;
+            }
+        });
+
+        if (!isValid) {
+            // Shake animation for invalid form
+            const modal = document.querySelector('.modal-content');
+            if (modal) {
+                modal.style.animation = 'shake 0.5s ease-in-out';
+                setTimeout(() => {
+                    modal.style.animation = '';
+
+                }, 500);
+            }
+            return;
+        }
+
+        // Show loading state
+        const saveBtn = document.querySelector('.btn-save');
+        const originalContent = saveBtn.innerHTML;
+        saveBtn.innerHTML = '<div class="spinner"></div> Saving...';
+        saveBtn.disabled = true;
+
+        // Submit the form after validation passes
+        setTimeout(() => {
+            // Success feedback (brief)
+            saveBtn.innerHTML = '<i class="fas fa-check"></i> Saving...';
+            saveBtn.style.background = 'linear-gradient(135deg, #27ae60, #2ecc71)';
+
+            // Submit the actual form to the MVC controller
+            setTimeout(() => {
+                alert('Address saved successfully!');
+                form.submit();
+            }, 500);
+
+        }, 1000);
+
+
+    }
+
+    // Real-time validation and character counter
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('addressForm');
+        const fields = form.querySelectorAll('.form-control');
+
+        // Add real-time validation
+        fields.forEach(field => {
+            field.addEventListener('blur', function () {
+                validateField(this);
+            });
+
+            field.addEventListener('input', function () {
+                if (this.classList.contains('error')) {
+                    validateField(this);
+                }
+            });
+        });
+
+        // Character counter for landmark field
+        const landmarkField = document.getElementById('nearestLandmark');
+        const landmarkCount = document.getElementById('landmarkCount');
+
+        if (landmarkField && landmarkCount) {
+            landmarkField.addEventListener('input', function () {
+                const count = this.value.length;
+                landmarkCount.textContent = count;
+
+                if (count > 200) {
+                    landmarkCount.style.color = '#e74c3c';
+                } else if (count > 180) {
+                    landmarkCount.style.color = '#f39c12';
+                } else {
+                    landmarkCount.style.color = '#666';
+                }
+            });
+        }
+    });
+</script>
+

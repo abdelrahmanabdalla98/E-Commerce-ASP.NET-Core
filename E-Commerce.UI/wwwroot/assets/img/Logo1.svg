@@ -1,0 +1,52 @@
+<svg width="220" height="65" viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="luxuryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#000000;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#434343;stop-opacity:1" />
+        </linearGradient>
+        <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#ffd700;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#ffb347;stop-opacity:1" />
+        </linearGradient>
+        <filter id="luxuryShadow">
+            <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000000" flood-opacity="0.2" />
+        </filter>
+    </defs>
+
+    <!-- Minimal icon -->
+    <g transform="translate(30,25)" filter="url(#luxuryShadow)">
+        <circle cx="15" cy="15" r="15" fill="none" stroke="url(#luxuryGradient)" stroke-width="2" />
+
+        <!-- Elegant shopping symbol -->
+        <g transform="translate(15,15) scale(0.7)">
+            <path d="M-8,-5 L8,-5 Q10,-5 10,-3 L8,8 Q8,10 6,10 L-6,10 Q-8,10 -8,8 L-10,-3 Q-10,-5 -8,-5 Z"
+                  fill="none" stroke="url(#luxuryGradient)" stroke-width="2" />
+            <path d="M-3,-5 Q0,-10 3,-5" stroke="url(#luxuryGradient)" stroke-width="2"
+                  fill="none" stroke-linecap="round" />
+        </g>
+
+        <!-- Gold accent dot -->
+        <circle cx="25" cy="5" r="2" fill="url(#goldGradient)" />
+    </g>
+
+    <!-- EG in luxury font -->
+    <text x="80" y="40" font-family="'Times New Roman', serif" font-size="36"
+          font-weight="300" fill="url(#luxuryGradient)" filter="url(#luxuryShadow)">
+        EG
+    </text>
+
+    <!-- Elegant separator -->
+    <line x1="130" y1="35" x2="145" y2="35" stroke="url(#goldGradient)" stroke-width="1" />
+
+    <!-- SOUQ in luxury font -->
+    <text x="155" y="40" font-family="'Times New Roman', serif" font-size="36"
+          font-weight="300" fill="url(#luxuryGradient)" filter="url(#luxuryShadow)">
+        SOUQ
+    </text>
+
+    <!-- Minimal tagline -->
+    <text x="80" y="60" font-family="'Arial', sans-serif" font-size="8"
+          font-weight="300" fill="url(#luxuryGradient)" opacity="0.6" letter-spacing="3px">
+        PREMIUM ELECTRONICS
+    </text>
+</svg>

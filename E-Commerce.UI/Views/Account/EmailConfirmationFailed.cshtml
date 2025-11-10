@@ -1,0 +1,27 @@
+﻿@{
+    ViewData["Title"] = "Email Confirmation Failed";
+}
+
+<div class="auth-card">
+    <div class="auth-header">
+        <h1><i class="fas fa-times-circle me-2"></i>Confirmation Failed</h1>
+        <p>We couldn't confirm your email</p>
+    </div>
+
+    <div class="auth-body">
+        <div class="status-message">
+            <i class="fas fa-times-circle status-icon error-icon"></i>
+            <h3>Unable to Confirm</h3>
+            <p class="text-muted mb-4">
+                The email confirmation link is invalid or has expired.
+                Please request a new confirmation email.
+            </p>
+        </div>
+    </div>
+
+    <div class="auth-links">
+        <a asp-action="ResendEmailConfirmation" class="btn btn-primary">
+            <i class="fas fa-envelope me-2"></i>Resend Confirmation
+        </a>
+    </div>
+</div>

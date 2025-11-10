@@ -1,0 +1,5 @@
+﻿@{
+    Layout = Context.Request.Path.StartsWithSegments("/Account")
+        ? "~/Views/Shared/Auth_Layout.cshtml"
+        : "~/Views/Shared/_Layout.cshtml";
+}

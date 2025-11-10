@@ -1,0 +1,611 @@
+﻿        <!-- Security Tab -->
+<link href="~/css/profilecss1.css" rel="stylesheet" />
+@{
+    var currentUrl = $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}{Context.Request.QueryString}";
+    var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    var user = await _manager.FindByIdAsync(userId);
+    var is2FAE = userId != null ? (await _manager.GetTwoFactorEnabledAsync(await _manager.FindByIdAsync(userId))) : false;
+    var isnotify = userId != null ? (await _manager.FindByIdAsync(userId)).IsActive : false;
+
+}
+@inject UserManager<E_Commerce.DAL.Entity_Extension.ApplicationUser> _manager
+@model ProfileDTO
+<div class="profile-container">
+    @await Html.PartialAsync("ProfilePartial", Model)
+
+    <div id="security" class="tab-content active">
+        <!-- Security Overview -->
+@*         <div class="security-overview">
+            <div class="security-score">
+                <div class="score-circle">
+                    <div class="score-number">85</div>
+                    <div class="score-label">Security Score</div>
+                </div>
+                <div class="score-details">
+                    <h3>Good Security Level</h3>
+                    <p>Your account is well protected, but there are some improvements you can make.</p>
+                    <div class="security-recommendations">
+                        <div class="recommendation">
+                            <i class="fas fa-exclamation-circle text-warning"></i>
+                            <span>Enable Two-Factor Authentication for better security</span>
+                        </div>
+                        <div class="recommendation">
+                            <i class="fas fa-check-circle text-success"></i>
+                            <span>Strong password in use</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> *@
+
+        <div class="form-section">
+            <h2 class="section-title">
+                <i class="fas fa-shield-alt"></i>
+                Authentication & Access
+            </h2>
+
+            <div class="security-item enhanced">
+                <div class="security-icon">
+                    <i class="fas fa-key"></i>
+                </div>
+                <div class="security-info">
+                    <h4>Password</h4>
+                    <p>Last changed @Model.PasswordChanged</p>
+                    <div class="password-strength">
+                        @{
+                            if (Model.PassStrength != null)
+                            {
+                                            <div class="strength-indicator @Model.PassStrength.Split('/').First()">
+                                                <div class="strength-bar"></div>
+                                            </div>
+                                            <span class="strength-label @Model.PassStrength.Split('/').First()">@Model.PassStrength.Split('/').Last()</span>
+                            }
+                            else
+                            {
+                                            <div class="strength-indicator">
+                                                <div class="strength-bar"></div>
+                                            </div>
+                                            <span class="strength-label"></span>
+                            }
+                        }
+
+                    </div>
+                </div>
+                <div class="security-actions">
+                    <a class="btn btn-danger" asp-action="ChangePass">Change Password</a>
+                    <button class="btn-link" onclick="togglePasswordHistory('open')">View History</button>
+                </div>
+            </div>
+            @*                 <input type="hidden" name="url" value="@currentUrl"/>
+            *@                <div class="security-item enhanced">
+                <div class="security-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <div class="security-info">
+                    <h4>Two-Factor Authentication</h4>
+                    <p>Add an extra layer of security to your account</p>
+                    <div class="security-status disabled">
+                        <i class="fas fa-times-circle"></i>
+                        <span>Not Enabled</span>
+                    </div>
+                    <div class="security-recommendation">
+                        <i class="fas fa-exclamation-triangle icon"></i>
+                        <span>Highly recommended for account security</span>
+                    </div>
+                </div>
+                <div class="security-actions">
+                    <button id="setupbtn" class="btn-setup">
+                        <i class="fas fa-plus icon"></i>
+                        Setup Now
+                    </button>
+                </div>
+            </div>
+
+            <div class="security-item enhanced">
+                <div class="security-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="security-info">
+                    <h4>Login Notifications</h4>
+                    <p>Get notified when someone logs into your account</p>
+                    @{
+                        if (user != null)
+                        {
+                            if (user.IsActive)
+                            {
+                                            <div id="logNotify" class="security-status enabled">
+                                                <i class="fas fa-check-circle"></i>
+                                                <span>Active</span>
+                                            </div>
+                            }
+                            else
+                            {
+                                            <div id="logNotify" class="security-status disabled">
+                                                <i class="fas fa-times-circle"></i>
+                                                <span>Not Enabled</span>
+                                            </div>
+                            }
+                        }
+                    }
+
+                </div>
+                <div class="security-actions">
+                    <div class="toggle-switch @(user!=null && user.IsActive == true ? "active" : "")" onclick="toggleSwitch(this,'logNotify')">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="security-item enhanced">
+                <div class="security-icon">
+                    <i class="fas fa-life-ring"></i>
+                </div>
+                <div class="security-info">
+                    <h4>Account Recovery</h4>
+                    <p>Help us verify your identity if you lose access</p>
+                    <div class="recovery-methods">
+                        <span class="method-badge @(Model.RecovEmail!=null?"bg-success text-white":"missing")">Email</span>
+                        <span class="method-badge @(Model.RecovPhone!=null?"bg-success text-white":"missing")">Phone</span>
+                        <span class="method-badge @(Model.PassDictionaryJson!=null?"bg-success text-white":"missing")">Security Questions</span>
+                    </div>
+                </div>
+                <div class="security-actions">
+                    <button type="submit" id="setupbtn1" class="btn-setup">
+                        <i class="fas fa-plus icon"></i>
+                        Setup Recovery
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        @* <div class="form-section">
+            <h2 class="section-title">
+                <i class="fas fa-history"></i>
+                Recent Security Activity
+            </h2>
+
+            <div class="activity-list">
+                <div class="activity-item">
+                    <div class="activity-icon success">
+                        <i class="fas fa-sign-in-alt"></i>
+                    </div>
+                    <div class="activity-details">
+                        <div class="activity-title">Successful login</div>
+                        <div class="activity-meta">Chrome on Windows • Cairo, Egypt • 2 hours ago</div>
+                    </div>
+                    <div class="activity-status">
+                        <span class="status-badge success">Verified</span>
+                    </div>
+                </div>
+
+                <div class="activity-item">
+                    <div class="activity-icon info">
+                        <i class="fas fa-user-edit"></i>
+                    </div>
+                    <div class="activity-details">
+                        <div class="activity-title">Profile updated</div>
+                        <div class="activity-meta">Phone number changed • 1 day ago</div>
+                    </div>
+                    <div class="activity-status">
+                        <span class="status-badge info">Confirmed</span>
+                    </div>
+                </div>
+
+                <div class="activity-item">
+                    <div class="activity-icon warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="activity-details">
+                        <div class="activity-title">Failed login attempt</div>
+                        <div class="activity-meta">Unknown device • Alexandria, Egypt • 3 days ago</div>
+                    </div>
+                    <div class="activity-status">
+                        <span class="status-badge warning">Blocked</span>
+                    </div>
+                </div>
+
+                <div class="activity-item">
+                    <div class="activity-icon success">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <div class="activity-details">
+                        <div class="activity-title">Password changed</div>
+                        <div class="activity-meta">Successfully updated • 3 months ago</div>
+                    </div>
+                    <div class="activity-status">
+                        <span class="status-badge success">Verified</span>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-link view-all" onclick="viewAllActivity()">View All Security Activity</button>
+        </div> *@
+
+        @* <div class="form-section">
+            <h2 class="section-title">
+                <i class="fas fa-devices"></i>
+                Active Sessions
+            </h2>
+
+            <div class="device-list">
+                <div class="device-item current">
+                    <div class="device-icon">
+                        <i class="fas fa-desktop"></i>
+                    </div>
+                    <div class="device-details">
+                        <div class="device-name">Windows PC - Chrome</div>
+                        <div class="device-location">Cairo, Egypt</div>
+                        <div class="device-time">Current session • Last active now</div>
+                    </div>
+                    <div class="device-status">
+                        <span class="current-badge">Current</span>
+                    </div>
+                </div>
+
+                <div class="device-item">
+                    <div class="device-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div class="device-details">
+                        <div class="device-name">iPhone 14 - Safari</div>
+                        <div class="device-location">Cairo, Egypt</div>
+                        <div class="device-time">Last active 4 hours ago</div>
+                    </div>
+                    <div class="device-actions">
+                        <button class="btn-danger-outline" onclick="revokeSession('mobile')">End Session</button>
+                    </div>
+                </div>
+
+                <div class="device-item">
+                    <div class="device-icon">
+                        <i class="fas fa-tablet-alt"></i>
+                    </div>
+                    <div class="device-details">
+                        <div class="device-name">iPad - Safari</div>
+                        <div class="device-location">Giza, Egypt</div>
+                        <div class="device-time">Last active 2 days ago</div>
+                    </div>
+                    <div class="device-actions">
+                        <button class="btn-danger-outline" onclick="revokeSession('tablet')">End Session</button>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-danger" onclick="revokeAllSessions()">
+                <i class="fas fa-sign-out-alt"></i>
+                End All Other Sessions
+            </button>
+        </div> *@
+
+        <div class="form-section">
+            <h2 class="section-title">
+                <i class="fas fa-user-shield"></i>
+                Privacy Settings
+            </h2>
+
+            @* <div class="security-item enhanced">
+                <div class="security-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <div class="security-info">
+                    <h4>Profile Visibility</h4>
+                    <p>Control who can see your profile information</p>
+                </div>
+                <div class="security-actions">
+                    <select class="form-control privacy-select">
+                        <option value="public">Public</option>
+                        <option value="friends" selected>Friends Only</option>
+                        <option value="private">Private</option>
+                    </select>
+                </div>
+            </div> *@
+
+            @* <div class="security-item enhanced">
+                <div class="security-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="security-info">
+                    <h4>Data Collection</h4>
+                    <p>Allow us to collect data to improve your experience</p>
+                    <div class="data-types">
+                        <span class="data-badge">Analytics</span>
+                        <span class="data-badge">Preferences</span>
+                        <span class="data-badge">Usage Patterns</span>
+                    </div>
+                </div>
+                <div class="security-actions">
+                    <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                        <div class="toggle-slider"></div>
+                    </div>
+                    <button class="btn-link" onclick="manageDataSettings()">Manage</button>
+                </div>
+            </div> *@
+
+            <div class="security-item enhanced">
+                <div class="security-icon">
+                    <i class="fas fa-download"></i>
+                </div>
+                <div class="security-info">
+                    <h4>Data Export</h4>
+                    <p>Download a copy of your personal data</p>
+                </div>
+                <div class="security-actions">
+                    <button id="dwBtn" type="button" class="btn-export">
+                        <span class="btn-icon">📥</span>
+                        <span >Request Data Export</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="security-item enhanced danger">
+                <div class="security-icon">
+                    <i class="fas fa-trash-alt"></i>
+                </div>
+                <div class="security-info">
+                    <h4>Delete Account</h4>
+                    <p>Permanently delete your account and all associated data</p>
+                    <div class="warning-text">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        This action cannot be undone
+                    </div>
+                </div>
+                <div class="security-actions">
+                    <form id="formDel" asp-action="DeleteAcc" method="post">
+
+                    <button id="deleteBtn" class="btn-danger" type="button">Delete Account</button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="loginHistory" class="tab-content">
+        <!-- Enhanced Header -->
+        <div class="login-history-header">
+            <button class="close-button border-danger border-1" onclick="togglePasswordHistory('close')">
+                <i class="fas fa-times border-danger border-1"></i>
+            </button>
+            <h2 class="login-history-title">
+                <i class="fas fa-history"></i>
+                Login History
+            </h2>
+            <p class="login-history-subtitle">Track your recent account access activity</p>
+        </div>
+
+        <!-- Login Statistics -->
+        <div class="login-stats">
+            <div class="stat-card">
+                <div class="stat-number">@Model.LoginHistory.Count</div>
+                <div class="stat-label">Total Logins</div>
+            </div>
+        </div>
+        <!-- Login History Content -->
+        <div class="login-history-content">
+            <!-- Sample login entries -->
+
+                @foreach (var item in Model.LoginHistory)
+                {
+                var daysCount = (DateTime.Now - item.Date).Days;
+                <div class="login-entry">
+                    <div class="login-info">
+                        <div class="login-icon">
+                            <i class="fas fa-sign-in-alt"></i>
+                        </div>
+                        <div class="login-details">
+                            @if (daysCount == 0)
+                            {
+                                <div class="login-timestamp">
+                                    <i class="fas fa-clock"></i>
+                                    Today at @item.ToString("hh:mm tt")
+                                </div>
+                            }
+                            else if (daysCount == 1)
+                            {
+                                <div class="login-timestamp">
+                                    <i class="fas fa-clock"></i>
+                                    Yesterday at @item.ToString("hh:mm tt")
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="login-timestamp">
+                                    <i class="fas fa-clock"></i>
+                                    @daysCount days ago at @item.ToString("hh:mm tt")
+                                </div>
+                            }
+
+                                <div class="login-date">
+                                    <i class="fas fa-calendar"></i>
+                                    @item.Date
+                                </div>
+                            </div>
+                            <div class="login-status">
+                                <i class="fas fa-check-circle"></i>
+                                Successful
+                            </div>
+                        </div>
+                    </div>
+                }
+
+            
+
+            <!-- Empty State (hidden when there are entries) -->
+            <!--
+            <div class="empty-state" style="display: none;">
+                <div class="empty-icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                <h3 class="empty-title">No Login History</h3>
+                <p class="empty-subtitle">Your recent login activities will appear here</p>
+            </div>
+            -->
+        </div>
+    </div>
+    <form id="del" asp-action="Disable2FA" method="post"></form>
+    <form id="notifyLogin" asp-action="notifyLogin" method="post"></form>
+
+</div>
+<script>
+    //refer to elements later
+    const elements = document.querySelectorAll('.toggle-switch');
+    const isNotify = "@isnotify";
+    if (isNotify == "True") {
+
+    }
+    function togglePasswordHistory(type) {
+        if (type == "open") {
+            document.getElementById('security').classList.remove('active');
+            document.getElementById('loginHistory').classList.add('active');
+        }
+        else {
+            document.getElementById('security').classList.add('active');
+            document.getElementById('loginHistory').classList.remove('active');
+        }
+    }
+    function toggleSwitch(element, Id) {
+        element.classList.toggle('active');
+        if (Id == 'logNotify') {
+            const form = document.querySelector('#notifyLogin');
+            const statusElement = document.querySelector('#logNotify');
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'Id';
+            if (element.classList.contains('active')) {
+                hiddenInput.value = '@userId/1';
+
+            }
+            else {
+                hiddenInput.value = '@userId/0';
+
+            }
+            form.appendChild(hiddenInput);
+            form.submit();
+        }
+    }
+    const is2FA = @(TempData["2FA"]?.ToString() == "1" ? "1" : "0");
+    const setbtn = document.getElementById('setupbtn');
+    const is2FAE = "@is2FAE";
+    if (is2FAE == "True" || is2FA == "1") {
+        // Update status
+        setbtn.className = 'btn btn-danger';
+        setbtn.textContent = 'Disable';
+
+        const statusElement = setbtn.closest('.security-item').querySelector('.security-status');
+        statusElement.classList.remove('disabled');
+        statusElement.classList.add('enabled');
+        statusElement.innerHTML = '<i class="fas fa-check-circle"></i><span>Active</span>';
+
+        // Remove recommendation
+        const recommendation = setbtn.closest('.security-item').querySelector('.security-recommendation');
+        if (recommendation) {
+            recommendation.style.display = 'none';
+        }
+    }
+    document.getElementById('setupbtn').addEventListener('click', function (e) {
+        e.preventDefault();
+        const form = document.getElementById('formId');
+
+        // Add loading state
+        if (setbtn.textContent != "Disable") {
+            this.classList.add('loading');
+            this.innerHTML = '<i class="fas fa-spinner icon"></i>Setting up...';
+            setTimeout(() => {
+                window.location.href = `/Account/EnableTwoFactor?url=${'@currentUrl'}`;
+            }, 500);
+        }
+        // Simulate setup process
+
+    });
+    document.getElementById('setupbtn1').addEventListener('click', function (e) {
+        e.preventDefault();
+
+        // Add loading state
+        if (setbtn.textContent != "Disable") {
+            this.classList.add('loading');
+            this.innerHTML = '<i class="fas fa-spinner icon"></i>Setting up...';
+            setTimeout(() => {
+                window.location.href = "/Account/RecoveryForm";
+            }, 500);
+        }
+        // Simulate setup process
+
+    });
+    document.getElementById('deleteBtn').addEventListener('click', function (e) {
+        e.preventDefault();
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'You’re about to delete this Account!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirect to controller action (GET or POST)
+                document.getElementById('formDel').submit();
+
+            }
+        });
+    });
+    document.getElementById('dwBtn').addEventListener('click', function (e) {
+        window.location.href = "/Profile/DownloadProfile?id=@userId";
+    });
+
+</script>
+@section lib {
+    <script>
+        const form = document.getElementById('del');
+        setbtn.addEventListener('click', function (e) {
+            if (is2FAE == "True") {
+                confirmDisable();
+            }
+        });
+        function confirmDisable() {
+            // ✋ Stop the default form submission
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'You’re about to Disable this Feature!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, Disable it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // setTimeout(() => {
+                    //     setbtn.classList.add('loading');
+                    //     setbtn.innerHTML = '<i class="fas fa-spinner icon"></i>Setting up...';
+                    // }, 500);
+                    const inputs = {
+                        Id: '@userId',
+                        url: '@currentUrl'
+                    };
+                    for (const [name, value] of Object.entries(inputs)) {
+                        const hiddenInput = document.createElement('input');
+                        hiddenInput.type = 'hidden';
+                        hiddenInput.name = name;
+                        hiddenInput.value = value;
+                        form.appendChild(hiddenInput);
+                    }
+                    form.submit();
+
+                    // // Redirect to controller action (GET or POST)
+                    // // const form = document.getElementById(formId);
+                    // // window.location.href = `/Profile/Disable2FA?url=${'@currentUrl'}`;
+                    // fetch('/Profile/Disable2FA', {
+                    //     method: 'POST',
+                    //     url: '@currentUrl'
+                    // });
+                    // // Create and append a hidden input to simulate the submit button
+
+
+                }
+                else {
+                    setbtn.className = 'btn btn-danger';
+                    setbtn.textContent = 'Disable';
+                }
+            });
+        }
+    </script>
+}

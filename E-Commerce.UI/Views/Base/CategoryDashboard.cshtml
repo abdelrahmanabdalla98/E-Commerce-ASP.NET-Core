@@ -1,0 +1,760 @@
+﻿@model List<CategoryDTO>
+<link href="~/css/product.css" rel="stylesheet" />
+
+<title>Category Management</title>
+<div class="table-container">
+    <div class="table-header">
+        <h1 class="table-title">
+            <i class="fas fa-sitemap"></i>
+            Category Management
+        </h1>
+        <div class="table-controls">
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="Search categories..." id="searchInput">
+            </div>
+            <a asp-action="AddCategory" class="btn-add">
+                <i class="fas fa-plus"></i>
+                Add Category
+            </a>
+        </div>
+    </div>
+
+    <div class="table-body">
+        @*             <!-- Statistics Cards -->
+        <div class="stats-cards">
+        <div class="stats-card">
+        <h3 id="totalCategoriesCount">0</h3>
+        <p>Total Categories</p>
+        </div>
+        <div class="stats-card">
+        <h3 id="parentCategoriesCount">0</h3>
+        <p>Parent Categories</p>
+        </div>
+        <div class="stats-card">
+        <h3 id="subcategoriesCount">0</h3>
+        <p>Subcategories</p>
+        </div>
+        <div class="stats-card">
+        <h3 id="maxDepthLevel">0</h3>
+        <p>Max Depth Level</p>
+        </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+        <div class="filter-row">
+        <div class="filter-group">
+        <label class="filter-label">Category Type</label>
+        <select class="filter-select" id="typeFilter">
+        <option value="">All Categories</option>
+        <option value="parent">Parent Categories Only</option>
+        <option value="subcategory">Subcategories Only</option>
+        <option value="childless">Categories without Subcategories</option>
+        </select>
+        </div>
+
+        <div class="filter-group">
+        <label class="filter-label">Parent Category</label>
+        <select class="filter-select" id="parentFilter">
+        <option value="">All Parents</option>
+        <!-- Will be populated dynamically -->
+        </select>
+        </div>
+
+        <div class="filter-group">
+        <label class="filter-label">Level</label>
+        <select class="filter-select" id="levelFilter">
+        <option value="">All Levels</option>
+        <option value="0">Level 0 (Root)</option>
+        <option value="1">Level 1</option>
+        <option value="2">Level 2</option>
+        <option value="3">Level 3+</option>
+        </select>
+        </div>
+
+        <div class="filter-group">
+        <label class="filter-label">View Mode</label>
+        <select class="filter-select" id="viewMode">
+        <option value="table">Table View</option>
+        <option value="tree">Tree View</option>
+        </select>
+        </div>
+        </div>
+
+        <div class="filter-actions">
+        <button class="btn-filter" onclick="applyFilters()">
+        <i class="fas fa-filter"></i>
+        Apply Filters
+        </button>
+        <button class="btn-clear" onclick="clearAllFilters()">
+        <i class="fas fa-times"></i>
+        Clear All
+        </button>
+        </div>
+        </div>
+
+        <div class="filter-summary" id="filterSummary">
+        <strong>Active Filters:</strong>
+        <div id="filterTags"></div>
+        </div>
+
+        <!-- Tree View -->
+        <div class="tree-view hidden" id="treeView">
+        <h3 style="margin-bottom: 1rem; color: var(--secondary-color);">
+        <i class="fas fa-tree"></i>
+        Category Hierarchy
+        </h3>
+        <div id="treeContent"></div>
+        </div> *@
+        <div class="filter-summary" id="filterSummary">
+            <strong>Active Filters:</strong>
+            <div id="filterTags"></div>
+        </div>
+        <!-- Table View -->
+        <div class="table-responsive" id="tableView">
+            <table class="data-table" id="categoryTable">
+                <thead>
+                    <tr>
+                        <th class="sortable" data-sort="id">ID</th>
+                        <th class="sortable" data-sort="name">Category Name</th>
+                        <th>Parent Category</th>
+                        <th>Subcategories</th>
+                        <th class="sortable" data-sort="level">Level</th>
+                        <th>Path</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Data will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination">
+            <div class="entries-per-page">
+                <span>Show</span>
+                <select class="entries-select" id="entriesPerPage">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <span>entries</span>
+            </div>
+
+            <div class="pagination-info" id="paginationInfo">
+                Showing 0 to 0 of 0 entries
+            </div>
+
+            <div class="pagination-controls" id="paginationControls">
+                <button class="page-btn" id="prevBtn" disabled onclick="changePage(currentPage - 1)">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn" id="nextBtn" disabled onclick="changePage(currentPage + 1)">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+@section lib {
+    <script>
+        // Sample category data - replace with @Html.Raw(Json.Serialize(Model))
+        // const sampleCategories = [
+        //     { id: 1, name: "Electronics", parentCategoryId: null },
+        //     { id: 2, name: "Smartphones", parentCategoryId: 1 },
+        //     { id: 3, name: "Laptops", parentCategoryId: 1 },
+        //     { id: 4, name: "iPhone", parentCategoryId: 2 },
+        //     { id: 5, name: "Samsung Galaxy", parentCategoryId: 2 },
+        //     { id: 6, name: "Gaming Laptops", parentCategoryId: 3 },
+        //     { id: 7, name: "Business Laptops", parentCategoryId: 3 },
+        //     { id: 8, name: "Clothing", parentCategoryId: null },
+        //     { id: 9, name: "Men's Clothing", parentCategoryId: 8 },
+        //     { id: 10, name: "Women's Clothing", parentCategoryId: 8 },
+        //     { id: 11, name: "T-Shirts", parentCategoryId: 9 },
+        //     { id: 12, name: "Jeans", parentCategoryId: 9 },
+        //     { id: 13, name: "Dresses", parentCategoryId: 10 },
+        //     { id: 14, name: "Books", parentCategoryId: null },
+        //     { id: 15, name: "Fiction", parentCategoryId: 14 },
+        //     { id: 16, name: "Non-Fiction", parentCategoryId: 14 },
+        //     { id: 17, name: "Home & Garden", parentCategoryId: null },
+        //     { id: 18, name: "Furniture", parentCategoryId: 17 },
+        //     { id: 19, name: "Gardening Tools", parentCategoryId: 17 }
+        // ];
+
+        const category = @Html.Raw(Json.Serialize(TempData["category"]));
+        console.log(category);
+        if (category == "no") {
+
+                Swal.fire({
+                    title: 'Action can not be done',
+                text: 'You can not add category as the max level is 1',
+                    icon: 'error',
+                    showCancelButton: false,
+                })
+        }
+        const sampleCategories = @Html.Raw(Json.Serialize(Model));
+        console.log(sampleCategories);
+        let currentData = [...sampleCategories];
+        let filteredData = [...sampleCategories];
+        let enrichedData = [];
+        let currentPage = 1;
+        let entriesPerPage = 10;
+        let sortColumn = '';
+        let sortDirection = 'asc';
+        // let activeFilters = {};
+        // let expandedCategories = new Set();
+
+        // Enrich categories with additional data
+        function enrichCategories() {
+            enrichedData = sampleCategories.map(category => {
+                const parent = sampleCategories.find(c => c.id === category.parentCategoryId);
+                const subcategories = sampleCategories.filter(c => c.parentCategoryId === category.id);
+                const level = calculateLevel(category.id);
+                const path = buildCategoryPath(category.id);
+
+                return {
+                    ...category,
+                    parentName: parent ? parent.name : null,
+                    subcategoriesCount: subcategories.length,
+                    level: level,
+                    path: path,
+                    hasChildren: subcategories.length > 0
+                };
+            });
+
+            filteredData = [...enrichedData];
+            // updateStatistics();
+            // populateParentFilter();
+        }
+
+        function calculateLevel(categoryId) {
+            const category = sampleCategories.find(c => c.id === categoryId);
+            if (!category || !category.parentCategoryId) return 0;
+            return 1 + calculateLevel(category.parentCategoryId);
+        }
+
+        function buildCategoryPath(categoryId) {
+            const category = sampleCategories.find(c => c.id === categoryId);
+            if (!category) return '';
+
+            if (!category.parentCategoryId) return category.name;
+
+            const parentPath = buildCategoryPath(category.parentCategoryId);
+            return `${parentPath} > ${category.name}`;
+        }
+
+        // function updateStatistics() {
+        //     const total = enrichedData.length;
+        //     const parents = enrichedData.filter(c => c.parentCategoryId === null).length;
+        //     const subcategories = enrichedData.filter(c => c.parentCategoryId !== null).length;
+        //     const maxDepth = Math.max(...enrichedData.map(c => c.level));
+
+        //     document.getElementById('totalCategoriesCount').textContent = total;
+        //     document.getElementById('parentCategoriesCount').textContent = parents;
+        //     document.getElementById('subcategoriesCount').textContent = subcategories;
+        //     document.getElementById('maxDepthLevel').textContent = maxDepth;
+        // }
+
+        // function populateParentFilter() {
+        //     const parentFilter = document.getElementById('parentFilter');
+        //     const parents = enrichedData.filter(c => c.parentCategoryId === null);
+
+        //     parentFilter.innerHTML = '<option value="">All Parents</option>' +
+        //         parents.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+        // }
+
+        function renderTable() {
+            // const viewMode = document.getElementById('viewMode').value;
+
+            // if (viewMode === 'tree') {
+            //     renderTreeView();
+            //     return;
+            // }
+
+            const tableBody = document.getElementById('tableBody');
+            const startIndex = (currentPage - 1) * entriesPerPage;
+            const endIndex = startIndex + entriesPerPage;
+            const pageData = filteredData.slice(startIndex, endIndex);
+
+            if (pageData.length === 0) {
+                tableBody.innerHTML = `
+                            <tr>
+                                <td colspan="7" class="no-data">
+                                    <i class="fas fa-sitemap"></i>
+                                    <div>No categories found matching your criteria</div>
+                                </td>
+                            </tr>
+                        `;
+                updatePagination();
+                return;
+            }
+
+            tableBody.innerHTML = pageData.map(category => {
+                const levelClass = `category-level-${Math.min(category.level, 3)}`;
+                const categoryIcon = category.level === 0 ? 'fa-folder' : 'fa-folder-open';
+
+                return `
+                            <tr data-category-id="${category.id}" class="${category.hasChildren ? 'has-children' : ''}">
+                                <td>${category.id}</td>
+                                <td>
+                                        ${category.name}
+                                </td>
+                                <td>
+                                    ${category.parentName ?
+                        `<span class="parent-category">
+                                            <i class="fas fa-arrow-up"></i>
+                                            ${category.parentName}
+                                        </span>`
+                        : '<span class="text-success">Root Category</span>'
+                    }
+                                </td>
+                                <td>
+                                    ${category.subcategoriesCount > 0 ?
+                        `<span class="subcategory-count">${category.subcategoriesCount} subcategories</span>`
+                        : '<span style="color: #6c757d;">No subcategories</span>'
+                    }
+                                </td>
+                                <td>
+                                    <span style="background: rgba(23, 162, 184, 0.1); color: #17a2b8; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">
+                                        Level ${category.level}
+                                    </span>
+                                </td>
+                                <td>
+                                    <small style="color: #6c757d;" title="${category.path}">${category.path}</small>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button type="button" class="btn-action btn-view" title="View Category" onclick="viewCategory(${category.id})">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button type="button" class="btn-action btn-add-sub" title="Add Subcategory" onclick="addSubcategory(${category.id})">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                        <button type="button" class="btn-action btn-edit" title="Edit Category" onclick="editCategory(${category.id})">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn-action btn-delete" title="Delete Category" onclick="deleteCategory(${category.id})" ${category.hasChildren ? 'true' : 'false'}>
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+            }).join('');
+
+            updatePagination();
+        }
+
+        // function renderTreeView() {
+        //     document.getElementById('tableView').classList.add('hidden');
+        //     document.getElementById('treeView').classList.remove('hidden');
+
+        //     const treeContent = document.getElementById('treeContent');
+        //     const rootCategories = filteredData.filter(c => c.parentCategoryId === null);
+
+        //     treeContent.innerHTML = rootCategories.map(category => renderTreeNode(category, 0)).join('');
+        // }
+
+        // function renderTreeNode(category, depth) {
+        //     const children = filteredData.filter(c => c.parentCategoryId === category.id);
+        //     const hasChildren = children.length > 0;
+        //     const isExpanded = expandedCategories.has(category.id);
+        //     const indent = depth * 20;
+
+        //     let html = `
+        //                 <div class="tree-item" style="margin-left: ${indent}px;" data-category-id="${category.id}">
+        //                     <div style="display: flex; align-items: center; justify-content: space-between;">
+        //                         <div style="display: flex; align-items: center; gap: 0.5rem;">
+        //                             ${hasChildren ?
+        //             `<button class="toggle-children" onclick="toggleTreeNode(${category.id})" title="Toggle children">
+        //                                     <i class="fas fa-chevron-${isExpanded ? 'down' : 'right'}"></i>
+        //                                 </button>`
+        //             : '<span style="width: 20px;"></span>'
+        //         }
+        //                             <i class="fas ${hasChildren ? 'fa-folder' : 'fa-folder-open'} category-icon"></i>
+        //                             <strong>${category.name}</strong>
+        //                             ${hasChildren ? `<span class="subcategory-count">${children.length}</span>` : ''}
+        //                         </div>
+        //                         <div class="action-buttons">
+        //                             <button type="button" class="btn-action btn-view" title="View Category" onclick="viewCategory(${category.id})">
+        //                                 <i class="fas fa-eye"></i>
+        //                             </button>
+        //                             <button type="button" class="btn-action btn-add-sub" title="Add Subcategory" onclick="addSubcategory(${category.id})">
+        //                                 <i class="fas fa-plus"></i>
+        //                             </button>
+        //                             <button type="button" class="btn-action btn-edit" title="Edit Category" onclick="editCategory(${category.id})">
+        //                                 <i class="fas fa-edit"></i>
+        //                             </button>
+        //                             <button type="button" class="btn-action btn-delete" title="Delete Category" onclick="deleteCategory(${category.id})" ${hasChildren ? 'disabled' : ''}>
+        //                                 <i class="fas fa-trash"></i>
+        //                             </button>
+        //                         </div>
+        //                     </div>
+        //                 </div>
+        //             `;
+
+        //     if (hasChildren && isExpanded) {
+        //         html += children.map(child => renderTreeNode(child, depth + 1)).join('');
+        //     }
+
+        //     return html;
+        // }
+
+        // function toggleTreeNode(categoryId) {
+        //     if (expandedCategories.has(categoryId)) {
+        //         expandedCategories.delete(categoryId);
+        //     } else {
+        //         expandedCategories.add(categoryId);
+        //     }
+        //     renderTreeView();
+        // }
+
+        function updatePagination() {
+            const totalItems = filteredData.length;
+            const totalPages = Math.ceil(totalItems / entriesPerPage);
+            const startItem = totalItems === 0 ? 0 : ((currentPage - 1) * entriesPerPage) + 1;
+            const endItem = Math.min(currentPage * entriesPerPage, totalItems);
+
+            document.getElementById('paginationInfo').textContent =
+                `Showing ${startItem} to ${endItem} of ${totalItems} entries`;
+
+            const paginationControls = document.getElementById('paginationControls');
+            let paginationHTML = `
+                        <button class="page-btn" id="prevBtn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                    `;
+
+            for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
+                paginationHTML += `
+                            <button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
+                                ${i}
+                            </button>
+                        `;
+            }
+
+            paginationHTML += `
+                        <button class="page-btn" id="nextBtn" ${currentPage === totalPages || totalPages === 0 ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    `;
+
+            paginationControls.innerHTML = paginationHTML;
+        }
+
+        function changePage(page) {
+            const totalPages = Math.ceil(filteredData.length / entriesPerPage);
+            if (page >= 1 && page <= totalPages) {
+                currentPage = page;
+                renderTable();
+            }
+        }
+
+        function sortTable(column) {
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDirection = 'asc';
+            }
+
+            filteredData.sort((a, b) => {
+                let aVal = a[column];
+                let bVal = b[column];
+
+                if (typeof aVal === 'string') {
+                    aVal = aVal.toLowerCase();
+                    bVal = bVal.toLowerCase();
+                }
+
+                if (sortDirection === 'asc') {
+                    return aVal > bVal ? 1 : -1;
+                } else {
+                    return aVal < bVal ? 1 : -1;
+                }
+            });
+
+            updateSortHeaders();
+            currentPage = 1;
+            renderTable();
+        }
+
+        function updateSortHeaders() {
+            document.querySelectorAll('.sortable').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+                if (th.dataset.sort === sortColumn) {
+                    th.classList.add(sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
+                }
+            });
+        }
+
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+
+            // Reset active filters
+            activeFilters = {};
+
+            filteredData = enrichedData.filter(category => {
+                // Search filter
+                const matchesSearch = !searchTerm ||
+                    category.name.toLowerCase().includes(searchTerm) ||
+                    (category.parentName && category.parentName.toLowerCase().includes(searchTerm)) ||
+                    category.path.toLowerCase().includes(searchTerm);
+
+                // // Type filter
+                // let matchesType = true;
+                // if (typeFilter) {
+                //     switch (typeFilter) {
+                //         case 'parent':
+                //             matchesType = category.parentCategoryId === null;
+                //             activeFilters.type = 'Parent Categories';
+                //             break;
+                //         case 'subcategory':
+                //             matchesType = category.parentCategoryId !== null;
+                //             activeFilters.type = 'Subcategories';
+                //             break;
+                //         case 'childless':
+                //             matchesType = category.subcategoriesCount === 0;
+                //             activeFilters.type = 'No Subcategories';
+                //             break;
+                //     }
+                // }
+
+                // // Parent filter
+                // const matchesParent = !parentFilter || category.parentCategoryId == parentFilter;
+                // if (parentFilter) {
+                //     const parentName = enrichedData.find(c => c.id == parentFilter)?.name;
+                //     activeFilters.parent = parentName;
+                // }
+
+                // // Level filter
+                // const matchesLevel = !levelFilter || category.level == levelFilter;
+                // if (levelFilter) {
+                //     activeFilters.level = `Level ${levelFilter}`;
+                // }
+
+                // Search term
+                if (searchTerm) {
+                    activeFilters.search = searchTerm;
+                }
+
+                return matchesSearch;
+            });
+
+            currentPage = 1;
+            updateFilterSummary();
+            renderTable();
+        }
+
+        function updateFilterSummary() {
+            const filterSummary = document.getElementById('filterSummary');
+            const filterTags = document.getElementById('filterTags');
+
+            if (Object.keys(activeFilters).length === 0) {
+                filterSummary.classList.remove('active');
+                return;
+            }
+
+            filterSummary.classList.add('active');
+            filterTags.innerHTML = Object.entries(activeFilters).map(([key, value]) => `
+                        <span class="filter-tag">
+                            ${key === 'search' ? 'Search: ' : ''}${value}
+                            <button onclick="removeFilter('${key}')" title="Remove filter">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </span>
+                    `).join('');
+        }
+
+        function removeFilter(filterKey) {
+            // Clear the corresponding form field
+            switch (filterKey) {
+                case 'search':
+                    document.getElementById('searchInput').value = '';
+                    break;
+                case 'type':
+                    document.getElementById('typeFilter').value = '';
+                    break;
+                case 'parent':
+                    document.getElementById('parentFilter').value = '';
+                    break;
+                case 'level':
+                    document.getElementById('levelFilter').value = '';
+                    break;
+            }
+
+            applyFilters();
+        }
+
+        function clearAllFilters() {
+            document.getElementById('searchInput').value = '';
+
+            activeFilters = {};
+            filteredData = [...enrichedData];
+            currentPage = 1;
+            updateFilterSummary();
+            renderTable();
+        }
+
+        function toggleSubcategories(categoryId) {
+            // This function would expand/collapse subcategories in table view
+            // Implementation depends on your specific requirements
+            console.log(`Toggle subcategories for category ${categoryId}`);
+        }
+
+        // Action Functions
+        function viewCategory(id) {
+            const category = enrichedData.find(c => c.id === id);
+            const subcategories = enrichedData.filter(c => c.parentCategoryId === id);
+
+            Swal.fire({
+                title: `Category Details`,
+                html: `
+                            <div style="text-align: left;">
+                                <p><strong>ID:</strong> ${category.id}</p>
+                                <p><strong>Name:</strong> ${category.name}</p>
+                                <p><strong>Level:</strong> ${category.level}</p>
+                                <p><strong>Full Path:</strong> ${category.path}</p>
+                                <p><strong>Parent:</strong> ${category.parentName || 'None (Root Category)'}</p>
+                                <p><strong>Subcategories:</strong> ${category.subcategoriesCount}</p>
+                                ${subcategories.length > 0 ?
+                        `<p><strong>Subcategory List:</strong><br>${subcategories.map(sub => `• ${sub.name}`).join('<br>')}</p>`
+                        : ''
+                    }
+                            </div>
+                        `,
+                icon: 'info',
+                confirmButtonColor: '#fd5b44',
+                width: '600px'
+            });
+        }
+
+        function editCategory(id) {
+            const element = `
+                        <form id="formDecide" action="/Base/Decide" method="post">
+                            <input type="text" name="Id" value="${id}" hidden />
+                            <input type="text" name="action" value="Edit" hidden />
+                                    <input type="text" name="type" value="Category" hidden />
+
+                                    
+                        </form>
+                    `;
+
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = element;
+            const formElement = tempDiv.firstElementChild;
+
+            document.body.appendChild(formElement);
+            formElement.submit();
+        }
+
+        function deleteCategory(id) {
+            const category = enrichedData.find(c => c.id === id);
+            if (category.hasChildren) {
+                Swal.fire({
+                    title: 'Cannot Delete!',
+                    text: 'This category has subcategories. Please delete or move subcategories first.',
+                    icon: 'error',
+                    confirmButtonColor: '#fd5b44'
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `You're about to delete the category "${category.name}"!`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "/Base/Decide",
+                        type: "POST",
+                        data: { Id: id, action: "Delete",type:"Category" },
+                        success: function (response) {
+                            if (response.ret === true) {
+                                Swal.fire(
+                                    'Deleted!',
+                                    'Category has been deleted.',
+                                    'success'
+                                );
+                            } else {
+                                Swal.fire(
+                                    'Not Deleted!',
+                                    'Category could not be deleted.',
+                                    'error'
+                                );
+                            }
+                            setTimeout(function () {
+                                location.reload();
+                            }, 2000);
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Error:", error);
+                            Swal.fire(
+                                'Error!',
+                                'An error occurred while deleting the category.',
+                                'error'
+                            );
+                        }
+                    });
+                }
+            });
+        }
+
+
+
+        function addSubcategory(parentId) {
+            const element = `
+                                <form id="formDecide" action="/Base/Decide" method="post">
+                                            <input type="text" name="Id" value="${parentId}" hidden />
+                                    <input type="text" name="action" value="AddSubCat" hidden />
+                                            <input type="text" name="type" value="Category" hidden />
+
+
+                                </form>
+                            `;
+
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = element;
+            const formElement = tempDiv.firstElementChild;
+
+            document.body.appendChild(formElement);
+            formElement.submit();
+        }
+
+        // Event Listeners
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        document.getElementById('entriesPerPage').addEventListener('change', function () {
+            entriesPerPage = parseInt(this.value);
+            currentPage = 1;
+            renderTable();
+        });
+
+        // document.getElementById('viewMode').addEventListener('change', function () {
+        //     if (this.value === 'table') {
+        //         document.getElementById('treeView').classList.add('hidden');
+        //         document.getElementById('tableView').classList.remove('hidden');
+        //         renderTable();
+        //     } else {
+        //         renderTreeView();
+        //     }
+        // });
+
+        document.querySelectorAll('.sortable').forEach(th => {
+            th.addEventListener('click', () => sortTable(th.dataset.sort));
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function () {
+            enrichCategories();
+            renderTable();
+        });
+    </script>
+}
