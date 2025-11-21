@@ -4,7 +4,7 @@ using E_Commerce.BLL.Mapper;
 using E_Commerce.BLL.Repository;
 using E_Commerce.BLL.RepositoryPattern;
 using E_Commerce.BLL.Services;
-using E_Commerce.DAL.Database;
+using E_Commerce.DAL.DB_Context;
 using E_Commerce.DAL.Entity;
 using E_Commerce.DAL.Entity_Extension;
 using E_Commerce.DAL.ExtendedEntity;

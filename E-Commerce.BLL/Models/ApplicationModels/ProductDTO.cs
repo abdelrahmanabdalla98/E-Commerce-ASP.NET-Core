@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore.Internal;
 
 
 namespace E_Commerce.BLL.Models.ApplicationModels
@@ -55,8 +56,8 @@ namespace E_Commerce.BLL.Models.ApplicationModels
         [Range(1, int.MaxValue, ErrorMessage = "Please select category in range")]
         public int? categoryId { get; set; }
         public CategoryDTO? category { get; set; }
-        [Required(ErrorMessage ="Please select all data for stock")]
-        public StockItemDTO stock { get; set; }
+        public StockItemDTO? Item { get; set; }
+        public List<StockItemDTO>? Items { get; set; } = new(); 
         public DateTime CreatedOn { get; set; } = DateTime.Now;
     }
     public class FilterOpts

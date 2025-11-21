@@ -1,7 +1,7 @@
 
 //using DocumentFormat.OpenXml.Wordprocessing;
-using DocumentFormat.OpenXml.Spreadsheet;
-using DocumentFormat.OpenXml.Wordprocessing;
+//using DocumentFormat.OpenXml.Spreadsheet;
+//using DocumentFormat.OpenXml.Wordprocessing;
 using E_Commerce.BLL.Models.ApplicationModels;
 using E_Commerce.BLL.Repository;
 using E_Commerce.DAL.Entity;
@@ -16,7 +16,10 @@ using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
+using System.Drawing;
 using Category = E_Commerce.DAL.Entity.Category;
+using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 
 namespace E_Commerce.PL.Controllers
@@ -59,7 +62,7 @@ namespace E_Commerce.PL.Controllers
             model.Products = await _Repo.GetAllAsync<ProductDTO, Product>(null, 10, model.PageIndex
                 , true
                 , x => x.Include(inc => inc.category).ThenInclude(inc2 => inc2.ParentCategory)
-                .ThenInclude(inc3 => inc3.ParentCategory).Include(inc2 => inc2.stock)
+                .ThenInclude(inc3 => inc3.ParentCategory).Include(inc2 => inc2.Items)
                 , x => x.ReviewCount);
 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -240,28 +243,31 @@ namespace E_Commerce.PL.Controllers
         //    return View("Index", model);
 
         //}
-        public async Task<IActionResult> Index1()
-        {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var model = await _Repo.GetAsync<WishlistDTO, WishList>(fil => fil.applicationUserId == userId,true,
-                opt=> opt.Include(inc=>inc.WishlistItems).ThenInclude(x=>x.product).ThenInclude(x2=>x2.stock));
 
-            return View(model);
-        }
+
+        //public async Task<IActionResult> Index1()
+        //{
+        //    var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        //    var model = await _Repo.GetAsync<WishlistDTO, WishList>(fil => fil.applicationUserId == userId,true,
+        //        opt=> opt.Include(inc=>inc.WishlistItems).ThenInclude(x=>x.product).ThenInclude(x2=>x2.stock));
+
+        //    return View(model);
+        //}
         [HttpGet]
         public IActionResult Product_Details()
         {
             return View();
         }
         [HttpGet]
-        public async Task<IActionResult> ProductDashboard(int PageSize=10,int PageIndex = 1)
+        public async Task<IActionResult> ProductDashboard(int PageSize = 10, int PageIndex = 1)
         {
             ViewBag.PageSize = PageSize;
             ViewBag.PageIndex = PageIndex;
             ViewBag.ProdsSize = await _Repo.GetSize<Product>();
-            ViewBag.cats = new SelectList(await _Repo.GetAllAsync<CategoryDTO, Category>(x => x.ParentCategory.ParentCategoryId == null),"Id","Name");
-            var model = await _Repo.GetAllAsync<ProductDTO, Product>(null, PageSize, PageIndex, true, inc => inc.Include(x=>x.stock).Include(y=>y.category));
+            ViewBag.cats = new SelectList(await _Repo.GetAllAsync<CategoryDTO, Category>(x => x.ParentCategory.ParentCategoryId == null), "Id", "Name");
+            var model = await _Repo.GetAllAsync<ProductDTO, Product>(null, PageSize, PageIndex, true, inc => inc.Include(x => x.Items).Include(y => y.category));
             return View(model);
         }
         [HttpGet]
@@ -292,6 +298,25 @@ namespace E_Commerce.PL.Controllers
                 else if (action == "Edit")
                 {
                     return RedirectToAction("EditProduct");
+                }
+                return RedirectToAction("ProductDashboard");
+            }
+            else if (type == "StockItem")
+            {
+                var model = await _Repo.GetAsync<StockItemDTO, StockItem>(x => x.Id == Id, true);
+                if (action == "Delete")
+                {
+                    var ret = await _Repo.DeleteAsync<StockItemDTO, StockItem>(model);
+                    if (!ret)
+                    {
+                        _logger.LogInformation("Product {0} Not Deleted Successfully", model.ProductName);
+                        return Json(new { ret = false });
+                    }
+                    return Json(new { ret = true });
+                }
+                else if (action == "Edit")
+                {
+                    return RedirectToAction("EditStockItem");
                 }
                 return RedirectToAction("ProductDashboard");
             }
@@ -326,10 +351,10 @@ namespace E_Commerce.PL.Controllers
         {
             var productId = HttpContext.Session.GetInt32("id");
             var model = await _Repo.GetAsync<ProductDTO, Product>(x => x.Id == productId,
-                true,inc => inc.Include(x=>x.category).Include(inc=>inc.stock));
+                true, inc => inc.Include(x => x.category));
 
-            
-            ViewBag.Allstocks = new SelectList(await _Repo.GetAllAsync<StockDTO, Stock>(), "Id", "InventoryName",model.stock.Id);
+
+            //ViewBag.Allstocks = new SelectList(await _Repo.GetAllAsync<StockDTO, Stock>(), "Id", "InventoryName", model.stock.Id);
 
             return View(model);
         }
@@ -429,6 +454,11 @@ namespace E_Commerce.PL.Controllers
 
         public IActionResult Profile()
         {
+            //string hex = "#FF00000"; // Red
+            //Color color = ColorTranslator.FromHtml(hex);
+            //string colorName =color.Name;
+            //Console.WriteLine(colorName); // Output: "Red"
+
             return View();
         }
         public IActionResult MyCart()
@@ -441,11 +471,8 @@ namespace E_Commerce.PL.Controllers
         }
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> AddProduct()
-        {
-            ViewBag.stocks = new SelectList(await _Repo.GetAllAsync<StockDTO, Stock>(), "Id", "InventoryName");
-            return View();
-        }
+        public IActionResult AddProduct() { return View(); }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         [EnableRateLimiting("AccountPolicy")]
@@ -520,6 +547,7 @@ namespace E_Commerce.PL.Controllers
 
                 }
                 model.MainPhotoPath = model.PhotoPaths[0];
+                model.Items.Add(model.Item);
                 var ret = await _Repo.CreateAsync<ProductDTO, Product>(model);
                 if (ret)
                 {
@@ -529,15 +557,53 @@ namespace E_Commerce.PL.Controllers
             ViewBag.stocks = new SelectList(await _Repo.GetAllAsync<StockDTO, Stock>(), "Id", "InventoryName");
             return View(model);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> GetSelectList(string[] type,int? id)
+         {
+            dynamic [] Lists = new dynamic[type.Length];
+            foreach (var item in type)
+            {
+                if (item == "category0")
+                {
+                    Lists[0] = new SelectList(await _Repo.GetAllAsync<CategoryDTO, Category>(x => x.ParentCategoryId == null),
+                        "Id","Name");
+                }
+                else if (item == "category1")
+                {
+                    if (id == -1)
+                    {
+                        Lists[0] = new SelectList(await _Repo.GetAllAsync<CategoryDTO, Category>(x => x.ParentCategory.ParentCategoryId == null),
+                            "Id", "Name");
+                    }
+                    else
+                    {
+                        Lists[0] = new SelectList(await _Repo.GetAllAsync<CategoryDTO, Category>(x => x.ParentCategoryId == id),
+                        "Id", "Name");
+                    }
+                }
+                else if (item == "stock")
+                {
+                    Lists[1] = new SelectList(await _Repo.GetAllAsync<StockDTO, Stock>(null, null, null, true),
+                        "Id", "InventoryName");
+                }
+                else if (item == "size")
+                {
+                    Lists[2] = new SelectList(await _Repo.GetAllAsync<SizeList, SizeList>(null, null, null, true),
+                        "Id", "Name");
+                }
+                else if (item == "product")
+                {
+                    Lists[2] = new SelectList(await _Repo.GetAllAsync<ProductDTO, Product>(null, null, null, true),
+                        "Id", "Name");
+                }
+            }
+            return Json(new { allLists = Lists });
+        }
         [HttpPost]
         public async Task<IActionResult> Categories(int Id)
         {
-            if (Id == 0)
-            {
-                var cats = await _Repo.GetAllAsync<CategoryDTO, Category>(x => x.ParentCategoryId == null);
-                return Json(new { ret = cats });
-            }
-            else if (Id == -1)
+            if (Id == -1)
             {
                 var cats = await _Repo.GetAllAsync<CategoryDTO, Category>(x => x.ParentCategory.ParentCategoryId == null);
                 return Json(new { ret = cats });
@@ -548,6 +614,7 @@ namespace E_Commerce.PL.Controllers
                 return Json(new { ret = cats });
             }
         }
+
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> AddCategory()

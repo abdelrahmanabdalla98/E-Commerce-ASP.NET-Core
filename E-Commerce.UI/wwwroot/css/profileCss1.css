@@ -1423,7 +1423,7 @@ input.invalid {
     right: 20px;
     background: rgba(255,255,255,.2);
     border: none;
-    color: red;
+    color: black;
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -1442,7 +1442,8 @@ input.invalid {
 
 .modal-close:hover {
     background: rgba(255,255,255,.3);
-    transform: rotate(90deg)
+    transform: rotate(90deg);
+    color:red
 }
 
 .modal-body {

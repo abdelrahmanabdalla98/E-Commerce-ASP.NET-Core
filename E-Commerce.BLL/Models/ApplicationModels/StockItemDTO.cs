@@ -17,13 +17,22 @@ namespace E_Commerce.BLL.Models.ApplicationModels
         [Required(ErrorMessage = "Please enter available")]
         [Range(0, int.MaxValue, ErrorMessage = "Please enter a valid number.")]
         public int? Available { get; set; }
-        [Required(ErrorMessage ="Please select expire date")]
-        public DateOnly? ExpireDate { get; set; }
-        public string? Color { get; set; }
-        public string? Size { get; set; }
-        public int productId { get; set; }
+        public DateOnly? ExpireDate { get; set; } = null;
+        [Required(ErrorMessage = "Please write no if there is no color")]
+        public string Color { get; set; }
+        [Required(ErrorMessage = "Please write no if there is no size")]
+        public string Size { get; set; }
+        [Required(ErrorMessage = "Please select product")]
+        public int ProductId { get; set; }
+        public string? ProductName { get; set; }
+
 
         [Required(ErrorMessage = "Please select stock place")]
-        public int? stockId { get; set; }
+        public int StockId { get; set; }
+        public StockDTO? Stock { get; set; }
+        public bool IsDeleted { get; set; } = false;
+        public string CreatedBy { get; set; } = "";
+        public DateTime CreatedOn { get; set; } = DateTime.Now.Date;
+
     }
 }

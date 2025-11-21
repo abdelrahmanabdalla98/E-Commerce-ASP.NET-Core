@@ -1,0 +1,195 @@
+﻿
+@section cssFile{
+<link href="~/css/product.css" rel="stylesheet" />
+}
+@model StockDTO
+<div class="form-container">
+    <div class="form-card">
+        <div class="breadcumb-wrapper background-image" style="background-image: url(&quot;/assets/img/bg/breadcumb-bg.jpg&quot;);">
+            <div class="container">
+                <div class="breadcumb-content position-relative">
+                    <h4><i class="fas fa-plus-circle"></i> Add New Stock</h4>
+                    <p>Fill in the details below to add a new Stock</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-body">
+            <form id="itemForm" asp-action="AddStock" method="post">
+                <div class="text-danger" asp-validation-summary="All"></div>
+                <!-- Product Information Section -->
+                <input name="CreatedOn" value="@DateTime.Now" hidden /> @* check later *@
+                <div class="form-section">
+                    <h3 class="section-title"><i class="fas fa-info-circle"></i> Stock Information</h3>
+                    <div class="row">
+                        <div class="col form-group">
+                            <label for="name" class="form-label required">Product Name</label>
+                            <input type="text" asp-for="InventoryName" class="form-control" id="SName" required>
+                            <div class="error-message">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span>Please select valid name</span>
+                            </div>
+                            <span class="text-danger" asp-validation-for="InventoryName"></span>
+                        </div>
+                        <div class="col form-group">
+                            <label for="name" class="form-label required">Product Name</label>
+                            <input type="text" asp-for="PhoneNumber" class="form-control" id="SPhone" required>
+                            <div class="error-message">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span>Please select valid 11 phone's digits</span>
+                            </div>
+                            <span class="text-danger" asp-validation-for="PhoneNumber"></span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Form Actions -->
+                <div class="text-center">
+                    <button id="cl" type="button" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Add Stock
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section lib {
+    <script>
+        // const errMsg = @Html.Raw(Json.Serialize(ViewBag.error));
+        // if (errMsg != null) {
+        //     Swal.fire({
+        //         title: 'Error adding item',
+        //         text: 'check log file as there is an error',
+        //         icon: 'error',
+        //         timer: 2000,
+        //         timerProgressBar: true,
+        //         showConfirmButton: false,
+        //         toast: true,
+        //         position: 'top-end'
+        //     });
+        // }
+
+
+
+
+        // Form validation apply them
+        function validateField(field) {
+            const value = field.value.trim();
+            const errorDiv = field.parentNode.querySelector('.error-message');
+
+            if (field.hasAttribute('required') && !value) {
+                field.classList.add('error');
+                field.classList.remove('success');
+                errorDiv.classList.add('show');
+                return false;
+
+            } else if (field.hasAttribute('maxlength') && value.length > field.getAttribute('maxlength')) {
+                field.classList.add('error');
+                field.classList.remove('success');
+                errorDiv.classList.add('show');
+                return false;
+
+            } else {
+                if (field.getAttribute('id') == "SPhone") {
+                    const re = /^(00201|\+201|01)[0125][0-9]{8}$/;
+                    const check = re.test(value.replace(/\s/g, ''));
+                    if (!check) {
+                        field.classList.add('error');
+                        field.classList.remove('success');
+                        errorDiv.classList.add('show');
+                        return false;
+                    }
+                }
+                field.classList.remove('error');
+                field.classList.add('success');
+                errorDiv.classList.remove('show');
+                return true;
+            }
+        }
+
+        function clearValidation() {
+            const fields = document.querySelectorAll('.form-control');
+            const errors = document.querySelectorAll('.error-message');
+
+            fields.forEach(field => {
+                field.classList.remove('error', 'success');
+            });
+
+            errors.forEach(error => {
+                error.classList.remove('show');
+            });
+        }
+
+        // Real-time validation
+        document.querySelectorAll('.form-control,.form-select').forEach(field => {
+
+            field.addEventListener('blur', function () {
+                validateField(this);
+            });
+
+            field.addEventListener('input', function () {
+                if (this.classList.contains('error')) {
+                    validateField(this);
+                }
+            });
+        });
+
+
+        // Initialize color input as hidden
+        // document.addEventListener('DOMContentLoaded', function () {
+        //     document.getElementById('colorInputGroup').classList.add('hidden');
+
+        //     // Initialize with no color selected
+        //     selectedColor = null;
+        //     renderSelectedColor();
+        //     updateColorsInput();
+        // });
+        document.addEventListener("DOMContentLoaded", function () {
+
+        });
+
+
+        document.querySelector('#itemForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Validate colorName length
+            const fields = this.querySelectorAll('.form-control[required]');
+            let isValid = true;
+
+            // Validate all required fields
+            fields.forEach(field => {
+                if (!validateField(field)) {
+                    isValid = false;
+                }
+            });
+            if (!isValid) {
+                // Shake animation for invalid form
+                alert("Please fix issues before proceed");
+                return;
+            }
+            this.submit();
+        });
+
+        // Character counter for name field
+        // document.getElementById('name').addEventListener('input', function () {
+        //     const remaining = 30 - this.value.length;
+        //     const helpText = this.nextElementSibling;
+        //     helpText.textContent = `${remaining} characters remaining`;
+        //     helpText.style.color = remaining < 5 ? '#dc3545' : '#6c757d';
+        // });
+
+        document.getElementById('cl').addEventListener('click', function () {
+            window.history.back();
+        });
+
+
+
+
+
+
+
+    </script>
+}
+

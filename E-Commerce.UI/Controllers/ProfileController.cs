@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Security.Claims;
@@ -219,9 +218,8 @@ namespace E_Commerce.PL.Controllers
         }
         [HttpPost]
         public async Task<IActionResult> UpdateProfile(ProfileDTO model , string url)
-        {
-
-            if (ModelState.TryGetValue(nameof(model.PhotoFile), out var entry) && entry.Errors.Count == 0)
+        {  
+            if (ModelState.IsValid)
             {
                 // Handle photo upload
                 if (model.PhotoFile != null && model.PhotoFile.Length > 0)
@@ -297,11 +295,7 @@ namespace E_Commerce.PL.Controllers
                 var check = await _Repo.UpdateAsync<ProfileDTO, ApplicationUser>(model);
                 TempData["Success"] = "Profile updated successfully!";
             }
-            else
-            {
-                var errorMessages = entry.Errors.Select(e => e.ErrorMessage).ToList();
-                Console.WriteLine(errorMessages);
-            }
+
             return RedirectToAction(url);
         }
         [HttpPost]

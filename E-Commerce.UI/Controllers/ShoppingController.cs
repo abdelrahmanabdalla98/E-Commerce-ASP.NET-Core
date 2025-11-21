@@ -49,7 +49,7 @@ namespace E_Commerce.UI.Controllers
             model.Products = await _Repo.GetAllAsync<ProductDTO, Product>(null, 10, model.PageIndex
                 , true
                 , x => x.Include(inc => inc.category).ThenInclude(inc2 => inc2.ParentCategory)
-                .ThenInclude(inc3 => inc3.ParentCategory).Include(inc2 => inc2.stock)
+                .ThenInclude(inc3 => inc3.ParentCategory).Include(inc2 => inc2.Items)
                 , x => x.ReviewCount);
 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -129,69 +129,69 @@ namespace E_Commerce.UI.Controllers
             x => x.Include(inc => inc.category)
           .ThenInclude(inc2 => inc2.ParentCategory)
           .ThenInclude(inc3 => inc3.ParentCategory)
-          .Include(inc2 => inc2.stock);
+          .Include(inc2 => inc2.Items);
 
         [HttpPost]
-        public async Task<IActionResult> Filter(string Obj)
-        {
-            var model = JsonConvert.DeserializeObject<ShopDTO>(Obj);
+        //public async Task<IActionResult> Filter(string Obj)
+        //{
+        //    var model = JsonConvert.DeserializeObject<ShopDTO>(Obj);
 
-            var AllModels = await _Repo.GetAllAsync<ProductDTO, Product>(null, null, null, true,
-                ProductIncludes);
+        //    var AllModels = await _Repo.GetAllAsync<ProductDTO, Product>(null, null, null, true,
+        //        ProductIncludes);
 
-            if (model.Filter != null)
-            {
-                if (model.Filter.Search != "")
-                {
-                    //.Contains() allows partial matches (e.g., "lap" matches "laptop").
+        //    if (model.Filter != null)
+        //    {
+        //        if (model.Filter.Search != "")
+        //        {
+        //            //.Contains() allows partial matches (e.g., "lap" matches "laptop").
 
-                    //StringComparison.OrdinalIgnoreCase makes it case -insensitive.
+        //            //StringComparison.OrdinalIgnoreCase makes it case -insensitive.
 
-                    AllModels = AllModels.Where(prod =>
-                    prod.Name.Contains(model.Filter.Search, StringComparison.OrdinalIgnoreCase) ||
-                    prod.category.Name.Contains(model.Filter.Search, StringComparison.OrdinalIgnoreCase));
-                }
-                if (model.Filter.Categories.Count > 0)
-                {
-                    AllModels = AllModels.Where(fil => model.Filter.Categories.Contains((int)fil.categoryId)).ToList();
-                }
-                if (model.Filter.Sizes.Count > 0)
-                {
-                    AllModels = AllModels.Where(fil => model.Filter.Sizes.Contains(fil.stock.Size)).ToList();
-                }
-                if (model.Filter.Colors.Count > 0)
-                {
-                    AllModels = AllModels.Where(fil => model.Filter.Colors.Contains(fil.stock.Color)).ToList();
-                }
-                model.Products = AllModels.Where(prod => prod.AfterDiscount > model.Filter.PriceMin && prod.AfterDiscount < model.Filter.PriceMax).ToList();
-            }
-            //var prods = await _Repo.GetAllAsync<ProductDTO, Product>(null
-            //        , null, null, true, inc => inc.Include(x => x.category).Include(inc => inc.stock));
-            //if (!model.categories.IsNullOrEmpty())
-            //{
-
-
-            //    prods = prods.Where((fil => model.categories.Contains(fil.category.Id)
-            //        || model.categories.Contains((int)fil.category.ParentCategoryId)
-            //        || model.categories.Contains((int)fil.category.ParentCategory.ParentCategoryId))).ToList();
+        //            AllModels = AllModels.Where(prod =>
+        //            prod.Name.Contains(model.Filter.Search, StringComparison.OrdinalIgnoreCase) ||
+        //            prod.category.Name.Contains(model.Filter.Search, StringComparison.OrdinalIgnoreCase));
+        //        }
+        //        if (model.Filter.Categories.Count > 0)
+        //        {
+        //            AllModels = AllModels.Where(fil => model.Filter.Categories.Contains((int)fil.categoryId)).ToList();
+        //        }
+        //        if (model.Filter.Sizes.Count > 0)
+        //        {
+        //            AllModels = AllModels.Where(fil => model.Filter.Sizes.Contains(fil.stock.Size)).ToList();
+        //        }
+        //        if (model.Filter.Colors.Count > 0)
+        //        {
+        //            AllModels = AllModels.Where(fil => model.Filter.Colors.Contains(fil.stock.Color)).ToList();
+        //        }
+        //        model.Products = AllModels.Where(prod => prod.AfterDiscount > model.Filter.PriceMin && prod.AfterDiscount < model.Filter.PriceMax).ToList();
+        //    }
+        //    //var prods = await _Repo.GetAllAsync<ProductDTO, Product>(null
+        //    //        , null, null, true, inc => inc.Include(x => x.category).Include(inc => inc.stock));
+        //    //if (!model.categories.IsNullOrEmpty())
+        //    //{
 
 
-            //}
-            //if (!model.sizes.IsNullOrEmpty())
-            //{
-            //    prods = prods.Where(fil => model.sizes.Contains(fil.stock.Size)).ToList();
-            //}
-            //if (!model.colors.IsNullOrEmpty())
-            //{
-            //    prods = prods.Where(fil => model.colors.Contains(fil.stock.Color)).ToList();
-            //}
-            //prods = prods.Where(fil => (fil.AfterDiscount > model.priceMin && fil.AfterDiscount < model.priceMax)).ToList();
-            //ViewBag.Filters = model;
-            ////handle here what should happen if values is null
-            //return View("Index", prods);
-            return View("Products", model);
+        //    //    prods = prods.Where((fil => model.categories.Contains(fil.category.Id)
+        //    //        || model.categories.Contains((int)fil.category.ParentCategoryId)
+        //    //        || model.categories.Contains((int)fil.category.ParentCategory.ParentCategoryId))).ToList();
 
-        }
+
+        //    //}
+        //    //if (!model.sizes.IsNullOrEmpty())
+        //    //{
+        //    //    prods = prods.Where(fil => model.sizes.Contains(fil.stock.Size)).ToList();
+        //    //}
+        //    //if (!model.colors.IsNullOrEmpty())
+        //    //{
+        //    //    prods = prods.Where(fil => model.colors.Contains(fil.stock.Color)).ToList();
+        //    //}
+        //    //prods = prods.Where(fil => (fil.AfterDiscount > model.priceMin && fil.AfterDiscount < model.priceMax)).ToList();
+        //    //ViewBag.Filters = model;
+        //    ////handle here what should happen if values is null
+        //    //return View("Index", prods);
+        //    return View("Products", model);
+
+        //}
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> AddToWL(string Obj)
@@ -254,7 +254,7 @@ namespace E_Commerce.UI.Controllers
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             var model = await _Repo.GetAsync<WishlistDTO, WishList>(fil => fil.applicationUserId == userId, true,
-                opt => opt.Include(inc => inc.WishlistItems).ThenInclude(x => x.product).ThenInclude(x2 => x2.stock));
+                opt => opt.Include(inc => inc.WishlistItems).ThenInclude(x => x.product).ThenInclude(x2 => x2.Items));
 
             return View(model);
         }

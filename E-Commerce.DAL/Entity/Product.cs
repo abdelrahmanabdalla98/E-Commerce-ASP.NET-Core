@@ -31,7 +31,7 @@ namespace E_Commerce.DAL.Entity
         public Category category { get; set; }
         public List<Review> Reviews { get; set; } = new();
         public DateTime CreatedOn { get; set; } = DateTime.Now;
-        public StockItem stock { get; set; }
+        public ICollection<StockItem> Items { get; set; }=new List<StockItem>();
     }
 
 }

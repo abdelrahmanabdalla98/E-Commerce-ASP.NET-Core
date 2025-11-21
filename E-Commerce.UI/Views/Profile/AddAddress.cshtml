@@ -1,5 +1,8 @@
 ﻿@model Address
-<link href="~/css/profileCss1.css" rel="stylesheet" />
+@section cssFile {
+    <link href="~/css/profileCss1.css" rel="stylesheet" />
+
+}
 <div class="profile-container">
     <!-- Modern Add Address Modal -->
     <div id="addressModal" class="address-modal">
@@ -21,7 +24,7 @@
                         </label>
                         <input type="text" id="streetName" asp-for="@Model.StreetName" class="form-control"
                                placeholder="Enter street name" maxlength="100" required>
-                        <div class="error-message">
+                        <div class="error-messageerror-message">
                             <i class="fas fa-exclamation-circle"></i>
                             <span>Street name is required (max 100 characters)</span>
                         </div>
@@ -220,52 +223,52 @@
     // }, { once: true });
     // Save address function
 
-    function saveAddress() {
-        const form = document.getElementById('addressForm');
-        const fields = form.querySelectorAll('.form-control[required]');
-        let isValid = true;
+    // function saveAddress() {
+    //     const form = document.getElementById('addressForm');
+    //     const fields = form.querySelectorAll('.form-control[required]');
+    //     let isValid = true;
 
-        // Validate all required fields
-        fields.forEach(field => {
-            if (!validateField(field)) {
-                isValid = false;
-            }
-        });
+    //     // Validate all required fields
+    //     fields.forEach(field => {
+    //         if (!validateField(field)) {
+    //             isValid = false;
+    //         }
+    //     });
 
-        if (!isValid) {
-            // Shake animation for invalid form
-            const modal = document.querySelector('.modal-content');
-            modal.style.animation = 'shake 0.5s ease-in-out';
-            setTimeout(() => {
-                modal.style.animation = '';
-            }, 500);
-            return;
-        }
+    //     if (!isValid) {
+    //         // Shake animation for invalid form
+    //         const modal = document.querySelector('.modal-content');
+    //         modal.style.animation = 'shake 0.5s ease-in-out';
+    //         setTimeout(() => {
+    //             modal.style.animation = '';
+    //         }, 500);
+    //         return;
+    //     }
 
-        // Show loading state
-        const saveBtn = document.querySelector('.btn-save');
-        const originalContent = saveBtn.innerHTML;
-        saveBtn.innerHTML = '<div class="spinner"></div> Saving...';
-        saveBtn.disabled = true;
+    //     // Show loading state
+    //     const saveBtn = document.querySelector('.btn-save');
+    //     const originalContent = saveBtn.innerHTML;
+    //     saveBtn.innerHTML = '<div class="spinner"></div> Saving...';
+    //     saveBtn.disabled = true;
 
-        // Simulate API call
-        setTimeout(() => {
-            // Success feedback
-            saveBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
-            saveBtn.style.background = 'linear-gradient(135deg, #27ae60, #2ecc71)';
+    //     // Simulate API call
+    //     setTimeout(() => {
+    //         // Success feedback
+    //         saveBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+    //         saveBtn.style.background = 'linear-gradient(135deg, #27ae60, #2ecc71)';
 
-            setTimeout(() => {
-                closeAddressModal();
-                // Reset button
-                saveBtn.innerHTML = originalContent;
-                saveBtn.disabled = false;
-                saveBtn.style.background = '';
+    //         setTimeout(() => {
+    //             closeAddressModal();
+    //             // Reset button
+    //             saveBtn.innerHTML = originalContent;
+    //             saveBtn.disabled = false;
+    //             saveBtn.style.background = '';
 
-                // Show success message (you can implement this)
-                alert('Address saved successfully!');
-            }, 1000);
-        }, 2000);
-    }
+    //             // Show success message (you can implement this)
+    //             alert('Address saved successfully!');
+    //         }, 1000);
+    //     }, 2000);
+    // }
 
     // Close modal on escape key
     document.addEventListener('keydown', function (e) {

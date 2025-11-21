@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using E_Commerce.BLL.Repository;
-using E_Commerce.DAL.Database;
+using E_Commerce.DAL.DB_Context;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

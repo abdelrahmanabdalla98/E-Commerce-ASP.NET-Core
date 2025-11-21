@@ -1,0 +1,735 @@
+﻿@model List<StockItemDTO>
+<link href="~/css/product.css" rel="stylesheet" />
+
+<title>Product Management</title>
+<div class="table-container">
+    @Html.AntiForgeryToken()
+    <div class="table-header">
+        <h1 class="table-title">Stock Management</h1>
+        <div class="table-controls">
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="Search Items..." id="searchInput">
+            </div>
+            <a asp-action="AddStock" class="btn-add">
+                <i class="fas fa-plus"></i>
+                Add Stock
+            </a>
+            <a asp-action="AddStockItem" class="btn-add">
+                <i class="fas fa-plus"></i>
+                Add Stock Item
+            </a>
+        </div>
+    </div>
+
+    <div class="table-body">
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label class="filter-label">Category</label>
+                    <select class="filter-select" id="productFilter">
+                        <option value="">All Products</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Status</label>
+                    <select class="filter-select" id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="active">Active Only</option>
+                        <option value="deleted">Deleted Only</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Stock</label>
+                    <select class="filter-select" id="stockFilter">
+                        <option value="">All Stocks</option>
+                    </select>
+                </div>
+
+                
+            </div>
+
+ @*            <button class="toggle-advanced" onclick="toggleAdvancedFilters()">
+                <i class="fas fa-cog"></i>
+                <span id="advancedToggleText">Show Advanced Filters</span>
+                <i class="fas fa-chevron-down" id="advancedChevron"></i>
+            </button>
+
+            <div class="advanced-filters hidden" id="advancedFilters">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label class="filter-label">Rating</label>
+                        <select class="filter-select" id="ratingFilter">
+                            <option value="">All Ratings</option>
+                            <option value="4.5+">4.5+ Stars</option>
+                            <option value="4.0+">4.0+ Stars</option>
+                            <option value="3.5+">3.5+ Stars</option>
+                            <option value="3.0+">3.0+ Stars</option>
+                            <option value="below-3">Below 3 Stars</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">Discount</label>
+                        <select class="filter-select" id="discountFilter">
+                            <option value="">All Products</option>
+                            <option value="has-discount">Has Discount</option>
+                            <option value="no-discount">No Discount</option>
+                            <option value="high-discount">High Discount (20%+)</option>
+                            <option value="medium-discount">Medium Discount (10-19%)</option>
+                            <option value="low-discount">Low Discount (1-9%)</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">Review Count</label>
+                        <select class="filter-select" id="reviewFilter">
+                            <option value="">All Review Counts</option>
+                            <option value="popular">Popular (100+ Reviews)</option>
+                            <option value="moderate">Moderate (50-99 Reviews)</option>
+                            <option value="new">New (Under 50 Reviews)</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">Created Date</label>
+                        <div class="date-range-container">
+                            <input type="date" class="filter-input" id="dateFrom" title="From Date">
+                            <span>to</span>
+                            <input type="date" class="filter-input" id="dateTo" title="To Date">
+                        </div>
+                    </div>
+                </div>
+            </div> *@
+
+            <div class="filter-actions">
+                <button class="btn-filter" onclick="applyFilters()">
+                    <i class="fas fa-filter"></i>
+                    Apply Filters
+                </button>
+                <button class="btn-clear" onclick="clearAllFilters()">
+                    <i class="fas fa-times"></i>
+                    Clear All
+                </button>
+            </div>
+        </div>
+
+        <div class="filter-summary" id="filterSummary">
+            <strong>Active Filters:</strong>
+            <div id="filterTags"></div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="data-table" id="productTable">
+                <thead>
+                    <tr>
+                        <th class="sortable" data-sort="id">Item ID</th>
+                        <th class="sortable" data-sort="name">Product Name</th>
+                        <th class="sortable" data-sort="pId">Product Id</th>
+                        <th class="sortable" data-sort="quantity">Quantity</th>
+                        <th class="sortable" data-sort="available">Available</th>
+                        <th class="sortable" data-sort="color">Color</th>
+                        <th class="sortable" data-sort="size">Size</th>
+                        <th class="sortable" data-sort="expire">Expire Date</th>
+                        <th class="sortable" data-sort="inventory">Inventory Name</th>
+                        <th class="sortable" data-sort="iPhone">Inventory Phone</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Data will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination">
+            <div class="entries-per-page">
+                <span>Show</span>
+                <select class="entries-select" id="entriesPerPage">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <span>entries</span>
+            </div>
+
+            <div class="pagination-info" id="paginationInfo">
+                Showing 1 to 10 of 0 entries
+            </div>
+
+            <div class="pagination-controls" id="paginationControls">
+                <button class="page-btn" id="prevBtn" disabled>
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+
+                <button class="page-btn active">1</button>
+
+                <button class="page-btn" id="nextBtn" disabled>
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // Sample data
+    const sampleProducts = @Html.Raw(Json.Serialize(Model));
+
+    let currentData = [...sampleProducts];
+    let filteredData = [...sampleProducts];
+    let currentPage = @(ViewBag.PageIndex ?? 0);// ديه هتتعدل 1
+    let entriesPerPage = @(ViewBag.PageSize ?? 0); // ديه هتتعدل 10
+    let sortColumn = '';
+    let sortDirection = 'asc';
+    let activeFilters = {};
+
+    function renderTable() {
+        // this section is to show toast for returned message
+
+
+        document.getElementById('entriesPerPage').value = entriesPerPage;
+
+        const tableBody = document.getElementById('tableBody');
+        const startIndex = (currentPage - 1) * entriesPerPage;
+        const endIndex = startIndex + entriesPerPage;
+        const pageData = filteredData;
+
+
+        if (pageData.length === 0) {
+            tableBody.innerHTML = `
+                            <tr>
+                                <td colspan="11" class="no-data">
+                                    <i class="fas fa-inbox"></i>
+                                    <div>No products found matching your criteria</div>
+                                </td>
+                            </tr>
+                        `;
+            return;
+        }
+
+        tableBody.innerHTML = pageData.map(item => `
+                        <tr>
+                                <td>${item.id}</td>
+                      
+                            <td>
+                                            <div class="product-name" title="${item.productName}">${item.productName}</div>
+                            </td >
+                                               <td style="text-align:center;"> <i class="fa-solid fa-link"></i>
+                                               <span style="color:red;" >  ${item.productId} </span>
+                                           </td>
+                                        <td class="price-cell fw-bold" style="font-size: 16px">
+                                           
+                                                    ${item.quantity}
+                                
+                            </td>
+
+                                            <td class="price-cell fw-bold" style="font-size: 16px">
+
+                                                            ${item.available}
+
+                                </td>
+                                
+                               
+                                   <td>
+                                        <span style="border-radius: 12px; font-size: 0.8rem; font-weight: 600;">
+                                                                ${item.color.split(":")[0].toUpperCase()}
+                                    </span>
+                                            <span style="background:${item.color.split(":")[1]};width:15px;height:15px;display:inline-block;border:1px solid #ccc;"></span>
+
+                                                
+                                </td>
+                                            <td>
+                                                    <span class="discount-badge">${item.size}</span>
+                                                                
+                                    </td>
+                                    <td>${new Date(item.expireDate).toLocaleDateString()}</td>
+                                        <td>
+                                                            <div class="product-name" title="${item.stock.inventoryName}">${item.stock.inventoryName}</div>
+                                </td>
+                                    <td>
+                                                            <div class="product-name" title="${item.stock.phoneNumber}">${item.stock.phoneNumber}</div>
+                                </td>
+                           
+                           
+                          
+                            <td>
+                                <span class="status-badge ${item.isDeleted ? 'status-deleted' : 'status-active'}">
+                                        ${item.isDeleted ? 'Deleted' : 'Active'}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button type="button" class="btn-action btn-view" title="View Product" onclick="viewProduct(${item.id})">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                        <button type="button" class="btn-action btn-edit" title="Edit Product" onclick="editProduct(${item.id})">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                        <button type="button" class="btn-action btn-delete" title="Delete Product" onclick="deleteProduct(${item.id})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('');
+
+        updatePagination();
+    }
+
+    function generateStars(rating) {
+        const fullStars = Math.floor(rating);
+        const hasHalfStar = rating % 1 !== 0;
+        let stars = '';
+
+        for (let i = 0; i < fullStars; i++) {
+            stars += '<i class="fas fa-star"></i>';
+        }
+
+        if (hasHalfStar) {
+            stars += '<i class="fas fa-star-half-alt"></i>';
+        }
+
+        const emptyStars = 5 - Math.ceil(rating);
+        for (let i = 0; i < emptyStars; i++) {
+            stars += '<i class="far fa-star"></i>';
+        }
+
+        return stars;
+    }
+    // function getStockIndicator(stock) {
+    //     if (!stock.available || stock.quantity === 0) {
+    //         return `<span class="stock-indicator stock-out">
+    //                         <i class="fas fa-times-circle"></i>
+    //                         Out of Stock
+    //                     </span>`;
+    //     } else if (stock.quantity <= 10) {
+    //         return `<span class="stock-indicator stock-low">
+    //                         <i class="fas fa-exclamation-triangle"></i>
+    //                         Low Stock (${stock.quantity})
+    //                     </span>`;
+    //     } else if (stock.quantity >= 50) {
+    //         return `<span class="stock-indicator stock-high">
+    //                         <i class="fas fa-check-circle"></i>
+    //                         High Stock (${stock.quantity})
+    //                     </span>`;
+    //     } else {
+    //         return `<span class="stock-indicator stock-medium">
+    //                         <i class="fas fa-info-circle"></i>
+    //                         In Stock (${stock.quantity})
+    //                     </span>`;
+    //     }
+    // }
+    function updatePagination() {
+        const totalItems = @(ViewBag.ProdsSize ?? 0);//20 ديه هتتعدل
+        const totalPages = Math.ceil(totalItems / entriesPerPage);//2
+        const startItem = ((currentPage - 1) * entriesPerPage) + 1;//1
+        const endItem = Math.min(currentPage * entriesPerPage, totalItems);//10
+        document.getElementById('paginationInfo').textContent =
+            `Showing ${startItem} to ${endItem} of ${totalItems} entries`;
+
+        const paginationControls = document.getElementById('paginationControls');
+        let paginationHTML = `
+                                                        <button class="page-btn" id="prevBtn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">
+                                                            <i class="fas fa-chevron-left"></i>
+                                                        </button>
+                                                    `;
+
+        for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
+            paginationHTML += `
+                                                            <button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
+                                                                ${i}
+                                                            </button>
+                                                        `;
+        }
+
+        paginationHTML += `
+                                                        <button class="page-btn" id="nextBtn" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">
+                                                            <i class="fas fa-chevron-right"></i>
+                                                        </button>
+                                                    `;
+
+        paginationControls.innerHTML = paginationHTML;
+    }
+    function changePage(page) {
+        const totalPages = Math.ceil(@(ViewBag.ProdsSize ?? 0) / entriesPerPage);
+                            if (page >= 1 && page <= totalPages) {
+            window.location.href = `/Stock/StockManagement?PageIndex=${page}&PageSize=${entriesPerPage}`;
+            // currentPage = page;
+            renderTable();
+        }
+    }
+    function sortTable(column) {
+        if (sortColumn === column) {
+            sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            sortColumn = column;
+            sortDirection = 'asc';
+        }
+
+        filteredData.sort((a, b) => {
+            let aVal = a[column];
+            let bVal = b[column];
+
+            if (column === 'pId') {
+                aVal = a.productId;
+                bVal = b.productId;
+            } else if (column === 'expire') {
+                aVal = new Date(a.expireDate);
+                bVal = new Date(b.expireDate);
+            } else if (column === 'quantity') {
+                aVal = a.quantity;
+                bVal = b.quantity;
+            } else if (column === 'available') {
+                aVal = a.available;
+                bVal = b.available;
+            }
+
+            if (typeof aVal === 'string') {
+                aVal = aVal.toLowerCase();
+                bVal = bVal.toLowerCase();
+            }
+
+            if (sortDirection === 'asc') {
+                return aVal > bVal ? 1 : -1;
+            } else {
+                return aVal < bVal ? 1 : -1;
+            }
+        });
+
+        updateSortHeaders();
+        currentPage = 1;
+        renderTable();
+    }
+    function updateSortHeaders() {
+        document.querySelectorAll('.sortable').forEach(th => {
+            th.classList.remove('sort-asc', 'sort-desc');
+            if (th.dataset.sort === sortColumn) {
+                th.classList.add(sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
+            }
+        });
+    }
+    function applyFilters() {
+         
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+
+        var select = document.getElementById('productFilter');
+        const productFilter = {val1:parseInt(select.value) , val2:select.options[select.selectedIndex].text};
+
+        select = document.getElementById('stockFilter');
+        const stockFilter = { val1: parseInt(select.value), val2: select.options[select.selectedIndex].text };
+        
+        const statusFilter = document.getElementById('statusFilter').value;
+        // Reset active filters
+        activeFilters = {};
+        filteredData = sampleProducts.filter(item => {
+            // Search filter
+            let matchesSearch;
+            if (!isNaN(searchTerm) && searchTerm !== "") {
+                 matchesSearch = !searchTerm || item.productId == parseInt(searchTerm);
+            } else {
+                 matchesSearch = !searchTerm ||
+                    item.productName.toLowerCase().includes(searchTerm) ||
+                    item.stock.inventoryName.toLowerCase().includes(searchTerm);
+            }            
+            // Product filter;
+            const matchesProduct = !productFilter.val1 || item.productId == productFilter.val1;
+            if (productFilter.val1) activeFilters.product = productFilter.val2;
+            
+            // Stock filter
+            const matchesStock = !stockFilter.val1 || item.stockId === stockFilter.val1;
+            if (stockFilter.val1) activeFilters.stock = stockFilter.val2;
+            // Status filter
+            const matchesStatus = !statusFilter ||
+                (statusFilter === 'active' && !item.isDeleted) ||
+                (statusFilter === 'deleted' && item.isDeleted);
+            if (statusFilter) activeFilters.status = statusFilter === 'active' ? 'Active' : 'Deleted';
+            // Search term
+            if (searchTerm) {
+                activeFilters.search = searchTerm;
+            }
+            console.log(matchesSearch, " ", parseInt(searchTerm));
+            return matchesSearch && matchesProduct && matchesStock && matchesStatus;
+        });
+
+
+        currentPage = 1;
+        updateFilterSummary();
+        renderTable();
+    }
+    function updateFilterSummary() {
+        const filterSummary = document.getElementById('filterSummary');
+        const filterTags = document.getElementById('filterTags');
+
+        if (Object.keys(activeFilters).length === 0) {
+            filterSummary.classList.remove('active');
+            return;
+        }
+        filterSummary.classList.add('active');
+
+        filterTags.innerHTML = Object.entries(activeFilters).map(([key, value]) => `
+                        <span class="filter-tag">
+                            ${key === 'search' ? 'Search: ' : ''}${value}
+                            <button onclick="removeFilter('${key}')" title="Remove filter">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </span>
+                    `).join('');
+    }
+    function removeFilter(filterKey) {
+        // Clear the corresponding form field
+        switch (filterKey) {
+            case 'search':
+                document.getElementById('searchInput').value = '';
+                break;
+            case 'product':
+                document.getElementById('productFilter').value = '';
+                break;
+            case 'status':
+                document.getElementById('statusFilter').value = '';
+                break;
+            case 'stock':
+                document.getElementById('stockFilter').value = '';
+                break;
+        }
+
+        applyFilters();
+    }
+    function clearAllFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('productFilter').value = '';
+        document.getElementById('statusFilter').value = '';
+        document.getElementById('stockFilter').value = '';
+
+        activeFilters = {};
+        filteredData = [...sampleProducts];
+        currentPage = 1;
+        updateFilterSummary();
+        renderTable();
+    }
+
+ 
+
+    //Event Listeners
+    document.getElementById('searchInput').addEventListener('input', applyFilters);
+    document.getElementById('entriesPerPage').addEventListener('change', function () {
+        entriesPerPage = parseInt(this.value);
+        currentPage = 1;
+        window.location.href = `/Stock/StockManagement?PageIndex=${1}&PageSize=${entriesPerPage}`;
+
+        renderTable();
+    });
+
+    document.querySelectorAll('.sortable').forEach(th => {
+        th.addEventListener('click', () => sortTable(th.dataset.sort));
+    });
+
+    // Action Functions
+    function viewProduct(id) {
+        const product = sampleProducts.find(p => p.id === id);
+        Swal.fire({
+            title: `Product Details`,
+            html: `
+                            <div style="text-align: left;">
+                                    <p><strong>Item:</strong> ${product.id}</p>
+                                        <p><strong>product Name:</strong> ${product.productName}</p>
+                                        <p><strong>Product Id:</strong> ${product.productId}</p>
+                                            <p><strong>Quantity:</strong> ${product.quantity}</p>
+                                        <p><strong>Available:</strong> ${product.available}</p>
+                                                    <p><strong>Color:</strong><span style="background:${product.color.split(":")[1]};width:15px;height:15px;display:inline-block;border:1px solid #ccc;"></span> ${product.color.split(":")[0]} </p>
+                                                    <p><strong>Size:</strong> ${product.size}</p>
+                                                            <p><strong>Expire Date:</strong> ${product.expireDate}</p>
+                                                                <p><strong>Inventory Name:</strong> ${product.stock.inventoryName}</p>
+                                                                <p><strong>Inventory Phone:</strong> ${product.stock.phoneNumber}</p>
+
+                            </div>
+                        `,
+            icon: 'info',
+            confirmButtonColor: '#fd5b44'
+        });
+    }
+    function editProduct(id) {
+        window.location.href = `/Stock/UpdateStockItem?id=${id}`;
+        // const element =
+        //     `<form id="formDecide" action="/Stock/UpdateStockItem" method="post">
+        //                     <input type="text" name="Id" value="${id}" hidden />
+        //                         <input type="text" name="action" value="Edit" hidden />
+        //                         <input type="text" name="type" value="Product" hidden />
+        //                 </form>`
+        // // Create a temporary container to parse the HTML string
+        // const tempDiv = document.createElement('div');
+        // tempDiv.innerHTML = element;
+
+        // // Extract the form element
+        // const formElement = tempDiv.firstElementChild;
+        // // Append to body
+        // document.body.appendChild(formElement);
+
+        // // Submit the form
+        // formElement.submit();
+        // // alert(`Editing product with ID: ${id}`);
+        // // const form = document.getElementById('formDecide');
+
+        // // // Create and append a hidden input to simulate the submit button
+        // // const hiddenAction = document.createElement("input");
+        // // hiddenAction.type = "hidden";
+        // // hiddenAction.name = "action";
+        // // hiddenAction.value = "Edit";
+        // // form.appendChild(hiddenAction);
+
+        // // form.submit();        // const element =
+        //     `<form id="formDecide" action="/Stock/UpdateStockItem" method="post">
+        //                     <input type="text" name="Id" value="${id}" hidden />
+        //                         <input type="text" name="action" value="Edit" hidden />
+        //                         <input type="text" name="type" value="Product" hidden />
+        //                 </form>`
+        // // Create a temporary container to parse the HTML string
+        // const tempDiv = document.createElement('div');
+        // tempDiv.innerHTML = element;
+
+        // // Extract the form element
+        // const formElement = tempDiv.firstElementChild;
+        // // Append to body
+        // document.body.appendChild(formElement);
+
+        // // Submit the form
+        // formElement.submit();
+        // // alert(`Editing product with ID: ${id}`);
+        // // const form = document.getElementById('formDecide');
+
+        // // // Create and append a hidden input to simulate the submit button
+        // // const hiddenAction = document.createElement("input");
+        // // hiddenAction.type = "hidden";
+        // // hiddenAction.name = "action";
+        // // hiddenAction.value = "Edit";
+        // // form.appendChild(hiddenAction);
+
+        // // form.submit();
+    }
+    function deleteProduct(id) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'You’re about to delete this Item!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirect to controller action (GET or POST)
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                $.ajax({
+                    url: "/Stock/DeleteItem",
+                    type: "POST", // or "POST"
+                    headers: {
+                        "RequestVerificationToken": token
+                    },
+                    data: { id: id, }, // Convert object to JSON string
+                    success: function (response) {
+                        const rslt = (response.res);
+                        if (rslt == true) {
+                            Swal.fire(
+                                'Item Deleted',
+                                'Item deleted successfully',
+                                'success'
+                            );
+                            setTimeout(function () {
+                                window.location.href = "/Stock/StockManagement";
+                            }, 2000);
+                        }
+                        else {
+                            var message;
+                                if (rslt == false) {
+                                    message = 'check DB Data as there is an error';
+                            }
+                            else {
+                                message = 'check log file as there is an exception';
+
+                            }
+                            Swal.fire(
+                                'Item Not Deleted',
+                                message,
+                                'error'
+                            );
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error:", error);
+                    }
+                });
+
+                // const element =
+                //     `
+                //      <form id="formDecide" action="/Base/Decide" method="post">
+                //         <input type="text" name="Id" value="${id}" hidden />
+                //         <input type="text" name="action" value="Delete" hidden />
+                //      </form>
+                //     `
+                // // Create a temporary container to parse the HTML string
+                // const tempDiv = document.createElement('div');
+                // tempDiv.innerHTML = element;
+
+                // // Extract the form element
+                // const formElement = tempDiv.firstElementChild;
+                // console.log(formElement);
+                // // Append to body
+                // document.body.appendChild(formElement);
+
+                // // Submit the form
+                // formElement.submit();
+                // const form = document.getElementById('formDecide');
+
+                // // Create and append a hidden input to simulate the submit button
+                // const hiddenAction = document.createElement("input");
+                // hiddenAction.type = "hidden";
+                // hiddenAction.name = "action";
+                // hiddenAction.value = "Delete";
+                // form.appendChild(hiddenAction);
+
+                // form.submit();
+            }
+        });
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function () {
+        const res = @Html.Raw(Json.Serialize(@TempData["error"]));
+        if (res != null) {
+            Swal.fire({
+                title: res[0],
+                text: res[1],
+                icon: res[2],
+                timer: 2000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end'
+            });
+        }
+        // Clear existing options
+        var select = document.getElementById("productFilter");
+        select.innerHTML = `<option value="">All Products</option>`;
+        const ff = [...new Map(currentData.map(item => [item.stockId, item])).values()];
+
+        [...new Map(currentData.map(item => [item.productId, item])).values()].forEach(function (item) {
+            var option = document.createElement("option");
+            option.value = item.productId;
+            option.text = item.productName;
+            select.appendChild(option);
+        });
+        select = document.getElementById("stockFilter");
+        select.innerHTML = `<option value="">All Stocks</option>`;
+        [...new Map(currentData.map(item => [item.stockId, item])).values()].forEach(function (item) {
+
+            var option = document.createElement("option");
+            option.value = item.stockId;
+            option.text = item.stock.inventoryName;
+            select.appendChild(option);
+        });
+        renderTable();
+    });
+</script>

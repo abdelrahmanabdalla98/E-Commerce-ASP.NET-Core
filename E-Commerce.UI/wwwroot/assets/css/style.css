@@ -3,7 +3,6 @@ td,
 th {
   border: 1px solid var(--th-border-color);
 }
-
 .photo-circle {
     width: 120px;
     height: 120px;
@@ -19,10 +18,10 @@ th {
 }
     .photo-circle:hover {
         box-shadow: 0 4px 12px rgba(0,123,255,.2);
-        transition: .3s;
+        transition: .3s
     }
-.photo-circle.has-photo, .photo-circle:hover {
-    border-color: #007bff;
+    .photo-circle.has-photo, .photo-circle:hover {
+    border-color: #007bff
 }
 iframe,
 img {

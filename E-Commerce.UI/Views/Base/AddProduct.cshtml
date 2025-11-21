@@ -84,20 +84,20 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="stock" class="form-label required">Stock Name</label>
-                                <select class="form-select" id="stock" asp-for="stock.stockId" asp-items="@ViewBag.stocks as SelectList" required>
+                                <select class="form-select" id="stock" asp-for="Item.StockId" required>
                                     <option value="">Select Stock</option>
                                 </select>
                                 <div class="form-text">Select the stock Name</div>
-                                <span class="text-danger" asp-validation-for="stock.stockId"></span>
+                                <span class="text-danger" asp-validation-for="Item.StockId"></span>
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="expireDate" class="form-label">Expire Date</label>
-                                <input type="date" class="form-control" asp-for="stock.ExpireDate" required>
+                                <input type="date" class="form-control" asp-for="Item.ExpireDate" required>
                                 <div class="form-text">Leave empty if product doesn't expire</div>
-                                <span class="text-danger" asp-validation-for="stock.ExpireDate"></span>
+                                <span class="text-danger" asp-validation-for="Item.ExpireDate"></span>
 
                             </div>
                         </div>
@@ -107,18 +107,18 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="quantity" class="form-label required">Quantity</label>
-                                <input type="number" class="form-control" id="quantity" asp-for="stock.Quantity" min="0" required>
+                                <input type="number" class="form-control" id="quantity" asp-for="Item.Quantity" min="0" required>
                                 <div class="form-text">Total quantity in stock</div>
-                                <span class="text-danger" asp-validation-for="stock.Quantity"></span>
+                                <span class="text-danger" asp-validation-for="Item.Quantity"></span>
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="available" class="form-label required">Available</label>
-                                <input type="number" class="form-control" id="available" asp-for="stock.Available" min="0" required>
+                                <input type="number" class="form-control" id="available" asp-for="Item.Available" min="0" required>
                                 <div class="form-text">Available quantity for sale</div>
-                                <span class="text-danger" asp-validation-for="stock.Available"></span>
+                                <span class="text-danger" asp-validation-for="Item.Available"></span>
                             </div>
                         </div>
                     </div>
@@ -129,7 +129,7 @@
                                 <label for="colors" class="form-label">Product Color</label>
 
                                 <!-- Hidden input to store selected color for form submission -->
-                                <input type="hidden" id="colors" asp-for="stock.Color" />
+                                <input type="hidden" id="colors" asp-for="Item.Color" />
 
                                 <!-- Color picker interface -->
                                 <div class="color-picker-container" id="selectedColors">
@@ -152,37 +152,17 @@
                                 </button>
 
                                 <div class="form-text">Click "Choose Color" to select the product color</div>
-                                <span class="text-danger" asp-validation-for="stock.Color"></span>
+                                <span class="text-danger" asp-validation-for="Item.Color"></span>
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="sizes" class="form-label">Available Sizes</label>
-                                <select class="form-select" id="sizes" asp-for="stock.Size">
-                                    <option value="XXS">XXS - Extra Extra Small</option>
-                                    <option value="XS">XS - Extra Small</option>
-                                    <option value="S">S - Small</option>
-                                    <option value="M">M - Medium</option>
-                                    <option value="L">L - Large</option>
-                                    <option value="XL">XL - Extra Large</option>
-                                    <option value="XXL">XXL - Extra Extra Large</option>
-                                    <option value="XXXL">XXXL - Triple Extra Large</option>
-                                    <option value="One Size">One Size</option>
-                                    <option value="Free Size">Free Size</option>
-                                    <option value="28">28 (Waist)</option>
-                                    <option value="30">30 (Waist)</option>
-                                    <option value="32">32 (Waist)</option>
-                                    <option value="34">34 (Waist)</option>
-                                    <option value="36">36 (Waist)</option>
-                                    <option value="38">38 (Waist)</option>
-                                    <option value="40">40 (Waist)</option>
-                                    <option value="42">42 (Waist)</option>
-                                    <option value="44">44 (Waist)</option>
-                                    <option value="46">46 (Waist)</option>
+                                <select class="form-select" id="sizes" asp-for="Item.Size">
                                 </select>
                                 <div class="form-text">Hold Ctrl/Cmd to select multiple sizes</div>
-                                <span class="text-danger" asp-validation-for="stock.Size"></span>
+                                <span class="text-danger" asp-validation-for="Item.Size"></span>
                             </div>
                         </div>
                     </div>
@@ -477,20 +457,41 @@
     }
     document.addEventListener("DOMContentLoaded", function () {
         $.ajax({
-            url: "/Base/Categories",
+            url: "/Base/GetSelectList",
             type: "POST", // or "POST"
-            data: { Id: 0 }, // Convert object to JSON string
+            data: {
+                type: [ "category0", "stock","size" ] }, // Convert object to JSON string
             success: function (response) {
                 var select = document.getElementById("category");
-                select.innerHTML = `<option value="-1"> Select Category </option>`; // Clear existing options
-
-                response.ret.forEach(function (category) {
+                // Clear existing options
+                select.innerHTML = `<option value="-1"> Select Category </option>`;
+                response.allLists[0].forEach(function (catList) {
                     var option = document.createElement("option");
-                    option.value = category.id;
-                    option.text = category.name;
+                    option.value = catList.value;
+                    option.text = catList.text;
                     select.appendChild(option);
                 });
 
+                select = document.getElementById("stock");
+                // Clear existing options
+                select.innerHTML = `<option value="-1"> Select Stock </option>`;
+                response.allLists[1].forEach(function (stockList) {
+                    var option = document.createElement("option");
+                    option.value = stockList.value;
+                    option.text = stockList.text;
+                    select.appendChild(option);
+                });
+
+                select = document.getElementById("sizes");
+                // Clear existing options
+                select.innerHTML = `<option value="-1"> Select Size </option>`;
+                response.allLists[2].forEach(function (sizeList) {
+                    var option = document.createElement("option");
+                    option.value = sizeList.value;
+                    option.text = sizeList.text;
+                    select.appendChild(option);
+                });
+                
             },
             error: function (xhr, status, error) {
                 console.error("Error:", error);
@@ -510,13 +511,13 @@
             return;
         }
         $.ajax({
-            url: "/Base/Categories",
+            url: "/Base/GetSelectList",
             type: "POST", // or "POST"
-            data: { Id: selected }, // Convert object to JSON string
+            data: { id: selected, type: "category1" }, // Convert object to JSON string
             success: function (response) {
                 $('#sub1').remove();
                 $('#sub2').remove();
-                if (response.ret.length > 0) {
+                if (response.allLists[0].length > 0) {
                     $('#FirstCata').after(`<div id="sub1" class="form-group">
                         <label for="category" class="form-label required">Sub Category</label>
                         <select class="form-select" id="subCategory1" required>
@@ -527,10 +528,10 @@
                     var select = document.getElementById("subCategory1");
                     select.innerHTML = `<option value="-1" > Select Category </option>`; // Clear existing options
 
-                    response.ret.forEach(function (category) {
+                    response.allLists[0].forEach(function (category) {
                         var option = document.createElement("option");
-                        option.value = category.id;
-                        option.text = category.name;
+                        option.value = category.value;
+                        option.text = category.text;
                         select.appendChild(option);
                     });
 
@@ -543,12 +544,12 @@
                             return;
                         }
                         $.ajax({
-                            url: "/Base/Categories",
+                            url: "/Base/GetSelectList",
                             type: "POST", // or "POST"
-                            data: { Id: selected }, // Convert object to JSON string
+                            data: { id: selected, type: "category1" }, // Convert object to JSON string
                             success: function (response) {
                                 $('#sub2').remove();
-                                if (response.ret.length > 0) {
+                                if (response.allLists[0].length > 0) {
                                     $('#sub1').after(`<div id="sub2" class="form-group">
                                 <label for="category" class="form-label required">Sub Category</label>
                                 <select class="form-select" id="subCategory2" required>
@@ -559,10 +560,10 @@
                                     var select = document.getElementById("subCategory2");
                                     select.innerHTML = `<option value="-1" > Select Category </option>`; // Clear existing options
 
-                                    response.ret.forEach(function (category) {
+                                    response.allLists[0].forEach(function (category) {
                                         var option = document.createElement("option");
-                                        option.value = category.id;
-                                        option.text = category.name;
+                                        option.value = category.value;
+                                        option.text = category.text;
                                         select.appendChild(option);
                                     });
                                     select.addEventListener('change', function () {
@@ -637,7 +638,9 @@
 
     form.addEventListener('submit', function (e) {
         e.preventDefault();
-
+        const quantityInput = document.getElementById('quantity');
+        const availableInput = document.getElementById('available');
+        const sizesSelect = document.getElementById('sizes');
         // Reset previous validation states
         document.querySelectorAll('.is-invalid').forEach(el => {
             el.classList.remove('is-invalid');
@@ -680,6 +683,16 @@
             isValid = false;
         }
 
+        // Validate quantity and available fields
+        if (!quantityInput.value || parseInt(quantityInput.value) < 0) {
+            quantityInput.classList.add('is-invalid');
+            isValid = false;
+        }
+
+        if (!availableInput.value || parseInt(availableInput.value) < 0) {
+            availableInput.classList.add('is-invalid');
+            isValid = false;
+        }
         //Process selected sizes before submission
         updateSelectedValues('sizes');
 
@@ -731,34 +744,6 @@
         quantityInput.addEventListener('input', validateQuantities);
         availableInput.addEventListener('input', validateQuantities);
 
-        // Update the form validation to include these new fields
-        const originalForm = document.getElementById('productForm');
-        if (originalForm) {
-            originalForm.addEventListener('submit', function (e) {
-                let isValid = true;
-
-                // Validate quantity and available fields
-                if (!quantityInput.value || parseInt(quantityInput.value) < 0) {
-                    quantityInput.classList.add('is-invalid');
-                    isValid = false;
-                }
-
-                if (!availableInput.value || parseInt(availableInput.value) < 0) {
-                    availableInput.classList.add('is-invalid');
-                    isValid = false;
-                }
-
-                // Validate that available doesn't exceed quantity
-                if (!validateQuantities()) {
-                    isValid = false;
-                }
-
-                if (!isValid) {
-                    e.preventDefault();
-                    alert('Please fix the validation errors in the stock information section.');
-                }
-            });
-        }
     });
 
     // Character counter for name field

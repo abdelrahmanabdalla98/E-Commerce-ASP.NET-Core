@@ -10,7 +10,7 @@ using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace E_Commerce.DAL.Database
+namespace E_Commerce.DAL.DB_Context
 {
     public class ApplicationContext : IdentityDbContext<ApplicationUser, ApplicationRole, string>
     {
@@ -56,7 +56,7 @@ namespace E_Commerce.DAL.Database
             });
 
         }
-
+        public DbSet<SizeList> Sizes { get; set; }
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Cart> Carts { get; set; }
         public DbSet<CartItem> CartItems { get; set; }

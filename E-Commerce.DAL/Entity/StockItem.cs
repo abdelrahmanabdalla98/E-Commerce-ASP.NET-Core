@@ -13,9 +13,12 @@ namespace E_Commerce.DAL.Entity
         public DateOnly ExpireDate { get; set; }
         public string? Color { get; set; }
         public string? Size { get; set; }
-        public int productId { get; set; }
-        public Product product { get; set; }
-        public int stockId { get; set; }
-        public Stock stock { get; set; }
+        public int ProductId { get; set; }
+        public Product Product { get; set; }
+        public int StockId { get; set; }
+        public Stock Stock { get; set; }
+        public bool IsDeleted { get; set; }
+        public string CreatedBy { get; set; }
+        public DateTime CreatedOn { get; set; }
     }
 }

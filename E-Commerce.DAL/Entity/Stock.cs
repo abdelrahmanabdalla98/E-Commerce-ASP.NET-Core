@@ -10,11 +10,13 @@ namespace E_Commerce.DAL.Entity
         [DatabaseGenerated(DatabaseGeneratedOption.Identity), Required]
         public int Id { get; set; }
         public string InventoryName { get; set; }
+        public string PhoneNumber { get; set; }
+
         public DateTime CreatedOn { get; set; } = DateTime.Now;
         public DateTime UpdatedOn { get; set; }
         public bool IsDeleted { get; set; } = false;
 
-        public List<StockItem> Items { get; set; } = new();
+        public ICollection<StockItem> Items { get; set; } = new List<StockItem>();
 
 
     }

@@ -8,7 +8,7 @@ using System.Text;
 using E_Commerce.BLL.Models.AccountModels;
 using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 using System.Security.Cryptography;
-using E_Commerce.DAL.Database;
+using E_Commerce.DAL.DB_Context;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.WebUtilities;
@@ -936,7 +936,7 @@ namespace E_Commerce.PL.Controllers
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var callbackUrl = Url.Action(nameof(ConfirmEmail), "Account",
                 new { userId = user.Id, code }, Request.Scheme);
-            using (var write = new StreamWriter(@"C:\Users\AbdelRahman\Desktop\E-Commerce.PL-1\test5.text"))
+            using (var write = new StreamWriter(@"C:\Users\abdelrahman.abdalla\Desktop\Test\test5.text"))
             {
                 await write.WriteLineAsync(callbackUrl);
             }

@@ -26,7 +26,8 @@ namespace E_Commerce.BLL.Mapper
             CreateMap<OrderDTO, Order>().ReverseMap();
             CreateMap<ReviewDTO, Review>().ReverseMap();
             CreateMap<StockDTO, Stock>().ReverseMap();
-            CreateMap<StockItemDTO, StockItem>().ReverseMap();
+            CreateMap<StockItemDTO, StockItem>().ReverseMap()
+                .ForPath(dest => dest.ProductName , opts => opts.MapFrom(src => src.Product.Name));
 
             CreateMap<WishlistDTO, WishList>().ReverseMap();
             CreateMap<WishListItemDTO, WishListItem>().ReverseMap();

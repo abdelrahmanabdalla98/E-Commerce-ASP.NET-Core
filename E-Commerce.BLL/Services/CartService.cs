@@ -4,6 +4,7 @@ using E_Commerce.BLL.Repository;
 using E_Commerce.BLL.RepositoryPattern;
 using E_Commerce.DAL.Entity;
 using E_Commerce.DAL.Entity_Extension;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +26,6 @@ namespace E_Commerce.BLL.Services
             this.Mapper = Mapper;
             _CartDTO = new CartDTO();
         }
-
         public async Task<bool> CreateCart()
         {
             return await _Repo.CreateAsync(_CartDTO);

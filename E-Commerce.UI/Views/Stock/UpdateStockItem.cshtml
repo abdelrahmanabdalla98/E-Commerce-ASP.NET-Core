@@ -1,0 +1,582 @@
+﻿
+@section cssFile{
+<link href="~/css/product.css" rel="stylesheet" />
+}
+@model StockItemDTO
+<div class="form-container">
+    <div class="form-card">
+        <div class="breadcumb-wrapper background-image" style="background-image: url(&quot;/assets/img/bg/breadcumb-bg.jpg&quot;);">
+            <div class="container">
+                <div class="breadcumb-content position-relative">
+                    <h4><i class="fas fa-plus-circle"></i> Update Item</h4>
+                    <p>Update Item Code:@Model.Id to your Stock</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-body">
+            <form id="itemForm" asp-action="UpdateStockItem" method="post" enctype="multipart/form-data">
+                <div class="text-danger" asp-validation-summary="All"></div>
+                <!-- Product Information Section -->
+                <input asp-for="Id" hidden/>
+                <input name="CreatedOn" value="@DateTime.Now" hidden /> @* check later *@
+                <input asp-for="@Model.Stock.PhoneNumber" hidden />
+                <div class="form-section">
+                    <h3 class="section-title"><i class="fas fa-info-circle"></i> Product Information</h3>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div id="prodsInput" class="form-group">
+                                <label for="product" class="form-label required">Please select Product</label>
+                                <select asp-for="ProductId" class="form-select" id="product" required>
+                                    <option value="">Select a product</option>
+                                </select>
+                                <div class="error-message">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <span>Please select valid option</span>
+                                </div>
+                                <span class="text-danger" asp-validation-for="ProductId"></span>
+                            </div>
+                        </div>
+                        <div style="padding-top:2.5rem" class="col-md-6">
+                          @*   handle it later  *@
+                            <span id="avaProds" class="text-danger fw-bold hidden">No products found please add first  
+                                <a href="#" class="none">
+                                    <i class="fa-regular fa-plus fa-xl" style="color: #63E6BE;"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col form-group">
+                            <label for="name" class="form-label required">Product ID</label>
+                            <input type="text" class="form-control" id="PId" readonly disabled>
+                            <span class="text-danger" asp-validation-for="ProductId"></span>
+                        </div>
+                        <div class="col form-group">
+                            <label for="name" class="form-label required">Product Name</label>
+                            <input type="text" asp-for="ProductName" class="form-control" id="PName" readonly >
+                            <span class="text-danger" asp-validation-for="ProductName"></span>
+                        </div>
+                    </div>
+
+@*                     <div class="form-group">
+                        <label for="description" class="form-label required">Description</label>
+                        <textarea class="form-control" id="description" asp-for="Description" rows="4" required></textarea>
+                        <div class="form-text">Provide a detailed description of your product</div>
+                        <span class="text-danger" asp-validation-for="Description"></span>
+                    </div> *@
+                </div>
+                <!-- Stock Information Section -->
+                <div class="form-section">
+                    <h3 class="section-title"><i class="fas fa-boxes"></i> Stock Information</h3>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div id="stockInput" class="form-group">
+                                <label for="stock" class="form-label required">Please select Stock</label>
+                                <select asp-for="StockId" class="form-select" id="stock" required>
+                                    <option value="">Please select stock</option>
+                                </select>
+                                <div class="error-message">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <span>Please select valid option</span>
+                                </div>
+                                <span class="text-danger" asp-validation-for="StockId"></span>
+                            </div>
+                        </div>
+                        <div style="padding-top:2.5rem" class="col-md-6">
+                           @* handle it later *@
+                            <span id="avastocks" class="text-danger fw-bold hidden">
+                                No Stocks found please add first
+                                <a href="#" class="none">
+                                    <i class="fa-regular fa-plus fa-xl" style="color: #63E6BE;"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col form-group">
+                            <label for="name" class="form-label required">Stock ID</label>
+                            <input type="text" class="form-control" id="SId" disabled readonly>
+                            <span class="text-danger" asp-validation-for="Stock.Id"></span>
+                        </div>
+                        <div class="col form-group">
+                            <label for="name" class="form-label required">Stock Name</label>
+                            <input type="text" asp-for="Stock.InventoryName" class="form-control" id="SName" readonly>
+                            <span class="text-danger" asp-validation-for="Stock.InventoryName"></span>
+                        </div>
+                    </div>
+
+                    @*                     <div class="form-group">
+                    <label for="description" class="form-label required">Description</label>
+                    <textarea class="form-control" id="description" asp-for="Description" rows="4" required></textarea>
+                    <div class="form-text">Provide a detailed description of your product</div>
+                    <span class="text-danger" asp-validation-for="Description"></span>
+                    </div> *@
+                </div>
+                <!-- Item Section -->
+                <div class="form-section">
+                    <h3 class="section-title"><i class="fas fa-info-circle"></i> Item Information</h3>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="quantity" class="form-label required">Quantity</label>
+                                <input type="number" class="form-control" id="quantity" asp-for="Quantity" min="0"
+                                       placeholder="Enter non zero value" required>
+                                
+                                <div class="error-message">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <span>Enter non zero value</span>
+                                </div>
+                                <span class="text-danger" asp-validation-for="Quantity"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="expireDate" class="form-label">Expire Date</label>
+                                <input type="date" class="form-control" asp-for="ExpireDate">
+                                <div class="form-text">Leave empty if product doesn't expire</div>
+                                <div class="error-message">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <span>Enter non zero value</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="available" class="form-label required">Available</label>
+                                <input type="number" class="form-control" id="available" asp-for="Available" min="0"
+                                placeholder="Enter non zero value" required>
+                                <div class="error-message">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <span>Enter valid number less or equal to Quantity</span>
+                                </div> 
+                                <span class="text-danger" asp-validation-for="Available"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="colors" class="form-label">Product Color</label>
+
+                                <!-- Hidden input to store selected color for form submission -->
+                                <input type="hidden" id="colors" asp-for="Color" />
+
+                                <!-- Color picker interface -->
+                                <div class="color-picker-container" id="selectedColors">
+                                    <!-- Selected color will appear here -->
+                                </div>
+
+                                <!-- Add color interface -->
+                                <div class="color-input-group hidden" id="colorInputGroup">
+                                    <input type="color" id="colorPicker">
+                                    <input type="text" id="colorName" placeholder="Enter color name (e.g., Bright Red)" maxlength="9">
+
+                                    
+                                    <div class="form-text">Maximum 9 characters</div>
+
+                                    <button type="button" onclick="setColor()">Set Color</button>
+                                </div>
+
+
+                                <button type="button" class="add-color-btn" onclick="toggleColorInput()" id="addColorBtn">
+                                    <i class="fas fa-palette"></i> Choose Color
+                                </button>
+                                
+                                <div class="form-text">Click "Choose Color" to select the product color</div>
+                
+                                <span class="text-danger" asp-validation-for="Color"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="sizes" class="form-label">Available Size</label>
+                                <input type="text" class="form-control" id="PId" asp-for="Size"
+                                       placeholder="Enter no if doesn't has" required>
+                                <div class="error-message">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <span>Enter valid size</span>
+                                </div>
+                                <span class="text-danger" asp-validation-for="Size"></span>
+                            </div>
+                        </div>
+
+                        @* <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="sizes" class="form-label">Available Sizes</label>
+                                <select class="form-select" id="sizes" asp-for="stock.Size">
+                                    <option value="XXS">XXS - Extra Extra Small</option>
+                                    <option value="XS">XS - Extra Small</option>
+                                    <option value="S">S - Small</option>
+                                    <option value="M">M - Medium</option>
+                                    <option value="L">L - Large</option>
+                                    <option value="XL">XL - Extra Large</option>
+                                    <option value="XXL">XXL - Extra Extra Large</option>
+                                    <option value="XXXL">XXXL - Triple Extra Large</option>
+                                    <option value="One Size">One Size</option>
+                                    <option value="Free Size">Free Size</option>
+                                    <option value="28">28 (Waist)</option>
+                                    <option value="30">30 (Waist)</option>
+                                    <option value="32">32 (Waist)</option>
+                                    <option value="34">34 (Waist)</option>
+                                    <option value="36">36 (Waist)</option>
+                                    <option value="38">38 (Waist)</option>
+                                    <option value="40">40 (Waist)</option>
+                                    <option value="42">42 (Waist)</option>
+                                    <option value="44">44 (Waist)</option>
+                                    <option value="46">46 (Waist)</option>
+                                </select>
+                                <div class="form-text">Hold Ctrl/Cmd to select multiple sizes</div>
+                                <span class="text-danger" asp-validation-for="stock.Size"></span>
+                            </div>
+                        </div> *@
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="text-center">
+                    <button id="cl" type="button" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Update
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section lib {
+    <script>
+        var opt = @Html.Raw(Json.Serialize(Model));
+        const errMsg = @Html.Raw(Json.Serialize(ViewBag.error));
+        if (errMsg != null) {
+            Swal.fire({
+                title: errMsg[0],
+                text: errMsg[1],
+                icon: errMsg[2],
+                timer: 2000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end'
+            });
+        }
+
+        // Color picker functionality
+        let selectedColor = null;
+        function toggleColorInput() {
+            const inputGroup = document.getElementById('colorInputGroup');
+            const addBtn = document.getElementById('addColorBtn');
+
+            if (inputGroup.classList.contains('hidden')) {
+                inputGroup.classList.remove('hidden');
+                addBtn.innerHTML = '<i class="fas fa-minus"></i> Cancel';
+
+                // Pre-fill with current color if exists
+                if (selectedColor) {
+                    document.getElementById('colorPicker').value = selectedColor.hex;
+                    document.getElementById('colorName').value = selectedColor.name;
+                }
+            } else {
+                inputGroup.classList.add('hidden');
+                addBtn.innerHTML = '<i class="fas fa-palette"></i> Choose Color';
+                // Clear inputs only if no color is selected
+                if (!selectedColor) {
+                    document.getElementById('colorPicker').value = '#ff0000';
+                    document.getElementById('colorName').value = '';
+                }
+            }
+        }
+        function setColor() {
+            const colorPicker = document.getElementById('colorPicker');
+            const colorName = document.getElementById('colorName');
+
+            if (!colorName.value.trim()) {
+                alert('Please enter a color name');
+                return;
+            }
+
+            selectedColor = {
+                hex: colorPicker.value,
+                name: colorName.value.trim().toLowerCase()
+            };
+
+            renderSelectedColor();
+            updateColorsInput();
+
+            // Hide the input group after setting color
+            toggleColorInput();
+        }
+        function removeColor() {
+            selectedColor = null;
+            renderSelectedColor();
+            updateColorsInput();
+        }
+        function renderSelectedColor() {
+            const container = document.getElementById('selectedColors');
+            container.innerHTML = '';
+
+            if (selectedColor) {
+                const colorItem = document.createElement('div');
+                colorItem.className = 'color-item';
+
+                colorItem.innerHTML = `
+                                <div class="color-preview" style="background-color: ${selectedColor.hex}"></div>
+                                <span class="color-name">${selectedColor.name}</span>
+                                <button type="button" class="remove-color" onclick="removeColor()" title="Remove color">×</button>
+                            `;
+
+                container.appendChild(colorItem);
+
+                // Update button text to "Change Color" when color is selected
+                const addBtn = document.getElementById('addColorBtn');
+                addBtn.innerHTML = '<i class="fas fa-palette"></i> Change Color';
+            } else {
+                // Reset button text when no color is selected
+                const addBtn = document.getElementById('addColorBtn');
+                addBtn.innerHTML = '<i class="fas fa-palette"></i> Choose Color';
+            }
+        }
+        function updateColorsInput() {
+            const hiddenInput = document.getElementById('colors');
+            if (selectedColor) {
+                hiddenInput.value = `${selectedColor.name}:${selectedColor.hex}`;
+            } else {
+                hiddenInput.value = '';
+            }
+        }
+        document.getElementById('colorName').addEventListener('input', function () {
+            const remaining = 9 - this.value.length;
+            const helpText = this.nextElementSibling;
+            helpText.textContent = `${remaining} chars remaining`;
+            helpText.style.color = remaining < 2 ? '#dc3545' : '#6c757d';
+        });
+
+
+
+
+        // Form validation apply them
+        function validateField(field) {
+            const value = field.value.trim();
+            var errorDiv = field.parentNode.querySelector('.error-message');
+
+            if (field.hasAttribute('required') && !value) {
+                field.classList.add('error');
+                field.classList.remove('success');
+                errorDiv.classList.add('show');
+                return false;
+
+            } else if (field.hasAttribute('maxlength') && value.length > field.getAttribute('maxlength')) {
+                field.classList.add('error');
+                field.classList.remove('success');
+                errorDiv.classList.add('show');
+                return false;
+
+            } else {
+                if (field.hasAttribute('id') && (field.getAttribute('id') == "quantity" || field.getAttribute('id') == "available")) {
+                    const val = parseInt(field.value) || 0;
+                    if (val <= 0) {
+                        field.classList.add('error');
+                        field.classList.remove('success');
+                        errorDiv.classList.add('show');
+                        return false;
+                    }
+                    else if (field.getAttribute('id') == "available") {
+                        const quanVal = parseInt(document.querySelector('#quantity').value) || 0;
+                        if (val > quanVal) {
+                            field.classList.add('error');
+                            field.classList.remove('success');
+                            errorDiv.classList.add('show');
+                            return false;
+                        }
+                    }
+                }
+                if (errorDiv != null) {
+                    field.classList.remove('error');
+                    field.classList.add('success');
+                    errorDiv.classList.remove('show');
+                }
+                return true;
+            }
+        }
+
+        function clearValidation() {
+            const fields = document.querySelectorAll('.form-control');
+            const errors = document.querySelectorAll('.error-message');
+
+            fields.forEach(field => {
+                field.classList.remove('error', 'success');
+            });
+
+            errors.forEach(error => {
+                error.classList.remove('show');
+            });
+        }
+
+        // Real-time validation
+        document.querySelectorAll('.form-control,.form-select').forEach(field => {
+
+            field.addEventListener('blur', function () {
+                validateField(this);
+            });
+
+            field.addEventListener('input', function () {
+                if (this.classList.contains('error')) {
+                    validateField(this);
+                }
+            });
+        });
+
+
+        // Initialize color input as hidden
+        // document.addEventListener('DOMContentLoaded', function () {
+        //     document.getElementById('colorInputGroup').classList.add('hidden');
+
+        //     // Initialize with no color selected
+        //     selectedColor = null;
+        //     renderSelectedColor();
+        //     updateColorsInput();
+        // });
+
+        document.addEventListener("DOMContentLoaded", function(e) {
+            console.log(opt);
+            $.ajax({
+                url: "/Stock/GetSelectList",
+                type: "POST", // or "POST" // Convert object to JSON string
+                success: function (response) {
+                    var select = document.getElementById("product");
+                    select.innerHTML = `<option value=""> Select Product </option>`; // Clear existing options
+
+                    response.prods.forEach(function (product) {
+                        var option = document.createElement("option");
+                        option.value = product.id;
+                        option.text = product.name;
+                        if (opt.productId == option.value) {
+                            option.selected = true;
+                            document.querySelector('#PId').value = opt.productId;
+                            document.querySelector('#PName').value = opt.productName;
+                        }
+                        select.appendChild(option);
+                    });
+                    if (response.prods.length == 0) {
+                        document.querySelector('#avaprods').classList.remove('hidden');
+                    }
+                    select.addEventListener('change', function (e) {
+                        const obj = response.prods.filter(fil => fil.id == this.value);
+                        if (obj[0] != null) {
+                            document.querySelector('#PId').value = obj[0].id;
+                            document.querySelector('#PName').value = obj[0].name;
+                        }
+                        else {
+                            document.querySelector('#PId').value = "";
+                            document.querySelector('#PName').value = "";
+                        }
+
+                    });
+
+                    select = document.getElementById("stock");
+                    select.innerHTML = `<option value=""> Select Stock </option>`; // Clear existing options
+
+                    response.stocks.forEach(function (stock) {
+                        var option = document.createElement("option");
+                        option.value = stock.id;
+                        option.text = stock.inventoryName;
+                        if (opt.stockId == option.value) {
+                            option.selected = true;
+                            document.querySelector('#SId').value = opt.stockId;
+                            document.querySelector('#SName').value = opt.stock.inventoryName;
+                        }
+                        select.appendChild(option);
+                    });
+                    if (response.prods.length == 0) {
+                        document.querySelector('#avastocks').classList.remove('hidden');
+                    }
+                    select.addEventListener('change', function (e) {
+                        const obj = response.stocks.filter(fil => fil.id == this.value);
+                        if (obj[0] != null) {
+                            document.querySelector('#SId').value = obj[0].id;
+                            document.querySelector('#SName').value = obj[0].inventoryName;
+                        }
+                        else {
+                            document.querySelector('#SId').value = "";
+                            document.querySelector('#SName').value = "";
+                        }
+
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error:", error);
+                }
+            });
+            if (opt.color != null) {
+                document.getElementById('colorPicker').value = opt.color.split(":")[1];
+                document.getElementById('colorName').value = opt.color.split(":")[0];
+
+                if (!colorName.value.trim()) {
+                    alert('Please enter a color name');
+                    return;
+                }
+
+                selectedColor = {
+                    hex: colorPicker.value,
+                    name: colorName.value.trim().toLowerCase()
+                };
+
+                renderSelectedColor();
+                updateColorsInput();
+            }
+
+            // Your code here
+        });
+
+
+        document.querySelector('#itemForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Validate colorName length
+            const colorName = document.getElementById('colorName').value;
+            const fields = this.querySelectorAll('.form-control[required]');
+            let isValid = true;
+
+            // Validate all required fields
+            fields.forEach(field => {
+                if (!validateField(field)) {
+                    isValid = false;
+                }
+            });
+            if (name.length > 9) {
+                isValid = false;
+            }
+            if (!isValid) {
+                // Shake animation for invalid form
+                alert("Please fix issues before proceed");
+                return;
+            }
+            this.submit();
+        });
+
+        // Character counter for name field
+        // document.getElementById('name').addEventListener('input', function () {
+        //     const remaining = 30 - this.value.length;
+        //     const helpText = this.nextElementSibling;
+        //     helpText.textContent = `${remaining} characters remaining`;
+        //     helpText.style.color = remaining < 5 ? '#dc3545' : '#6c757d';
+        // });
+
+        document.getElementById('cl').addEventListener('click', function () {
+            window.history.back();
+        });
+
+    </script>
+}
+

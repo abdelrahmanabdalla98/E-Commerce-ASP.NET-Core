@@ -81,124 +81,6 @@
                     </div>
                 </div>
 
-                <!-- Stock Information -->
-
-                <input type="text" asp-for="stock.Id" hidden/>
-                <div class="form-section">
-                    <h3 class="section-title"><i class="fas fa-boxes"></i> Stock & Inventory</h3>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="stock" class="form-label required">Stock Name</label>
-                                <select class="form-select" id="stock" asp-for="stock.stockId" asp-items="@ViewBag.Allstocks as SelectList" required>
-                                    <option value="">Select Stock</option>
-                                </select>
-                                <div class="form-text">Select the stock Name</div>
-                                <span class="text-danger" asp-validation-for="stock.stockId"></span>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="expireDate" class="form-label">Expire Date</label>
-                                <input type="date" class="form-control" asp-for="stock.ExpireDate">
-                                <div class="form-text">Leave empty if product doesn't expire</div>
-                                <span class="text-danger" asp-validation-for="stock.ExpireDate"></span>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="quantity" class="form-label required">Quantity</label>
-                                <input type="number" class="form-control" id="quantity" asp-for="stock.Quantity" min="0" required>
-                                <div class="form-text">Total quantity in stock</div>
-                                <span class="text-danger" asp-validation-for="stock.Quantity"></span>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="available" class="form-label required">Available</label>
-                                <input type="number" class="form-control" id="available" asp-for="stock.Available" min="0" required>
-                                <div class="form-text">Available quantity for sale</div>
-                                <span class="text-danger" asp-validation-for="stock.Available"></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="colors" class="form-label">Product Color</label>
-
-                                <!-- Hidden input to store selected color for form submission -->
-                                <input type="hidden" id="colors" asp-for="stock.Color" />
-                                <!-- Color picker interface -->
-                                <div class="color-picker-container" id="selectedColors">
-                                    
-                                    @if (Model.stock.Color != null)
-                                    {
-                                        <div class="color-item">
-                                            <div class="color-preview" style="background-color: @Model.stock.Color.Split(':').Last()"></div>
-                                            <span class="color-name">@Model.stock.Color.Split(':').First()</span>
-                                            <button type="button" class="remove-color" onclick="removeColor()" title="Remove color">×</button>
-                                        </div>
-                                    }
-                                    <!-- Selected color will appear here -->
-                                </div>
-
-                                <!-- Add color interface -->
-
-                                <div class="color-input-group" id="colorInputGroup">
-                                    <input type="color" id="colorPicker" value="#ff0000">
-                                    <input type="text" id="colorName" placeholder="Enter color name (e.g., Bright Red)" maxlength="20">
-                                    <button type="button" onclick="setColor()">Set Color</button>
-                                </div>
-
-                                <button type="button" class="add-color-btn" onclick="toggleColorInput()" id="addColorBtn">
-                                    <i class="fas fa-palette"></i> Choose Color
-                                </button>
-
-                                <div class="form-text">Click "Choose Color" to select the product color</div>
-                                <span class="text-danger" asp-validation-for="stock.Color"></span>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="sizes" class="form-label">Available Sizes</label>
-                                <select class="form-select" id="sizes" asp-for="stock.Size">
-                                    <option value="XXS">XXS - Extra Extra Small</option>
-                                    <option value="XS">XS - Extra Small</option>
-                                    <option value="S">S - Small</option>
-                                    <option value="M">M - Medium</option>
-                                    <option value="L">L - Large</option>
-                                    <option value="XL">XL - Extra Large</option>
-                                    <option value="XXL">XXL - Extra Extra Large</option>
-                                    <option value="XXXL">XXXL - Triple Extra Large</option>
-                                    <option value="One Size">One Size</option>
-                                    <option value="Free Size">Free Size</option>
-                                    <option value="28">28 (Waist)</option>
-                                    <option value="30">30 (Waist)</option>
-                                    <option value="32">32 (Waist)</option>
-                                    <option value="34">34 (Waist)</option>
-                                    <option value="36">36 (Waist)</option>
-                                    <option value="38">38 (Waist)</option>
-                                    <option value="40">40 (Waist)</option>
-                                    <option value="42">42 (Waist)</option>
-                                    <option value="44">44 (Waist)</option>
-                                    <option value="46">46 (Waist)</option>
-                                </select>
-                                <div class="form-text">Hold Ctrl/Cmd to select multiple sizes</div>
-                                <span class="text-danger" asp-validation-for="stock.Size"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Product Images -->
                 <div class="form-section">
@@ -306,101 +188,9 @@
 
 
     }
-    // Color picker functionality
-    console.log(check);
-    let selectedColor = null;
+    
 
-    function toggleColorInput() {
-        const inputGroup = document.getElementById('colorInputGroup');
-        const addBtn = document.getElementById('addColorBtn');
-
-        if (inputGroup.classList.contains('hidden')) {
-            inputGroup.classList.remove('hidden');
-            addBtn.innerHTML = '<i class="fas fa-minus"></i> Cancel';
-
-            // Pre-fill with current color if exists
-            if (selectedColor) {
-                document.getElementById('colorPicker').value = selectedColor.hex;
-                document.getElementById('colorName').value = selectedColor.name;
-            }
-        } else {
-            inputGroup.classList.add('hidden');
-            addBtn.innerHTML = '<i class="fas fa-palette"></i> Choose Color';
-            // Clear inputs only if no color is selected
-            if (!selectedColor) {
-                document.getElementById('colorPicker').value = '#ff0000';
-                document.getElementById('colorName').value = '';
-            }
-        }
-    }
-        var colorValue = "@(Model.stock.Color ?? "")";
-        if (colorValue !== "") {
-            document.getElementById('colorPicker').value = "@((Model.stock.Color ?? "").Split(':').Last())";
-            document.getElementById('colorName').value = "@((Model.stock.Color ?? "").Split(':').First())";
-            setColor();
-        }
-    function setColor() {
-            const colorPicker = document.getElementById('colorPicker');
-            const colorName = document.getElementById('colorName');
-            if (!colorName.value.trim()) {
-                alert('Please enter a color name');
-                return;
-            }
-            selectedColor = {
-                hex: colorPicker.value,
-                name: colorName.value.trim()
-            };
-        renderSelectedColor();
-        updateColorsInput();
-
-        // Hide the input group after setting color
-        toggleColorInput();
-    }
-
-    function removeColor() {
-        selectedColor = null;
-        renderSelectedColor();
-        updateColorsInput();
-    }
-
-    function renderSelectedColor() {
-        const container = document.getElementById('selectedColors');
-        container.innerHTML = '';
-
-        if (selectedColor) {
-            const colorItem = document.createElement('div');
-            colorItem.className = 'color-item';
-
-            colorItem.innerHTML = `
-                        <div class="color-preview" style="background-color: ${selectedColor.hex}"></div>
-                        <span class="color-name">${selectedColor.name}</span>
-                        <button type="button" class="remove-color" onclick="removeColor()" title="Remove color">×</button>
-                    `;
-
-            container.appendChild(colorItem);
-
-            // Update button text to "Change Color" when color is selected
-            const addBtn = document.getElementById('addColorBtn');
-            addBtn.innerHTML = '<i class="fas fa-palette"></i> Change Color';
-        } else {
-            // Reset button text when no color is selected
-            const addBtn = document.getElementById('addColorBtn');
-            addBtn.innerHTML = '<i class="fas fa-palette"></i> Choose Color';
-        }
-    }
-
-    function updateColorsInput() {
-        const hiddenInput = document.getElementById('colors');
-        if (selectedColor) {
-            hiddenInput.value = `${selectedColor.name}:${selectedColor.hex}`;
-        } else {
-            hiddenInput.value = '';
-        }
-    }
-
-    // Initialize color input as hidden
     document.addEventListener('DOMContentLoaded', function () {
-        document.getElementById('colorInputGroup').classList.add('hidden');
         // this to intialize cats
         $.ajax({
             url: "/Base/Categories",
@@ -423,11 +213,6 @@
                 console.error("Error:", error);
             }
         });
-        // intialize products 
-        // Initialize with no color selected
-        selectedColor = null;
-        // renderSelectedColor();
-        updateColorsInput();
     });
 
     // Image upload functionality
@@ -685,30 +470,7 @@
         removeInvalidFeedback(this);
     });
 
-    document.getElementById('stock').addEventListener('input', function () {
-        removeInvalidFeedback(this);
-    });
 
-    // Handle multi-select for sizes
-    document.getElementById('sizes').addEventListener('change', function () {
-        removeInvalidFeedback(this);
-        updateSelectedValues('sizes');
-    });
-
-    function updateSelectedValues(selectId) {
-        const select = document.getElementById(selectId);
-        const selectedOptions = Array.from(select.selectedOptions);
-        const selectedValues = selectedOptions.map(option => option.value);
-
-        // You can use this to update the model binding or display selected values
-        console.log(`Selected ${selectId}:`, selectedValues);
-
-        // If you need to store as comma-separated string for your model
-        const hiddenInput = document.querySelector(`input[name="stock.${selectId.charAt(0).toUpperCase() + selectId.slice(1)}"]`);
-        if (hiddenInput) {
-            hiddenInput.value = selectedValues.join(',');
-        }
-    }
 
     // Form validation
     const form = document.getElementById('productForm');
@@ -757,8 +519,6 @@
             }
         }
             
-        // Process selected sizes before submission
-        updateSelectedValues('sizes');
         $('#cataId').val($('#category option:selected').val());
         if (isValid) {
             this.submit();
@@ -766,74 +526,6 @@
             console.log('Selected colors:', selectedColors);
         } else {
             alert('Please fix the validation errors before submitting.');
-        }
-    });
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const quantityInput = document.getElementById('quantity');
-        const availableInput = document.getElementById('available');
-        const sizesSelect = document.getElementById('sizes');
-
-        // Remove invalid feedback when user starts typing
-        [quantityInput, availableInput].forEach(input => {
-            if (input) {
-                input.addEventListener('input', function () {
-                    this.classList.remove('is-invalid');
-                });
-            }
-        });
-
-        // Remove invalid feedback when user selects options
-        if (sizesSelect) {
-            sizesSelect.addEventListener('change', function () {
-                this.classList.remove('is-invalid');
-            });
-        }
-
-        // Validate that available quantity doesn't exceed total quantity
-        function validateQuantities() {
-            const quantity = parseInt(quantityInput.value) || 0;
-            const available = parseInt(availableInput.value) || 0;
-
-            if (available > quantity) {
-                availableInput.classList.add('is-invalid');
-                return false;
-            } else {
-                availableInput.classList.remove('is-invalid');
-                return true;
-            }
-        }
-
-        quantityInput.addEventListener('input', validateQuantities);
-        availableInput.addEventListener('input', validateQuantities);
-
-        // Update the form validation to include these new fields
-        const originalForm = document.getElementById('productForm');
-        if (originalForm) {
-            originalForm.addEventListener('submit', function (e) {
-                let isValid = true;
-
-                // Validate quantity and available fields
-                if (!quantityInput.value || parseInt(quantityInput.value) < 0) {
-                    quantityInput.classList.add('is-invalid');
-                    isValid = false;
-                }
-
-                if (!availableInput.value || parseInt(availableInput.value) < 0) {
-                    availableInput.classList.add('is-invalid');
-                    isValid = false;
-                }
-
-                // Validate that available doesn't exceed quantity
-                if (!validateQuantities()) {
-                    isValid = false;
-                }
-
-                if (!isValid) {
-                    e.preventDefault();
-                    alert('Please fix the validation errors in the stock information section.');
-                }
-            });
         }
     });
 

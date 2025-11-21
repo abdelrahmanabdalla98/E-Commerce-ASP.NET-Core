@@ -1,4 +1,4 @@
-﻿@model ShopDTO
+﻿@* @model ShopDTO
 
 @section cssFile {
     <link href="~/css/shop.css" rel="stylesheet" />
@@ -408,7 +408,7 @@
                                                             </div>
 
                                                             <div class="product_meta">
-                                                                <span class="sku_wrapper">SKU: <span class="sku">Stock:@prod.stock.stockId - @prod.stock.Id</span></span>
+                                                                <span class="sku_wrapper">SKU: <span class="sku">Stock:@prod.stock.StockId - @prod.stock.Id</span></span>
                                                                 <span class="posted_in">Category: <a href="shop.html">@prod.category.ParentCategory.ParentCategory.Name, @prod.category.ParentCategory.Name, @prod.category.Name</a></span>
                                                                 <span>Tags: <a href="shop.html">Fashion</a></span>
                                                             </div>
@@ -1344,4 +1344,4 @@
 
 @* <h3 class="product-title">
     <a href="#">@prod.Name</a>  //handle it later
-</h3> *@
+</h3> *@ 

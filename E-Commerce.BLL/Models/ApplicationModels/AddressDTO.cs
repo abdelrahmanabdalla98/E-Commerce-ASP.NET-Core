@@ -1,4 +1,4 @@
-﻿using E_Commerce.DAL.Database;
+﻿using E_Commerce.DAL.DB_Context;
 using E_Commerce.DAL.Entity;
 using E_Commerce.DAL.Entity_Extension;
 using Microsoft.AspNetCore.Mvc.Rendering;
